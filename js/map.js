@@ -46,15 +46,15 @@ function randomPassableTile() {
     return tile;
 }
 
-function generateMonsters(){
+function generateMonsters() {
     monsters = [];
-    let numMonsters = level+1;
-    for(let i=0;i<numMonsters;i++){
+    let numMonsters = level + 1;
+    for (let i = 0; i < numMonsters; i++) {
         spawnMonster();
     }
 }
 
-function spawnMonster(){
+function spawnMonster() {
     let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester])[0];
     let monster = new monsterType(randomPassableTile());
     monsters.push(monster);

@@ -26,25 +26,25 @@ function drawSprite(sprite, x, y) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for(let i=0;i<numTiles;i++){
-        for(let j=0;j<numTiles;j++){
-            getTile(i,j).draw();
+    for (let i = 0; i < numTiles; i++) {
+        for (let j = 0; j < numTiles; j++) {
+            getTile(i, j).draw();
         }
     }
 
-    for(let i=0;i<monsters.length;i++){
+    for (let i = 0; i < monsters.length; i++) {
         monsters[i].draw();
     }
 
     player.draw();
 }
 
-function tick(){
-    for(let k=monsters.length-1;k>=0;k--){
-        if(!monsters[k].dead){
+function tick() {
+    for (let k = monsters.length - 1; k >= 0; k--) {
+        if (!monsters[k].dead) {
             monsters[k].update();
-        }else{
-            monsters.splice(k,1);
+        } else {
+            monsters.splice(k, 1);
         }
     }
 }
