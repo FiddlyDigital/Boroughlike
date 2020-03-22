@@ -81,8 +81,8 @@ function showTitle() {
 
     gameState = "title";
 
-    drawText("SUPER", 40, true, canvas.height / 2 - 110, "white");
-    drawText("BROUGH BROS.", 70, true, canvas.height / 2 - 50, "white");
+    drawText("WASD to Move, 1-9 for Spells", 40, true, canvas.height / 2 - 110, "white");
+    drawText("Boroughlike", 70, true, canvas.height / 2 - 50, "white");
     drawScores();
 }
 
