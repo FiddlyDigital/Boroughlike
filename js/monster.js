@@ -3,6 +3,7 @@ class Monster {
         this.move(tile);
         this.sprite = sprite;
         this.hp = hp;
+        this.teleportCounter = 2;
     }
 
     heal(damage) {
@@ -10,7 +11,8 @@ class Monster {
     }
 
     update() {
-        if (this.stunned) {
+        this.teleportCounter--;
+        if (this.stunned || this.teleportCounter > 0) {
             this.stunned = false;
             return;
         }
@@ -31,8 +33,14 @@ class Monster {
     }
 
     draw() {
-        drawSprite(this.sprite, this.tile.x, this.tile.y);
-        this.drawHp();
+        if (this.teleportCounter > 0) {
+            drawSprite(10, this.tile.x, this.tile.y);
+        } else {
+
+            drawSprite(this.sprite, this.tile.x, this.tile.y);
+            this.drawHp();
+
+        }
     }
 
     drawHp() {
@@ -81,6 +89,7 @@ class Monster {
 
         this.tile = tile;
         tile.monster = this;
+        tile.stepOn(this);
     }
 }
 
@@ -88,6 +97,7 @@ class Player extends Monster {
     constructor(tile) {
         super(tile, 0, 3);
         this.isPlayer = true;
+        this.teleportCounter = 0;
     }
 
     tryMove(dx, dy) {
