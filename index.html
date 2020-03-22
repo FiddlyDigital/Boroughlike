@@ -43,6 +43,12 @@
 
         setInterval(draw, 15); // ever 15ms, or 60 fps
         setupCanvas();
+        generateLevel();
+
+        startingTile = randomPassableTile();
+        x = startingTile.x;
+        y = startingTile.y;
+
     </script>
 </body>
 
