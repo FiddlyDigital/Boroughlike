@@ -1,4 +1,4 @@
-const GAME = (function() {
+const GAME = (function () {
     const GAMESTATES = {
         LOADING: "Loading",
         TITLE: "Title",
@@ -14,7 +14,9 @@ const GAME = (function() {
 
     var gameState = GAMESTATES.LOADING;
     var startingHp = 3;
-    var numLevels = 6;
+    var numLevels = 10;
+
+    var spritesheet = null;
 
     var shakeAmount = 0;
     var shakeX = 0;
@@ -22,12 +24,12 @@ const GAME = (function() {
 
     var canvas = null;
     var ctx = null;
-    
+
     function getState() {
         return gameState;
     }
 
-    function getMaxHP(){
+    function getMaxHP() {
         return maxHp;
     }
 
@@ -35,15 +37,77 @@ const GAME = (function() {
         return level;
     }
 
+    function init() {
+        loadAssets();
+        setupCanvas();
+        addEventHandlers();
+        setInterval(draw, 15); // ever 15ms, or 60 fps
+    }
+
+    function loadAssets() {
+        SOUNDPLAYER.initSounds();
+
+        spritesheet = new Image();
+        spritesheet.src = 'spritesheet.png';
+        spritesheet.onload = showTitle;
+    }
+
     function setupCanvas() {
         canvas = document.querySelector("canvas");
         ctx = canvas.getContext("2d");
-    
+
         canvas.width = tileSize * (numTiles + uiWidth);
         canvas.height = tileSize * numTiles;
         canvas.style.width = canvas.width + 'px';
         canvas.style.height = canvas.height + 'px';
         ctx.imageSmoothingEnabled = false;
+    }
+
+    function addEventHandlers() {
+        document.querySelector("html").onkeydown = function (e) {
+            switch (getState()) {
+                case GAMESTATES.TITLE:
+                    startGame();
+                    break;
+                case GAMESTATES.GAMEOVER:
+                    showTitle();
+                    break;
+                case GAMESTATES.RUNNING:
+                    handleKeypress(e);
+                    break;
+            }
+        };
+    }
+
+    function handleKeypress(e) {
+        e = e || window.event;
+        if (e.defaultPrevented) {
+            return; // Do nothing if the event was already processed
+        }
+
+        switch (e.key) {
+            case "Up": case "ArrowUp":
+            case "w": case "W":
+                player.tryMove(0, -1)
+                break;
+            case "Down": case "ArrowDown":
+            case "s": case "S":
+                player.tryMove(0, 1);
+                break;
+            case "Left": case "ArrowLeft":
+            case "a": case "A":
+                player.tryMove(-1, 0);
+                break;
+            case "Right": case "ArrowRight":
+            case "d": case "D":
+                player.tryMove(1, 0);
+                break;
+            case 1: case "1": case 2: case "2": case 3: case "3":
+            case 4: case "4": case 5: case "5": case 6: case "6":
+            case 7: case "7": case 8: case "8": case 9: case "9":
+                player.castSpell(parseInt(e.key) - 1);
+                break;
+        }
     }
 
     function drawSprite(sprite, x, y, effectCounter) {
@@ -67,24 +131,24 @@ const GAME = (function() {
     function draw() {
         if (gameState == GAMESTATES.RUNNING || gameState == GAMESTATES.GAMEOVER) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
             screenshake();
-    
+
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
                     MAP.getTile(i, j).draw();
                 }
             }
-    
+
             for (let i = 0; i < MAP.getMonsters().length; i++) {
                 MAP.getMonsters()[i].draw();
             }
-    
+
             player.draw();
-    
+
             drawText("Level: " + level, 30, false, 40, "violet");
             drawText("Score: " + score, 30, false, 70, "violet");
-    
+
             for (let i = 0; i < player.spells.length; i++) {
                 let spellText = (i + 1) + ") " + (player.spells[i] || "");
                 drawText(spellText, 20, false, 110 + i * 40, "aqua");
@@ -100,14 +164,14 @@ const GAME = (function() {
                 MAP.getMonsters().splice(k, 1);
             }
         }
-    
+
         player.update();
-    
+
         if (player.dead) {
             addScore(score, false);
             gameState = GAMESTATES.GAMEOVER;
         }
-    
+
         spawnCounter--;
         if (spawnCounter <= 0) {
             MAP.spawnMonster();
@@ -119,9 +183,9 @@ const GAME = (function() {
     function showTitle() {
         ctx.fillStyle = 'rgba(0,0,0,.75)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
         gameState = GAMESTATES.TITLE;
-    
+
         drawText("WASD to Move, 1-9 for Spells", 40, true, canvas.height / 2 - 110, "white");
         drawText("Boroughlike", 70, true, canvas.height / 2 - 50, "white");
         drawScores();
@@ -132,10 +196,10 @@ const GAME = (function() {
         score = 0;
         numSpells = 1;
         startLevel(startingHp);
-    
+
         gameState = GAMESTATES.RUNNING;
     }
-    
+
     function startLevel(playerHp, playerSpells) {
         spawnRate = 15;
         spawnCounter = spawnRate;
@@ -144,6 +208,7 @@ const GAME = (function() {
 
         player = new Player(MAP.randomPassableTile());
         player.hp = playerHp;
+
         if (playerSpells) {
             player.spells = playerSpells;
         }
@@ -154,14 +219,14 @@ const GAME = (function() {
     function drawText(text, size, centered, textY, color) {
         ctx.fillStyle = color;
         ctx.font = size + "px monospace";
-    
+
         let textX;
         if (centered) {
             textX = (canvas.width - ctx.measureText(text).width) / 2;
         } else {
             textX = canvas.width - uiWidth * tileSize + 25;
         }
-    
+
         ctx.fillText(text, textX, textY);
     }
 
@@ -177,7 +242,7 @@ const GAME = (function() {
         let scores = getScores();
         let scoreObject = { score: score, run: 1, totalScore: score, active: won };
         let lastScore = scores.pop();
-    
+
         if (lastScore) {
             if (lastScore.active) {
                 scoreObject.run = lastScore.run + 1;
@@ -187,7 +252,7 @@ const GAME = (function() {
             }
         }
         scores.push(scoreObject);
-    
+
         localStorage["scores"] = JSON.stringify(scores);
     }
 
@@ -201,13 +266,13 @@ const GAME = (function() {
                 canvas.height / 2,
                 "white"
             );
-    
+
             let newestScore = scores.pop();
             scores.sort(function (a, b) {
                 return b.totalScore - a.totalScore;
             });
             scores.unshift(newestScore);
-    
+
             for (let i = 0; i < Math.min(10, scores.length); i++) {
                 let scoreText = UTILITIES.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
                 drawText(
@@ -225,7 +290,7 @@ const GAME = (function() {
         if (shakeAmount) {
             shakeAmount--;
         }
-    
+
         let shakeAngle = Math.random() * Math.PI * 2;
         shakeX = Math.round(Math.cos(shakeAngle) * shakeAmount);
         shakeY = Math.round(Math.sin(shakeAngle) * shakeAmount);
@@ -235,7 +300,7 @@ const GAME = (function() {
         shakeAmount = amt;
     }
 
-    function nextLevel() {        
+    function nextLevel() {
         if (level == numLevels) {
             // TODO: SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.GAMEWIN);
             addScore(score, true);
@@ -256,8 +321,12 @@ const GAME = (function() {
             numSpells++;
             player.addSpell();
         }
-            
+
         MAP.spawnMonster();
+    }
+
+    function getPlayerTile() {
+        return player.tile;
     }
 
     return {
@@ -265,10 +334,13 @@ const GAME = (function() {
         draw: draw,
         drawSprite: drawSprite,
         GAMESTATES: GAMESTATES,
-        getLevel: getLevel,        
+        getLevel: getLevel,
         getMaxHP: getMaxHP,
+        getPlayerTile: getPlayerTile,
         getState: getState,
         incrementScore: incrementScore,
+        init: init,
+        loadAssets: loadAssets,
         nextLevel: nextLevel,
         setShakeAmount: setShakeAmount,
         setupCanvas: setupCanvas,

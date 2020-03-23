@@ -29,8 +29,10 @@ class Monster {
 
         neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer);
 
+        let playerTile = GAME.getPlayerTile();
+
         if (neighbors.length) {
-            neighbors.sort((a, b) => a.dist(player.tile) - b.dist(player.tile));
+            neighbors.sort((a, b) => a.dist(playerTile) - b.dist(playerTile));
             let newTile = neighbors[0];
             this.tryMove(newTile.x - this.tile.x, newTile.y - this.tile.y);
         }

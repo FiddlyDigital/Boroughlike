@@ -22,9 +22,6 @@ spells = {
             MAP.getMonsters()[i].teleportCounter = 2;
         }
     },
-    MULLIGAN: function () {
-        GAME.startLevel(1, player.spells);
-    },
     AURA: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
             t.setEffect(13);
@@ -38,7 +35,7 @@ spells = {
     DASH: function (caster) {
         let newTile = caster.tile;
         while (true) {
-            let testTile = newTile.getNeighbor(caster.lastMove[0], player.lastMove[1]);
+            let testTile = newTile.getNeighbor(caster.lastMove[0], caster.lastMove[1]);
             if (testTile.passable && !testTile.monster) {
                 newTile = testTile;
             } else {
