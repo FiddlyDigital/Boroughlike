@@ -102,9 +102,9 @@ class Monster {
         }
 
         if (this.isPlayer) {
-            playSound("hit1");
+            playSound(SOUNDFX.PLAYERHIT);
         } else {
-            playSound("hit2");
+            playSound(SOUNDFX.MONSTERHIT);
         }
     }
 
@@ -155,7 +155,7 @@ class Player extends Monster {
         if (spellName){
             delete this.spells[index];
             spells[spellName](this);
-            playSound("spell");
+            playSound(SOUNDFX.SPELL);
             tick();
         }
     }

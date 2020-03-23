@@ -80,7 +80,7 @@ class Floor extends Tile {
                 numSpells++;                
                 player.addSpell();            
             } 
-            playSound("treasure");
+            playSound(SOUNDFX.TREASURE);
             this.treasure = false;
             spawnMonster();
         }
@@ -100,7 +100,7 @@ class Exit extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer) {
-            playSound("newLevel");
+            playSound(SOUNDFX.NEWLEVEL);
             if (level == numLevels) {
                 addScore(score, true);
                 showTitle();
