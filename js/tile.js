@@ -20,7 +20,7 @@ class Tile {
     }
 
     getAdjacentNeighbors() {
-        return shuffle([
+        return UTILITIES.shuffle([
             this.getNeighbor(0, -1),
             this.getNeighbor(0, 1),
             this.getNeighbor(-1, 0),
@@ -80,7 +80,7 @@ class Floor extends Tile {
                 numSpells++;                
                 player.addSpell();            
             } 
-            playSound(SOUNDFX.TREASURE);
+            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.TREASURE);
             this.treasure = false;
             spawnMonster();
         }
@@ -100,7 +100,7 @@ class Exit extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer) {
-            playSound(SOUNDFX.NEWLEVEL);
+            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.NEWLEVEL);
             if (level == numLevels) {
                 addScore(score, true);
                 showTitle();

@@ -161,7 +161,7 @@ function drawScores() {
     let scores = getScores();
     if (scores.length) {
         drawText(
-            rightPad(["RUN", "SCORE", "TOTAL"]),
+            UTILITIES.rightPad(["RUN", "SCORE", "TOTAL"]),
             18,
             true,
             canvas.height / 2,
@@ -175,7 +175,7 @@ function drawScores() {
         scores.unshift(newestScore);
 
         for (let i = 0; i < Math.min(10, scores.length); i++) {
-            let scoreText = rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
+            let scoreText = UTILITIES.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
             drawText(
                 scoreText,
                 18,

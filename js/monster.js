@@ -102,9 +102,9 @@ class Monster {
         }
 
         if (this.isPlayer) {
-            playSound(SOUNDFX.PLAYERHIT);
+            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.PLAYERHIT);
         } else {
-            playSound(SOUNDFX.MONSTERHIT);
+            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.MONSTERHIT);
         }
     }
 
@@ -132,7 +132,7 @@ class Player extends Monster {
         super(tile, 0, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = shuffle(Object.keys(spells)).splice(0,numSpells);
+        this.spells = UTILITIES.shuffle(Object.keys(spells)).splice(0,numSpells);
     }
 
     update(){          
@@ -146,7 +146,7 @@ class Player extends Monster {
     }
 
     addSpell(){                                                       
-        let newSpell = shuffle(Object.keys(spells))[0];
+        let newSpell = UTILITIES.shuffle(Object.keys(spells))[0];
         this.spells.push(newSpell);
     }
 
@@ -155,7 +155,7 @@ class Player extends Monster {
         if (spellName){
             delete this.spells[index];
             spells[spellName](this);
-            playSound(SOUNDFX.SPELL);
+            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.SPELL);
             tick();
         }
     }

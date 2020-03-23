@@ -20,11 +20,11 @@
 
     <script src="js/game.js"></script>
     <script src="js/map.js"></script>
-    <script src="js/tile.js"></script>
     <script src="js/monster.js"></script>
-    <script src="js/util.js"></script>
-    <script src="js/spell.js"></script>
     <script src="js/soundPlayer.js"></script>
+    <script src="js/spell.js"></script>
+    <script src="js/tile.js"></script>
+    <script src="js/utilities.js"></script>
 
     <script>
         tileSize = 64;
@@ -46,7 +46,7 @@
         shakeY = 0;
 
         document.querySelector("html").onkeydown = function (e) {
-            switch(gameState) {
+            switch (gameState) {
                 case GAMESTATES.TITLE:
                     startGame();
                     break;
@@ -66,48 +66,39 @@
             }
 
             switch (e.key) {
-                case "Up":
-                case "ArrowUp":
-                case "w":
-                case "W":
+                case "Up": case "ArrowUp":
+                case "w": case "W":
                     player.tryMove(0, -1)
                     break;
-                case "Down":
-                case "ArrowDown":
-                case "s":
-                case "S":
+                case "Down": case "ArrowDown":
+                case "s": case "S":
                     player.tryMove(0, 1);
                     break;
-                case "Left":
-                case "ArrowLeft":
-                case "a":
-                case "A":
+                case "Left": case "ArrowLeft":
+                case "a": case "A":
                     player.tryMove(-1, 0);
                     break;
-                case "Right":
-                case "ArrowRight":
-                case "d":
-                case "D":
+                case "Right": case "ArrowRight":
+                case "d": case "D":
                     player.tryMove(1, 0);
                     break;
                 case 1: case "1":
                 case 2: case "2":
                 case 3: case "3":
                 case 4: case "4":
-                case 5: case "5":                    
+                case 5: case "5":
                 case 6: case "6":
                 case 7: case "7":
                 case 8: case "8":
                 case 9: case "9":
-                    player.castSpell( parseInt(e.key) -1);
+                    player.castSpell(parseInt(e.key) - 1);
                     break;
             }
         }
 
         setInterval(draw, 15); // ever 15ms, or 60 fps
         setupCanvas();
-        initSounds();
-
+        SOUNDPLAYER.initSounds();
     </script>
 </body>
 
