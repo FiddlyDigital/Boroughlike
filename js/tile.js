@@ -16,7 +16,7 @@ class Tile {
     }
 
     getNeighbor(dx, dy) {
-        return getTile(this.x + dx, this.y + dy)
+        return MAP.getTile(this.x + dx, this.y + dy)
     }
 
     getAdjacentNeighbors() {
@@ -82,7 +82,7 @@ class Floor extends Tile {
             } 
             SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.TREASURE);
             this.treasure = false;
-            spawnMonster();
+            MAP.spawnMonster();
         }
     }
 }

@@ -1,8 +1,8 @@
 const GAMESTATES = {
     LOADING: "Loading",
     TITLE: "Title",
-    RUNNING : "Running",
-    GAMEOVER : "Gameover"
+    RUNNING: "Running",
+    GAMEOVER: "Gameover"
 }
 
 function setupCanvas() {
@@ -38,12 +38,12 @@ function draw() {
 
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                getTile(i, j).draw();
+                MAP.getTile(i, j).draw();
             }
         }
 
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].draw();
+        for (let i = 0; i < MAP.getMonsters().length; i++) {
+            MAP.getMonsters()[i].draw();
         }
 
         player.draw();
@@ -51,19 +51,19 @@ function draw() {
         drawText("Level: " + level, 30, false, 40, "violet");
         drawText("Score: " + score, 30, false, 70, "violet");
 
-        for(let i=0; i<player.spells.length; i++){
-            let spellText = (i+1) + ") " + (player.spells[i] || "");                        
-            drawText(spellText, 20, false, 110+i*40, "aqua");        
+        for (let i = 0; i < player.spells.length; i++) {
+            let spellText = (i + 1) + ") " + (player.spells[i] || "");
+            drawText(spellText, 20, false, 110 + i * 40, "aqua");
         }
     }
 }
 
 function tick() {
-    for (let k = monsters.length - 1; k >= 0; k--) {
-        if (!monsters[k].dead) {
-            monsters[k].update();
+    for (let k = MAP.getMonsters().length - 1; k >= 0; k--) {
+        if (!MAP.getMonsters()[k].dead) {
+            MAP.getMonsters()[k].update();
         } else {
-            monsters.splice(k, 1);
+            MAP.getMonsters().splice(k, 1);
         }
     }
 
@@ -76,7 +76,7 @@ function tick() {
 
     spawnCounter--;
     if (spawnCounter <= 0) {
-        spawnMonster();
+        MAP.spawnMonster();
         spawnCounter = spawnRate;
         spawnRate--;
     }
@@ -106,15 +106,15 @@ function startLevel(playerHp, playerSpells) {
     spawnRate = 15;
     spawnCounter = spawnRate;
 
-    generateLevel();
+    MAP.generateLevel(numTiles, level);
 
-    player = new Player(randomPassableTile());
+    player = new Player(MAP.randomPassableTile());
     player.hp = playerHp;
-    if (playerSpells){
+    if (playerSpells) {
         player.spells = playerSpells;
-    } 
+    }
 
-    randomPassableTile().replace(Exit);
+    MAP.randomPassableTile().replace(Exit);
 }
 
 function drawText(text, size, centered, textY, color) {
@@ -191,6 +191,7 @@ function screenshake() {
     if (shakeAmount) {
         shakeAmount--;
     }
+
     let shakeAngle = Math.random() * Math.PI * 2;
     shakeX = Math.round(Math.cos(shakeAngle) * shakeAmount);
     shakeY = Math.round(Math.sin(shakeAngle) * shakeAmount);

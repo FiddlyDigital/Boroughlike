@@ -206,7 +206,7 @@ class Eater extends Monster {
     }
 
     doStuff() {
-        let neighbors = this.tile.getAdjacentNeighbors().filter(t => !t.passable && inBounds(t.x, t.y));
+        let neighbors = this.tile.getAdjacentNeighbors().filter(t => !t.passable && MAP.inBounds(t.x, t.y));
         if (neighbors.length) {
             neighbors[0].replace(Floor);
             this.heal(0.5);

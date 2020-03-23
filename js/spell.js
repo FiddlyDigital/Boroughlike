@@ -1,11 +1,11 @@
 spells = {
     WOOP: function (caster) {
-        caster.move(randomPassableTile());
+        caster.move(MAP.randomPassableTile());
     },
     QUAKE: function (caster) {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = getTile(i, j);
+                let tile = MAP.getTile(i, j);
                 if (tile.monster && tile.monster != caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
@@ -15,9 +15,9 @@ spells = {
         shakeAmount = 20;
     },
     MAELSTROM: function () {
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].move(randomPassableTile());
-            monsters[i].teleportCounter = 2;
+        for (let i = 0; i < MAP.getMonsters().length; i++) {
+            MAP.getMonsters()[i].move(MAP.randomPassableTile());
+            MAP.getMonsters()[i].teleportCounter = 2;
         }
     },
     MULLIGAN: function () {
@@ -57,7 +57,7 @@ spells = {
     DIG: function (caster) {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
-                let tile = getTile(i, j);
+                let tile = MAP.getTile(i, j);
                 if (!tile.passable) {
                     tile.replace(Floor);
                 }
@@ -67,14 +67,14 @@ spells = {
         caster.heal(2);
     },
     KINGMAKER: function () {
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].heal(1);
-            monsters[i].tile.treasure = true;
+        for (let i = 0; i < MAP.getMonsters().length; i++) {
+            MAP.getMonsters()[i].heal(1);
+            MAP.getMonsters()[i].tile.treasure = true;
         }
     },
     ALCHEMY: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if (!t.passable && inBounds(t.x, t.y)) {
+            if (!t.passable && MAP.inBounds(t.x, t.y)) {
                 t.replace(Floor).treasure = true;
             }
         });
@@ -91,8 +91,8 @@ spells = {
     },
     BRAVERY: function (caster) {
         caster.shield = 2;
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].stunned = true;
+        for (let i = 0; i < MAP.getMonsters().length; i++) {
+            MAP.getMonsters()[i].stunned = true;
         }
     },
     BOLT: function(caster){
