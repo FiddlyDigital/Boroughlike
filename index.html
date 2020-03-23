@@ -27,33 +27,19 @@
     <script src="js/utilities.js"></script>
 
     <script>
-        tileSize = 64;
-        numTiles = 12;
-        uiWidth = 3;
-        level = 1;
-        maxHp = 6;
-
         spritesheet = new Image();
         spritesheet.src = 'spritesheet.png';
-        spritesheet.onload = showTitle;
-
-        gameState = GAMESTATES.LOADING;
-        startingHp = 3;
-        numLevels = 6;
-
-        shakeAmount = 0;
-        shakeX = 0;
-        shakeY = 0;
+        spritesheet.onload = GAME.showTitle;
 
         document.querySelector("html").onkeydown = function (e) {
-            switch (gameState) {
-                case GAMESTATES.TITLE:
-                    startGame();
+            switch (GAME.getState()) {
+                case GAME.GAMESTATES.TITLE:
+                    GAME.startGame();
                     break;
-                case GAMESTATES.GAMEOVER:
-                    showTitle();
+                case GAME.GAMESTATES.GAMEOVER:
+                    GAME.showTitle();
                     break;
-                case GAMESTATES.RUNNING:
+                case GAME.GAMESTATES.RUNNING:
                     handleKeypress(e);
                     break;
             }
@@ -96,9 +82,10 @@
             }
         }
 
-        setInterval(draw, 15); // ever 15ms, or 60 fps
-        setupCanvas();
+        GAME.setupCanvas();
+        setInterval(GAME.draw, 15); // ever 15ms, or 60 fps
         SOUNDPLAYER.initSounds();
+        
     </script>
 </body>
 

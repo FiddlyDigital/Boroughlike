@@ -46,23 +46,20 @@ class Tile {
     }
 
     draw() {
-        drawSprite(this.sprite, this.x, this.y);
+        GAME.drawSprite(this.sprite, this.x, this.y);
 
         if (this.treasure) {
-            drawSprite(12, this.x, this.y);
+            GAME.drawSprite(12, this.x, this.y);
         }
 
-        if(this.effectCounter) {                    
+        if (this.effectCounter) {
             this.effectCounter--;
-            ctx.globalAlpha = this.effectCounter/30;
-            drawSprite(this.effect, this.x, this.y);
-            ctx.globalAlpha = 1;
+            
+            GAME.drawSprite(this.effect, this.x, this.y, this.effectCounter);
         }
-
-        
     }
 
-    setEffect(effectSprite) {                                  
+    setEffect(effectSprite) {
         this.effect = effectSprite;
         this.effectCounter = 30;
     }
@@ -75,14 +72,8 @@ class Floor extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer && this.treasure) {
-            score++;
-            if (score % 3 == 0 && numSpells < 9){                         
-                numSpells++;                
-                player.addSpell();            
-            } 
-            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.TREASURE);
+            GAME.incrementScore();
             this.treasure = false;
-            MAP.spawnMonster();
         }
     }
 }
@@ -100,14 +91,7 @@ class Exit extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer) {
-            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.NEWLEVEL);
-            if (level == numLevels) {
-                addScore(score, true);
-                showTitle();
-            } else {
-                level++;
-                startLevel(Math.min(maxHp, player.hp + 1));
-            }
+            GAME.nextLevel();
         }
     }
 }

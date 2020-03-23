@@ -11,7 +11,7 @@ class Monster {
     }
 
     heal(damage) {
-        this.hp = Math.min(maxHp, this.hp + damage);
+        this.hp = Math.min(GAME.getMaxHP(), this.hp + damage);
     }
 
     update() {
@@ -46,9 +46,9 @@ class Monster {
 
     draw() {
         if (this.teleportCounter > 0) {
-            drawSprite(10, this.getDisplayX(), this.getDisplayY());
+            GAME.drawSprite(10, this.getDisplayX(), this.getDisplayY());
         } else {
-            drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
+            GAME.drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
             this.drawHp();
         }
 
@@ -58,7 +58,7 @@ class Monster {
 
     drawHp() {
         for (let i = 0; i < this.hp; i++) {
-            drawSprite(
+            GAME.drawSprite(
                 9,
                 this.getDisplayX() + (i % 3) * (5 / 16),
                 this.getDisplayY() - Math.floor(i / 3) * (5 / 16)
@@ -80,8 +80,8 @@ class Monster {
                     newTile.monster.stunned = true;
                     newTile.monster.hit(1 + this.bonusAttack);
                     this.bonusAttack = 0;
-
-                    shakeAmount = 5;
+                    
+                    GAME.setShakeAmount(5)
 
                     this.offsetX = (newTile.x - this.tile.x) / 2;
                     this.offsetY = (newTile.y - this.tile.y) / 2;
@@ -141,7 +141,7 @@ class Player extends Monster {
 
     tryMove(dx, dy) {
         if (super.tryMove(dx, dy)) {
-            tick();
+            GAME.tick();
         }
     }
 
@@ -156,7 +156,7 @@ class Player extends Monster {
             delete this.spells[index];
             spells[spellName](this);
             SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.SPELL);
-            tick();
+            GAME.tick();
         }
     }
 }

@@ -7,6 +7,10 @@ const MAP = (function () {
         return monsters;
     }
 
+    function getNumTiles() {
+        return numTiles;
+    }
+
     function generateLevel(nt, lvl) {
         numTiles = nt;
         level = lvl;
@@ -77,10 +81,11 @@ const MAP = (function () {
     }
 
     return {
-        getMonsters: getMonsters,
         generateLevel: generateLevel,
-        inBounds: inBounds,
+        getMonsters: getMonsters,
+        getNumTiles: getNumTiles,
         getTile: getTile,
+        inBounds: inBounds,
         randomPassableTile: randomPassableTile,
         spawnMonster: spawnMonster
     }

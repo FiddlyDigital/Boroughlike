@@ -3,6 +3,7 @@ spells = {
         caster.move(MAP.randomPassableTile());
     },
     QUAKE: function (caster) {
+        let numTiles = MAP.getNumTiles();
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = MAP.getTile(i, j);
@@ -12,7 +13,8 @@ spells = {
                 }
             }
         }
-        shakeAmount = 20;
+
+        GAME.setShakeAmount(20);
     },
     MAELSTROM: function () {
         for (let i = 0; i < MAP.getMonsters().length; i++) {
@@ -21,7 +23,7 @@ spells = {
         }
     },
     MULLIGAN: function () {
-        startLevel(1, player.spells);
+        GAME.startLevel(1, player.spells);
     },
     AURA: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
@@ -55,6 +57,7 @@ spells = {
         }
     },
     DIG: function (caster) {
+        let numTiles = MAP.getNumTiles();
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = MAP.getTile(i, j);

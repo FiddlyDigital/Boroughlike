@@ -25,8 +25,8 @@ const SOUNDPLAYER = (function(){
     }
 
     return {
-        SOUNDFX: SOUNDFX,
         initSounds: initSounds,
-        playSound: playSound
+        playSound: playSound,
+        SOUNDFX: SOUNDFX
     };
 }());
