@@ -1,3 +1,10 @@
+GAMESTATES = {
+    LOADING: "Loading",
+    TITLE: "Title",
+    RUNNING : "Running",
+    GAMEOVER : "Gameover"
+}
+
 function setupCanvas() {
     canvas = document.querySelector("canvas");
     ctx = canvas.getContext("2d");
@@ -24,7 +31,7 @@ function drawSprite(sprite, x, y) {
 }
 
 function draw() {
-    if (gameState == "running" || gameState == "dead") {
+    if (gameState == GAMESTATES.RUNNING || gameState == GAMESTATES.GAMEOVER) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         screenshake();
@@ -64,7 +71,7 @@ function tick() {
 
     if (player.dead) {
         addScore(score, false);
-        gameState = "dead";
+        gameState = GAMESTATES.GAMEOVER;
     }
 
     spawnCounter--;
@@ -79,7 +86,7 @@ function showTitle() {
     ctx.fillStyle = 'rgba(0,0,0,.75)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    gameState = "title";
+    gameState = GAMESTATES.TITLE;
 
     drawText("WASD to Move, 1-9 for Spells", 40, true, canvas.height / 2 - 110, "white");
     drawText("Boroughlike", 70, true, canvas.height / 2 - 50, "white");
@@ -92,7 +99,7 @@ function startGame() {
     numSpells = 1;
     startLevel(startingHp);
 
-    gameState = "running";
+    gameState = GAMESTATES.RUNNING;
 }
 
 function startLevel(playerHp, playerSpells) {
