@@ -14,7 +14,7 @@ spells = {
             }
         }
 
-        GAME.setShakeAmount(20);
+        RENDERER.setShakeAmount(20);
     },
     MAELSTROM: function () {
         for (let i = 0; i < MAP.getMonsters().length; i++) {
