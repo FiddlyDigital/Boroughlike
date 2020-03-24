@@ -46,16 +46,16 @@ class Tile {
     }
 
     draw() {
-        RENDERER.drawSprite(this.sprite, this.x, this.y);
+        renderer.drawSprite(this.sprite, this.x, this.y);
 
         if (this.treasure) {
-            RENDERER.drawSprite(12, this.x, this.y);
+            renderer.drawSprite(12, this.x, this.y);
         }
 
         if (this.effectCounter) {
             this.effectCounter--;
 
-            RENDERER.drawSprite(this.effect, this.x, this.y, this.effectCounter);
+            renderer.drawSprite(this.effect, this.x, this.y, this.effectCounter);
         }
     }
 

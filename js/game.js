@@ -29,7 +29,7 @@ const GAME = (function () {
     function init() {
         loadAssets();
         
-        RENDERER.setupCanvas(numTiles);
+        renderer.setupCanvas(numTiles);
         addEventHandlers();
         
         setInterval(draw, 15); // ever 15ms, or 60 fps
@@ -37,7 +37,7 @@ const GAME = (function () {
 
     function loadAssets() {
         audioPlayer.initSounds();
-        RENDERER.initSpriteSheet(showTitle);
+        renderer.initSpriteSheet(showTitle);
     }
 
     function addEventHandlers() {
@@ -89,8 +89,8 @@ const GAME = (function () {
 
     function draw() {
         if (gameState == GAMESTATES.RUNNING || gameState == GAMESTATES.GAMEOVER) {
-            RENDERER.clearCanvas();
-            RENDERER.screenshake();
+            renderer.clearCanvas();
+            renderer.screenshake();
 
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
@@ -104,12 +104,12 @@ const GAME = (function () {
 
             player.draw();
 
-            RENDERER.drawText("Level: " + level, 30, false, 40, "violet");
-            RENDERER.drawText("Score: " + score, 30, false, 70, "violet");
+            renderer.drawText("Level: " + level, 30, false, 40, "violet");
+            renderer.drawText("Score: " + score, 30, false, 70, "violet");
 
             for (let i = 0; i < player.spells.length; i++) {
                 let spellText = (i + 1) + ") " + (player.spells[i] || "");
-                RENDERER.drawText(spellText, 20, false, 110 + i * 40, "aqua");
+                renderer.drawText(spellText, 20, false, 110 + i * 40, "aqua");
             }
         }
     }
@@ -140,7 +140,7 @@ const GAME = (function () {
 
     function showTitle() {
         gameState = GAMESTATES.TITLE;
-        RENDERER.showTitle();
+        renderer.showTitle();
         drawScores();
     }
 
@@ -198,7 +198,7 @@ const GAME = (function () {
     function drawScores() {
         let scores = getScores();
         if (scores.length) {
-            RENDERER.drawScores(scores);
+            renderer.drawScores(scores);
         }
     }
 

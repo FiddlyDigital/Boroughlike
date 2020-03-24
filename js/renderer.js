@@ -1,95 +1,99 @@
-var RENDERER = (function () {
-    var spritesheet = null;
+class Renderer {
+    constructor() {
+        if (!Renderer.instance){
+            this.spritesheet = new Image();
+            this.shake = {
+                amount: 0,
+                x: 0,
+                y: 0
+            };
 
-    var tileSize = 48;
-    var numTiles = 16;
-    var uiWidth = 4;
+            this.tileSize = 48;
+            this.numTiles = 16;
+            this.uiWidth = 4;
 
-    var shakeAmount = 0;
-    var shakeX = 0;
-    var shakeY = 0;
+            this.canvas = document.querySelector("canvas");
+            this.ctx = this.canvas.getContext("2d");
 
-    var canvas = null;
-    var ctx = null;
+            Renderer.instance = this;
+        }
 
-    function initSpriteSheet(callback) {
-        spritesheet = new Image();
-        spritesheet.src = 'spritesheet.png';
-        spritesheet.onload = callback;
+        return Renderer.instance;
     }
 
-    function setupCanvas(nt) {
-        numTiles = nt;
-        canvas = document.querySelector("canvas");
-        ctx = canvas.getContext("2d");
-
-        canvas.width = tileSize * (numTiles + uiWidth);
-        canvas.height = tileSize * numTiles;
-        canvas.style.width = canvas.width + 'px';
-        canvas.style.height = canvas.height + 'px';
-        ctx.imageSmoothingEnabled = false;
+    initSpriteSheet(callback) {        
+        this.spritesheet.src = 'spritesheet.png';
+        this.spritesheet.onload = callback;
     }
 
-    function drawSprite(sprite, x, y, effectCounter) {
-        ctx.globalAlpha = effectCounter / 30;
+    setupCanvas() {
+        this.canvas.width = this.tileSize * (this.numTiles + this.uiWidth);
+        this.canvas.height = this.tileSize * this.numTiles;
+        this.canvas.style.width = this.canvas.width + 'px';
+        this.canvas.style.height = this.canvas.height + 'px';
+        this.ctx.imageSmoothingEnabled = false;
+    }
 
-        ctx.drawImage(
-            spritesheet,
+    drawSprite(sprite, x, y, effectCounter) {
+        this.ctx.globalAlpha = effectCounter / 30;
+
+        this.ctx.drawImage(
+            this.spritesheet,
             sprite * 16,
             0,
             16,
             16,
-            x * tileSize + shakeX,
-            y * tileSize + shakeY,
-            tileSize,
-            tileSize
+            x * this.tileSize + this.shake.x,
+            y * this.tileSize + this.shake.y,
+            this.tileSize,
+            this.tileSize
         );
 
-        ctx.globalAlpha = 1;
+        this.ctx.globalAlpha = 1;
     }
 
-    function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    function screenshake() {
-        if (shakeAmount) {
-            shakeAmount--;
+    screenshake() {
+        if (this.shake.amount) {
+            this.shake.amount--;
         }
 
         let shakeAngle = Math.random() * Math.PI * 2;
-        shakeX = Math.round(Math.cos(shakeAngle) * shakeAmount);
-        shakeY = Math.round(Math.sin(shakeAngle) * shakeAmount);
+        this.shake.x = Math.round(Math.cos(shakeAngle) * this.shake.amount);
+        this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    function showTitle() {
-        ctx.fillStyle = 'rgba(0,0,0,.75)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    showTitle() {
+        this.ctx.fillStyle = 'rgba(0,0,0,.75)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        drawText("WASD to Move, 1-9 for Spells", 40, true, canvas.height / 2 - 110, "white");
-        drawText("Boroughlike", 70, true, canvas.height / 2 - 50, "white");
+        this.drawText("WASD to Move, 1-9 for Spells", 40, true, this.canvas.height / 2 - 110, "white");
+        this.drawText("Boroughlike", 70, true, this.canvas.height / 2 - 50, "white");
     }
 
-    function drawText(text, size, centered, textY, color) {
-        ctx.fillStyle = color;
-        ctx.font = size + "px monospace";
+    drawText(text, size, centered, textY, color) {
+        this.ctx.fillStyle = color;
+        this.ctx.font = size + "px monospace";
 
         let textX;
         if (centered) {
-            textX = (canvas.width - ctx.measureText(text).width) / 2;
+            textX = (this.canvas.width - this.ctx.measureText(text).width) / 2;
         } else {
-            textX = canvas.width - uiWidth * tileSize + 25;
+            textX = this.canvas.width - this.uiWidth * this.tileSize + 25;
         }
 
-        ctx.fillText(text, textX, textY);
+        this.ctx.fillText(text, textX, textY);
     }
 
-    function drawScores(scores) {
-        drawText(
+    drawScores(scores) {
+        this.drawText(
             Utilities.rightPad(["RUN", "SCORE", "TOTAL"]),
             18,
             true,
-            canvas.height / 2,
+            this.canvas.height / 2,
             "white"
         );
 
@@ -101,29 +105,22 @@ var RENDERER = (function () {
 
         for (let i = 0; i < Math.min(10, scores.length); i++) {
             let scoreText = Utilities.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
-            drawText(
+            this.drawText(
                 scoreText,
                 18,
                 true,
-                canvas.height / 2 + 24 + i * 24,
+                this.canvas.height / 2 + 24 + i * 24,
                 i == 0 ? "aqua" : "violet"
             );
         }
     }
 
-    function setShakeAmount(amt) {
-        shakeAmount = amt;
+    setShakeAmount(amt) {
+        this.shake.amount = amt;
     }
+}
 
-    return {
-        clearCanvas: clearCanvas,
-        drawSprite: drawSprite,
-        drawScores: drawScores,
-        drawText: drawText,
-        initSpriteSheet: initSpriteSheet,
-        screenshake: screenshake,
-        setShakeAmount: setShakeAmount,
-        setupCanvas: setupCanvas,
-        showTitle: showTitle
-    }
-}());
+const renderer = new Renderer();
+Object.freeze(renderer);
+
+//export default renderer;

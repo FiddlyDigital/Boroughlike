@@ -48,9 +48,9 @@ class Monster {
 
     draw() {
         if (this.teleportCounter > 0) {
-            RENDERER.drawSprite(10, this.getDisplayX(), this.getDisplayY());
+            renderer.drawSprite(10, this.getDisplayX(), this.getDisplayY());
         } else {
-            RENDERER.drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
+            renderer.drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
             this.drawHp();
         }
 
@@ -60,7 +60,7 @@ class Monster {
 
     drawHp() {
         for (let i = 0; i < this.hp; i++) {
-            RENDERER.drawSprite(
+            renderer.drawSprite(
                 9,
                 this.getDisplayX() + (i % 3) * (5 / 16),
                 this.getDisplayY() - Math.floor(i / 3) * (5 / 16)
@@ -83,7 +83,7 @@ class Monster {
                     newTile.monster.hit(1 + this.bonusAttack);
                     this.bonusAttack = 0;
 
-                    RENDERER.setShakeAmount(5)
+                    renderer.setShakeAmount(5)
 
                     this.offsetX = (newTile.x - this.tile.x) / 2;
                     this.offsetY = (newTile.y - this.tile.y) / 2;
