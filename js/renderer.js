@@ -1,4 +1,4 @@
-var RENDERER = (function() {
+var RENDERER = (function () {
     var spritesheet = null;
 
     var tileSize = 48;
@@ -47,7 +47,7 @@ var RENDERER = (function() {
 
         ctx.globalAlpha = 1;
     }
-    
+
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -68,7 +68,7 @@ var RENDERER = (function() {
 
         drawText("WASD to Move, 1-9 for Spells", 40, true, canvas.height / 2 - 110, "white");
         drawText("Boroughlike", 70, true, canvas.height / 2 - 50, "white");
-        
+
     }
 
     function drawText(text, size, centered, textY, color) {
@@ -87,7 +87,7 @@ var RENDERER = (function() {
 
     function drawScores(scores) {
         drawText(
-            UTILITIES.rightPad(["RUN", "SCORE", "TOTAL"]),
+            Utilities.rightPad(["RUN", "SCORE", "TOTAL"]),
             18,
             true,
             canvas.height / 2,
@@ -101,7 +101,7 @@ var RENDERER = (function() {
         scores.unshift(newestScore);
 
         for (let i = 0; i < Math.min(10, scores.length); i++) {
-            let scoreText = UTILITIES.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
+            let scoreText = Utilities.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
             drawText(
                 scoreText,
                 18,
@@ -115,7 +115,7 @@ var RENDERER = (function() {
     function setShakeAmount(amt) {
         shakeAmount = amt;
     }
-    
+
     return {
         clearCanvas: clearCanvas,
         drawSprite: drawSprite,

@@ -8,7 +8,7 @@ const GAME = (function () {
     }
 
     var level = 1;
-    var maxHp = 6;    
+    var maxHp = 6;
     var startingHp = 3;
     var numLevels = 10;
     var numTiles = 16;
@@ -138,8 +138,8 @@ const GAME = (function () {
 
     function showTitle() {
         gameState = GAMESTATES.TITLE;
-        RENDERER.showTitle(); 
-        drawScores();             
+        RENDERER.showTitle();
+        drawScores();
     }
 
     function startGame() {
@@ -167,7 +167,7 @@ const GAME = (function () {
         MAP.randomPassableTile().replace(Exit);
     }
 
-    
+
 
     function getScores() {
         if (localStorage["scores"]) {
@@ -242,14 +242,10 @@ const GAME = (function () {
         incrementScore: incrementScore,
         init: init,
         loadAssets: loadAssets,
-        nextLevel: nextLevel,             
+        nextLevel: nextLevel,
         showTitle: showTitle,
         startGame: startGame,
         startLevel: startLevel,
         tick: tick,
     }
 }());
-
-
-
-

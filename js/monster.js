@@ -6,7 +6,7 @@ class Monster {
         this.teleportCounter = 2;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.lastMove = [-1,0]; 
+        this.lastMove = [-1, 0];
         this.bonusAttack = 0;
     }
 
@@ -72,7 +72,7 @@ class Monster {
     tryMove(dx, dy) {
         let newTile = this.tile.getNeighbor(dx, dy);
         if (newTile.passable) {
-            this.lastMove = [dx,dy];
+            this.lastMove = [dx, dy];
 
             if (!newTile.monster) {
                 this.move(newTile);
@@ -82,7 +82,7 @@ class Monster {
                     newTile.monster.stunned = true;
                     newTile.monster.hit(1 + this.bonusAttack);
                     this.bonusAttack = 0;
-                    
+
                     RENDERER.setShakeAmount(5)
 
                     this.offsetX = (newTile.x - this.tile.x) / 2;
@@ -94,8 +94,8 @@ class Monster {
     }
 
     hit(damage) {
-        if(this.shield>0){           
-            return;                                                             
+        if (this.shield > 0) {
+            return;
         }
 
         this.hp -= damage;
@@ -134,11 +134,11 @@ class Player extends Monster {
         super(tile, 0, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = UTILITIES.shuffle(Object.keys(spells)).splice(0,numSpells);
+        this.spells = Utilities.shuffle(Object.keys(spells)).splice(0, numSpells);
     }
 
-    update(){          
-        this.shield--;                                                      
+    update() {
+        this.shield--;
     }
 
     tryMove(dx, dy) {
@@ -147,14 +147,14 @@ class Player extends Monster {
         }
     }
 
-    addSpell(){                                                       
-        let newSpell = UTILITIES.shuffle(Object.keys(spells))[0];
+    addSpell() {
+        let newSpell = Utilities.shuffle(Object.keys(spells))[0];
         this.spells.push(newSpell);
     }
 
-    castSpell(index){                                                   
+    castSpell(index) {
         let spellName = this.spells[index];
-        if (spellName){
+        if (spellName) {
             delete this.spells[index];
             spells[spellName](this);
             SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.SPELL);

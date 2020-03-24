@@ -1,4 +1,4 @@
-const SOUNDPLAYER = (function(){    
+const SOUNDPLAYER = (function () {
     const SOUNDFX = {
         PLAYERHIT: "hit1",
         MONSTERHIT: "hit2",
@@ -6,7 +6,7 @@ const SOUNDPLAYER = (function(){
         NEWLEVEL: "newLevel",
         SPELL: "spell",
     };
-    
+
     function initSounds() {
         sounds = {
             hit1: new Audio('sounds/hit1.wav'),
@@ -16,7 +16,7 @@ const SOUNDPLAYER = (function(){
             spell: new Audio('sounds/spell.wav'),
         };
     }
-    
+
     function playSound(soundName) {
         if (soundName && sounds[soundName]) {
             sounds[soundName].currentTime = 0;

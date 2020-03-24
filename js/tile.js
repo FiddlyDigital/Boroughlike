@@ -20,7 +20,7 @@ class Tile {
     }
 
     getAdjacentNeighbors() {
-        return UTILITIES.shuffle([
+        return Utilities.shuffle([
             this.getNeighbor(0, -1),
             this.getNeighbor(0, 1),
             this.getNeighbor(-1, 0),
@@ -54,7 +54,7 @@ class Tile {
 
         if (this.effectCounter) {
             this.effectCounter--;
-            
+
             RENDERER.drawSprite(this.effect, this.x, this.y, this.effectCounter);
         }
     }

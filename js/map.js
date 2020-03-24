@@ -1,4 +1,4 @@
-const MAP = (function () {    
+const MAP = (function () {
     var monsters = [];
     var numTiles = 0;
     var level = 1;
@@ -15,7 +15,7 @@ const MAP = (function () {
         numTiles = nt;
         level = lvl;
 
-        UTILITIES.tryTo('generate map', function () {
+        Utilities.tryTo('generate map', function () {
             return generateTiles() == randomPassableTile().getConnectedTiles().length;
         });
 
@@ -57,9 +57,9 @@ const MAP = (function () {
 
     function randomPassableTile() {
         let tile;
-        UTILITIES.tryTo('get random passable tile', function () {
-            let x = UTILITIES.randomRange(0, numTiles - 1);
-            let y = UTILITIES.randomRange(0, numTiles - 1);
+        Utilities.tryTo('get random passable tile', function () {
+            let x = Utilities.randomRange(0, numTiles - 1);
+            let y = Utilities.randomRange(0, numTiles - 1);
             tile = getTile(x, y);
             return tile.passable && !tile.monster;
         });
@@ -75,7 +75,7 @@ const MAP = (function () {
     }
 
     function spawnMonster() {
-        let monsterType = UTILITIES.shuffle([Bird, Snake, Tank, Eater, Jester])[0];
+        let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester])[0];
         let monster = new monsterType(randomPassableTile());
         monsters.push(monster);
     }

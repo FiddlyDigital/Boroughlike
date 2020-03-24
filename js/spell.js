@@ -95,28 +95,28 @@ spells = {
             MAP.getMonsters()[i].stunned = true;
         }
     },
-    BOLT: function(caster){
+    BOLT: function (caster) {
         boltTravel(caster, caster.lastMove, 15 + Math.abs(caster.lastMove[1]), 4);
     },
-    CROSS: function(caster){
+    CROSS: function (caster) {
         let directions = [
             [0, -1],
             [0, 1],
             [-1, 0],
             [1, 0]
         ];
-        for(let k=0; k<directions.length; k++){
+        for (let k = 0; k < directions.length; k++) {
             boltTravel(caster, directions[k], 15 + Math.abs(directions[k][1]), 2);
         }
     },
-    EX: function(caster){
+    EX: function (caster) {
         let directions = [
             [-1, -1],
             [-1, 1],
             [1, -1],
             [1, 1]
         ];
-        for(let k=0;k<directions.length;k++){
+        for (let k = 0; k < directions.length; k++) {
             boltTravel(caster, directions[k], 14, 3);
         }
     }
