@@ -8,9 +8,9 @@ class Renderer {
                 y: 0
             };
 
-            this.tileSize = 48;
-            this.numTiles = 16;
-            this.uiWidth = 4;
+            this.tileSize = 64;
+            this.numTiles = 12;
+            this.uiWidth = 3;
 
             this.canvas = document.querySelector("canvas");
             this.ctx = this.canvas.getContext("2d");

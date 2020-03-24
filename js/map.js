@@ -35,9 +35,9 @@ const MAP = (function () {
                 if (Math.random() < 0.3 || !inBounds(i, j)) {
                     tiles[i][j] = new Wall(i, j);
                 } else {
-                    if (Math.random() < 0.03) {
+                    if (Math.random() < 0.02) {
                         tiles[i][j] = new SpikePit(i, j);
-                    } else if(Math.random() < 0.01) {
+                    } else if(Math.random() < 0.005) {
                         tiles[i][j] = new Fountain(i, j);
                     } else {
                         tiles[i][j] = new Floor(i, j);
@@ -75,7 +75,7 @@ const MAP = (function () {
 
     function generateMonsters() {
         monsters = [];
-        let numMonsters = level + 1;
+        let numMonsters = Math.ceil(level / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             spawnMonster();
         }

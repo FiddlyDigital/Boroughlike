@@ -11,7 +11,7 @@ const GAME = (function () {
     var maxHp = 6;
     var startingHp = 3;
     var numLevels = 10;
-    var numTiles = 16;
+    var numTiles = 12;
     var gameState = GAMESTATES.LOADING;
 
     function getState() {
