@@ -35,7 +35,9 @@ class Renderer {
     }
 
     drawSprite(sprite, x, y, effectCounter) {
-        this.ctx.globalAlpha = effectCounter / 30;
+        if (effectCounter && effectCounter > 0) {
+            this.ctx.globalAlpha = effectCounter / 30;
+        }
 
         this.ctx.drawImage(
             this.spritesheet,
@@ -49,7 +51,9 @@ class Renderer {
             this.tileSize
         );
 
-        this.ctx.globalAlpha = 1;
+        if (!effectCounter || effectCounter <= 0){
+            this.ctx.globalAlpha = 1;
+        }
     }
 
     clearCanvas() {

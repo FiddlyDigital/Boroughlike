@@ -106,3 +106,18 @@ class SpikePit extends Tile {
         monster.hit(1);
     }
 }
+
+class Fountain extends Tile {
+    constructor(x, y) {
+        super(x, y, 18, true);
+        this.isActive = true;
+    };
+
+    stepOn(monster) {
+        if (this.isActive) {
+            this.isActive = false;
+            this.sprite = 19;
+            monster.heal(10);
+        }
+    }
+}
