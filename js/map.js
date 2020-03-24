@@ -35,7 +35,12 @@ const MAP = (function () {
                 if (Math.random() < 0.3 || !inBounds(i, j)) {
                     tiles[i][j] = new Wall(i, j);
                 } else {
-                    tiles[i][j] = new Floor(i, j);
+                    if (Math.random() < 0.05) {
+                        tiles[i][j] = new SpikePit(i, j);
+                    } else {
+                        tiles[i][j] = new Floor(i, j);
+                    }
+
                     passableTiles++;
                 }
             }

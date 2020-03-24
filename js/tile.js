@@ -95,3 +95,14 @@ class Exit extends Tile {
         }
     }
 }
+
+class SpikePit extends Tile {
+    constructor(x, y) {
+        super(x, y, 17, true);
+    };
+
+    stepOn(monster) {
+        renderer.setShakeAmount(5);
+        monster.hit(1);
+    }
+}

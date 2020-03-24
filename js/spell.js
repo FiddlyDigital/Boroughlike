@@ -1,4 +1,4 @@
-spells = {
+const spells = {
     WOOP: function (caster) {
         caster.move(MAP.randomPassableTile());
     },
