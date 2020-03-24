@@ -1,12 +1,12 @@
-const GAME = (function () {
-    const GAMESTATES = {
-        LOADING: "Loading",
-        TITLE: "Title",
-        RUNNING: "Running",
-        GAMEOVER: "Gameover",
-        GAMEWIN: "GameWin"
-    }
+const GAMESTATES = {
+    LOADING: "Loading",
+    TITLE: "Title",
+    RUNNING: "Running",
+    GAMEOVER: "Gameover",
+    GAMEWIN: "GameWin"
+};
 
+const GAME = (function () {
     var level = 1;
     var maxHp = 6;
     var startingHp = 3;
@@ -28,13 +28,15 @@ const GAME = (function () {
 
     function init() {
         loadAssets();
+        
         RENDERER.setupCanvas(numTiles);
         addEventHandlers();
+        
         setInterval(draw, 15); // ever 15ms, or 60 fps
     }
 
     function loadAssets() {
-        SOUNDPLAYER.initSounds();
+        audioPlayer.initSounds();
         RENDERER.initSpriteSheet(showTitle);
     }
 
@@ -167,8 +169,6 @@ const GAME = (function () {
         MAP.randomPassableTile().replace(Exit);
     }
 
-
-
     function getScores() {
         if (localStorage["scores"]) {
             return JSON.parse(localStorage["scores"]);
@@ -204,18 +204,18 @@ const GAME = (function () {
 
     function nextLevel() {
         if (level == numLevels) {
-            // TODO: SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.GAMEWIN);
+            // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
             addScore(score, true);
             showTitle();
         } else {
-            SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.NEWLEVEL);
+            audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             level++;
             startLevel(Math.min(maxHp, player.hp + 1));
         }
     }
 
     function incrementScore() {
-        SOUNDPLAYER.playSound(SOUNDPLAYER.SOUNDFX.TREASURE);
+        audioPlayer.playSound(SOUNDFX.TREASURE);
 
         score++;
 
