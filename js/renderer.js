@@ -75,7 +75,7 @@ class Renderer {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawText("WASD to Move, 1-9 for Spells", 40, true, this.canvas.height / 2 - 110, "white");
-        this.drawText("Boroughlike", 70, true, this.canvas.height / 2 - 50, "white");
+        this.drawText("Book-Binder", 70, true, this.canvas.height / 2 - 50, "white");
     }
 
     drawText(text, size, centered, textY, color) {
@@ -94,7 +94,7 @@ class Renderer {
 
     drawScores(scores) {
         this.drawText(
-            Utilities.rightPad(["RUN", "SCORE", "TOTAL"]),
+            Utilities.rightPad(["RUN", "BOOKS", "TOTAL"]),
             18,
             true,
             this.canvas.height / 2,

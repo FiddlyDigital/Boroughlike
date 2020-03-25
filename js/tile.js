@@ -48,7 +48,7 @@ class Tile {
     draw() {
         renderer.drawSprite(this.sprite, this.x, this.y);
 
-        if (this.treasure) {
+        if (this.book) {
             renderer.drawSprite(12, this.x, this.y);
         }
 
@@ -71,9 +71,9 @@ class Floor extends Tile {
     };
 
     stepOn(monster) {
-        if (monster.isPlayer && this.treasure) {
+        if (monster.isPlayer && this.book) {
             GAME.incrementScore();
-            this.treasure = false;
+            this.book = false;
         }
     }
 }
@@ -84,6 +84,7 @@ class Wall extends Tile {
     }
 }
 
+// Brings Player to the next level
 class Exit extends Tile {
     constructor(x, y) {
         super(x, y, 11, true);
@@ -96,17 +97,23 @@ class Exit extends Tile {
     }
 }
 
+// When stepped on deals damage
+// Affects monsters, so can be used tactically
 class SpikePit extends Tile {
     constructor(x, y) {
         super(x, y, 17, true);
     };
 
     stepOn(monster) {
-        renderer.setShakeAmount(5);
+        if (monster.isPlayer){
+            renderer.setShakeAmount(5);
+        }
         monster.hit(1);
     }
 }
 
+// When stepped on brings Player back to full-health.
+// Can only be used once, and Monsters can't use them.
 class Fountain extends Tile {
     constructor(x, y) {
         super(x, y, 18, true);
@@ -114,7 +121,7 @@ class Fountain extends Tile {
     };
 
     stepOn(monster) {
-        if (this.isActive) {
+        if (this.isActive && monster.isPlayer) {
             this.isActive = false;
             this.sprite = 19;
             monster.heal(10);

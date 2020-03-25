@@ -12,6 +12,10 @@ class Monster {
 
     heal(damage) {
         this.hp = Math.min(GAME.getMaxHP(), this.hp + damage);
+
+        if (this.isPlayer) {
+            //audioPlayer.playSound(SOUNDFX.PLAYERHEAL);
+        }
     }
 
     update() {
@@ -101,6 +105,7 @@ class Monster {
         this.hp -= damage;
         if (this.hp <= 0) {
             this.die();
+            this.tile.book = true;
         }
 
         if (this.isPlayer) {

@@ -105,7 +105,7 @@ const GAME = (function () {
             player.draw();
 
             renderer.drawText("Level: " + level, 30, false, 40, "violet");
-            renderer.drawText("Score: " + score, 30, false, 70, "violet");
+            renderer.drawText("Books: " + score, 30, false, 70, "violet");
 
             for (let i = 0; i < player.spells.length; i++) {
                 let spellText = (i + 1) + ") " + (player.spells[i] || "");
@@ -215,7 +215,7 @@ const GAME = (function () {
     }
 
     function incrementScore() {
-        audioPlayer.playSound(SOUNDFX.TREASURE);
+        audioPlayer.playSound(SOUNDFX.BOOK);
 
         score++;
 

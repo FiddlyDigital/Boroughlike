@@ -20,9 +20,14 @@ const MAP = (function () {
         });
 
         generateMonsters();
-
-        for (let i = 0; i < 3; i++) {
-            randomPassableTile().treasure = true;
+        
+        var booksPlaced = 0
+        while(booksPlaced < 3) {        
+            let t = randomPassableTile()
+            if (t instanceof Floor) {                
+                booksPlaced++;
+                randomPassableTile().book = true;
+            }
         }
     }
 
@@ -37,7 +42,7 @@ const MAP = (function () {
                 } else {
                     if (Math.random() < 0.02) {
                         tiles[i][j] = new SpikePit(i, j);
-                    } else if(Math.random() < 0.005) {
+                    } else if (Math.random() < 0.005) {
                         tiles[i][j] = new Fountain(i, j);
                     } else {
                         tiles[i][j] = new Floor(i, j);

@@ -69,13 +69,13 @@ const spells = {
     KINGMAKER: function () {
         for (let i = 0; i < MAP.getMonsters().length; i++) {
             MAP.getMonsters()[i].heal(1);
-            MAP.getMonsters()[i].tile.treasure = true;
+            MAP.getMonsters()[i].tile.book = true;
         }
     },
     ALCHEMY: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (!t.passable && MAP.inBounds(t.x, t.y)) {
-                t.replace(Floor).treasure = true;
+                t.replace(Floor).book = true;
             }
         });
     },

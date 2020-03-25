@@ -1,7 +1,7 @@
 const SOUNDFX = {
     PLAYERHIT: "hit1",
     MONSTERHIT: "hit2",
-    TREASURE: "treasure",
+    BOOK: "book",
     NEWLEVEL: "newLevel",
     SPELL: "spell",
 }
@@ -12,7 +12,7 @@ class AudioPlayer {
             this.sounds = {
                 hit1: null,
                 hit2: null,
-                treasure: null,
+                book: null,
                 newLevel: null,
                 spell: null,
             };
@@ -26,7 +26,7 @@ class AudioPlayer {
     initSounds() {        
         this.sounds['hit1'] = new Audio('sounds/hit1.wav');
         this.sounds['hit2'] = new Audio('sounds/hit2.wav');
-        this.sounds['treasure'] = new Audio('sounds/treasure.wav');
+        this.sounds['book'] = new Audio('sounds/book.wav');
         this.sounds['newLevel'] = new Audio('sounds/newLevel.wav');
         this.sounds['spell'] = new Audio('sounds/spell.wav');
     }
