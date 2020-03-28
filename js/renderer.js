@@ -34,6 +34,13 @@ class Renderer {
         this.ctx.imageSmoothingEnabled = false;
     }
 
+    /**
+     * Draws a sprite on the canvas
+     * @param {number} sprite - Index of the sprite to show
+     * @param {number} x - X position of the sprite on the map
+     * @param {number} y - X position of the sprite on the map
+     * @param {number} effectCounter - Used for alpha effects
+     */
     drawSprite(sprite, x, y, effectCounter) {
         if (effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / 30;
@@ -73,11 +80,30 @@ class Renderer {
     showTitle() {
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.drawText("WASD to Move, 1-9 for Spells", 40, true, this.canvas.height / 2 - 110, "white");
-        this.drawText("Book-Binder", 70, true, this.canvas.height / 2 - 50, "white");
+        
+        this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
+        this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
+        this.drawText("1-9 to use spells", 32, true, this.canvas.height / 2 - 40, "white");
     }
 
+    showGameWin(score) {
+        this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
+        this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
+    }
+
+    showGameOver(score) {
+        this.drawText("Uh-oh!", 64, true, this.canvas.height / 2 - 150, "white");
+        this.drawText("You didn't make it out. Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
+    }
+
+    /**
+     * Draws text on the Canvas
+     * @param {string} text - The text to display
+     * @param {number} size - The fontsize of the text
+     * @param {boolean} centered - is the text centered?
+     * @param {number} textY - Y value of the text
+     * @param {string} color - color of the text
+     */
     drawText(text, size, centered, textY, color) {
         this.ctx.fillStyle = color;
         this.ctx.font = size + "px monospace";

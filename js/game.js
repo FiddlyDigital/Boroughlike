@@ -43,14 +43,17 @@ const GAME = (function () {
     function addEventHandlers() {
         document.querySelector("html").onkeydown = function (e) {
             switch (getState()) {
-                case GAMESTATES.TITLE:
-                    startGame();
-                    break;
+                case GAMESTATES.GAMEWIN:
                 case GAMESTATES.GAMEOVER:
                     showTitle();
                     break;
+                case GAMESTATES.TITLE:
+                    startGame();
+                    break;
                 case GAMESTATES.RUNNING:
                     handleKeypress(e);
+                    break;
+                case GAMESTATES.LOADING:
                     break;
             }
         };
@@ -128,6 +131,7 @@ const GAME = (function () {
         if (player.dead) {
             addScore(score, false);
             gameState = GAMESTATES.GAMEOVER;
+            renderer.showGameOver(score);
         }
 
         spawnCounter--;
@@ -145,12 +149,12 @@ const GAME = (function () {
     }
 
     function startGame() {
+        gameState = GAMESTATES.RUNNING;
+
         level = 1;
         score = 0;
         numSpells = 1;
         startLevel(startingHp);
-
-        gameState = GAMESTATES.RUNNING;
     }
 
     function startLevel(playerHp, playerSpells) {
@@ -206,7 +210,8 @@ const GAME = (function () {
         if (level == numLevels) {
             // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
             addScore(score, true);
-            showTitle();
+            //showTitle();
+            renderer.showGameWin(score);
         } else {
             audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             level++;
