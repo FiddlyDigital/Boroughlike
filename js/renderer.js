@@ -39,7 +39,7 @@ class Renderer {
      * @param {number} sprite - Index of the sprite to show
      * @param {number} x - X position of the sprite on the map
      * @param {number} y - X position of the sprite on the map
-     * @param {number} effectCounter - Used for alpha effects
+     * @param {?number} effectCounter - Used for alpha effects
      */
     drawSprite(sprite, x, y, effectCounter) {
         if (effectCounter && effectCounter > 0) {
@@ -77,9 +77,14 @@ class Renderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    showTitle(scores) {
+    drawDarkBackground() {        
+        this.clearCanvas();
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    showTitle(scores) {
+        this.drawDarkBackground();
 
         this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
@@ -91,13 +96,25 @@ class Renderer {
     }
 
     showGameWin(score) {
+        this.drawDarkBackground();        
         this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
     }
 
-    showGameOver(score) {
+    showGameLose(score) {
+        this.drawDarkBackground();
         this.drawText("Uh-oh!", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("You didn't make it out. Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
+    }
+
+    updateSidebar(level, score, spells) {
+        renderer.drawText("Level: " + level, 30, false, 40, "violet");
+        renderer.drawText("Books: " + score, 30, false, 70, "violet");
+
+        for (let i = 0; i < spells.length; i++) {
+            let spellText = (i + 1) + ") " + (spells[i] || "");
+            renderer.drawText(spellText, 20, false, 110 + i * 40, "aqua");
+        }
     }
 
     /**

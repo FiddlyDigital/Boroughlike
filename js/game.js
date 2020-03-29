@@ -2,24 +2,18 @@ const GAME_STATES = {
     LOADING: "Loading",
     TITLE: "Title",
     RUNNING: "Running",
-    GAMEOVER: "Gameover",
+    GAMEOVER: "GameOver",
     GAMEWIN: "GameWin"
 };
 
 const GAME_EVENTS = {
     ASSETSLOADED: "AssetsLoaded",
     KEYPRESS: "KeyPress",
-    PLAYERWIN: "PlayerWin",   
+    PLAYERWIN: "PlayerWin",
     PLAYERLOSE: "PlayerLose"
 }
 
-// Define our States and how they change based on events raised
-const stateMatrix = {};
-stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, GAME.loadAssets);
-stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, GAME.showTitle);
-stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMELOSE, "PlayerWin": GAME_STATES.GAMEWIN }, GAME.startGame);
-stateMatrix[GAME_STATES.GAMELOSE] = new State(GAME_STATES.GAMELOSE, { "KeyPress": GAME_STATES.TITLE, }, GAME.showGameLose);
-stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, GAME.showGameWin);
+
 
 const GAME = (function () {
     var version = 'alpha';
@@ -30,10 +24,6 @@ const GAME = (function () {
     var numTiles = 12;
     var FSM = null;
 
-    function getState() {
-        return gameState;
-    }
-
     function getMaxHP() {
         return maxHp;
     }
@@ -43,29 +33,35 @@ const GAME = (function () {
     }
 
     function init() {
+        // Define our States and how they change based on events raised
+        const stateMatrix = {};
+        stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, loadAssets);
+        stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, showTitle);
+        stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, startGame);
+        stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, showGameLose);
+        stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, showGameWin);
         FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
-        
+
         renderer.setupCanvas(numTiles);
         addEventHandlers();
-        
+
         setInterval(draw, 15); // ever 15ms, or 60 fps
     }
 
     function loadAssets() {
         audioPlayer.initSounds();
-        renderer.initSpriteSheet(showTitle);
+        renderer.initSpriteSheet(function () {
+            FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
+        });
     }
 
     function addEventHandlers() {
         document.querySelector("html").onkeydown = function (e) {
-            switch (getState()) {
+            switch (FSM.currentState.name) {
                 case GAME_STATES.GAMEWIN:
-                    FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
                 case GAME_STATES.GAMEOVER:
-                    FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
-                    break;
                 case GAME_STATES.TITLE:
-                    startGame();
+                    FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
                     break;
                 case GAME_STATES.RUNNING:
                     handleKeypress(e);
@@ -98,7 +94,7 @@ const GAME = (function () {
                 player.tryMove(1, 0);
                 break;
             case " ": // Spacebar; 'Pass' a turn
-                player.tryMove(0,0);
+                player.tryMove(0, 0);
                 break;
             case 1: case "1": case 2: case "2": case 3: case "3":
             case 4: case "4": case 5: case "5": case 6: case "6":
@@ -109,7 +105,7 @@ const GAME = (function () {
     }
 
     function draw() {
-        if (gameState == GAME_STATES.RUNNING) {
+        if (FSM.currentState.name == GAME_STATES.RUNNING) {
             renderer.clearCanvas();
             renderer.screenshake();
 
@@ -124,54 +120,49 @@ const GAME = (function () {
             }
 
             player.draw();
-
-            renderer.drawText("Level: " + level, 30, false, 40, "violet");
-            renderer.drawText("Books: " + score, 30, false, 70, "violet");
-
-            for (let i = 0; i < player.spells.length; i++) {
-                let spellText = (i + 1) + ") " + (player.spells[i] || "");
-                renderer.drawText(spellText, 20, false, 110 + i * 40, "aqua");
-            }
+            renderer.updateSidebar(level, score, player.spells);
         }
     }
 
     function tick() {
-        for (let k = MAP.getMonsters().length - 1; k >= 0; k--) {
-            if (!MAP.getMonsters()[k].dead) {
-                MAP.getMonsters()[k].update();
-            } else {
-                MAP.getMonsters().splice(k, 1);
+        if (FSM.currentState.name == GAME_STATES.RUNNING) {
+            for (let k = MAP.getMonsters().length - 1; k >= 0; k--) {
+                if (!MAP.getMonsters()[k].dead) {
+                    MAP.getMonsters()[k].update();
+                } else {
+                    MAP.getMonsters().splice(k, 1);
+                }
+            }
+
+            player.update();
+
+            if (player.dead) {
+                addScore(score, false);
+                FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
+            }
+
+            spawnCounter--;
+            if (spawnCounter <= 0) {
+                MAP.spawnMonster();
+                spawnCounter = spawnRate;
+                spawnRate--;
             }
         }
-
-        player.update();
-
-        if (player.dead) {
-            addScore(score, false);
-            GAME.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
-        }
-
-        spawnCounter--;
-        if (spawnCounter <= 0) {
-            MAP.spawnMonster();
-            spawnCounter = spawnRate;
-            spawnRate--;
-        }
     }
 
-    function showTitle() {        
-        renderer.showTitle(getScores());        
+    function showTitle() {
+        renderer.showTitle(getScores());
     }
 
-    function showGameWin(){
+    function showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
-        addScore(score, true);            
+        addScore(score, true);
         renderer.showGameWin(score);
     }
 
     function showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
-        addScore(score, true);            
+        addScore(score, true);
         renderer.showGameLose(score);
     }
 
@@ -227,7 +218,7 @@ const GAME = (function () {
 
     function nextLevel() {
         if (level == numLevels) {
-            FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);            
+            FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
             audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             level++;
@@ -259,7 +250,6 @@ const GAME = (function () {
         getLevel: getLevel,
         getMaxHP: getMaxHP,
         getPlayerTile: getPlayerTile,
-        getState: getState,
         incrementScore: incrementScore,
         init: init,
         loadAssets: loadAssets,

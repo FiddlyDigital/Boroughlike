@@ -23,7 +23,7 @@ class FiniteStateMachine {
      */
     triggerEvent(eventName) {
         let newStateName = this.currentState.getNewState(eventName);
-        if (this.newStateName) {
+        if (newStateName) {
             this.enterState(newStateName);
         }
     }
@@ -39,7 +39,7 @@ class FiniteStateMachine {
             }
 
             this.previousState = this.currentState;
-            this.currentState = this.stateMatrix(newStateName);
+            this.currentState = this.stateMatrix[newStateName];
 
             if (this.currentState.onEnter) {
                 this.currentState.onEnter();
