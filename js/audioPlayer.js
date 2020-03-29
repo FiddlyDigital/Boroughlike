@@ -9,26 +9,25 @@ const SOUNDFX = {
 class AudioPlayer {
     constructor() {
         if(!AudioPlayer.instance){
-            this.sounds = {
-                hit1: null,
-                hit2: null,
-                book: null,
-                newLevel: null,
-                spell: null,
-            };
-
+            this.sounds = {};
+            
+            // Populate all values with nulls now
+            // as we won't be able to add entries/props after freezing this instance
+            for (let [key, value] of Object.entries(SOUNDFX)) {                
+                this.sounds[value] = null;
+            }
+                
             AudioPlayer.instance = this;
         }
 
         return AudioPlayer.instance;
     }
 
-    initSounds() {        
-        this.sounds['hit1'] = new Audio('sounds/hit1.wav');
-        this.sounds['hit2'] = new Audio('sounds/hit2.wav');
-        this.sounds['book'] = new Audio('sounds/book.wav');
-        this.sounds['newLevel'] = new Audio('sounds/newLevel.wav');
-        this.sounds['spell'] = new Audio('sounds/spell.wav');
+    initSounds() {  
+        // Load each sound
+        for (let [key, value] of Object.entries(SOUNDFX)) {                
+            this.sounds[value] = new Audio(`sounds/${value}.wav`);
+        }                
     }
 
     playSound(soundName) {        
