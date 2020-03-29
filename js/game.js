@@ -82,6 +82,9 @@ const GAME = (function () {
             case "d": case "D":
                 player.tryMove(1, 0);
                 break;
+            case " ": // Spacebar; 'Pass' a turn
+                player.tryMove(0,0);
+                break;
             case 1: case "1": case 2: case "2": case 3: case "3":
             case 4: case "4": case 5: case "5": case 6: case "6":
             case 7: case "7": case 8: case "8": case 9: case "9":
@@ -201,7 +204,7 @@ const GAME = (function () {
 
     function drawScores() {
         let scores = getScores();
-        if (scores.length) {
+        if (scores && scores.length) {
             renderer.drawScores(scores);
         }
     }
@@ -209,8 +212,7 @@ const GAME = (function () {
     function nextLevel() {
         if (level == numLevels) {
             // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
-            addScore(score, true);
-            //showTitle();
+            addScore(score, true);            
             renderer.showGameWin(score);
         } else {
             audioPlayer.playSound(SOUNDFX.NEWLEVEL);
