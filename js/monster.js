@@ -105,7 +105,7 @@ class Monster {
         this.hp -= damage;
         if (this.hp <= 0) {
             this.die();
-            
+
             if (this.tile instanceof Floor) {
                 this.tile.book = true;
             }

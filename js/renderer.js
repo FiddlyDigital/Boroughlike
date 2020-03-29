@@ -1,6 +1,6 @@
 class Renderer {
     constructor() {
-        if (!Renderer.instance){
+        if (!Renderer.instance) {
             this.spritesheet = new Image();
             this.shake = {
                 amount: 0,
@@ -21,8 +21,8 @@ class Renderer {
         return Renderer.instance;
     }
 
-    initSpriteSheet(callback) {        
-        this.spritesheet.src = 'spritesheet.png';
+    initSpriteSheet(callback) {
+        this.spritesheet.src = 'assets/images/spritesheet.png';
         this.spritesheet.onload = callback;
     }
 
@@ -58,7 +58,7 @@ class Renderer {
             this.tileSize
         );
 
-        if (!effectCounter || effectCounter <= 0){
+        if (!effectCounter || effectCounter <= 0) {
             this.ctx.globalAlpha = 1;
         }
     }
@@ -77,13 +77,17 @@ class Renderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    showTitle() {
+    showTitle(scores) {
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
         this.drawText("1-9 to use spells", 32, true, this.canvas.height / 2 - 40, "white");
+
+        if (scores && scores.length > 0) {
+            this.drawScores(scores);
+        }
     }
 
     showGameWin(score) {

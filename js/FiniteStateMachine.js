@@ -84,19 +84,19 @@ class State {
 ////////////////////////
 // PG: Example Usage: //
 ////////////////////////
-function startGame() {
-    console.log("Game Started");
-}
+// function startGame() {
+//     console.log("Game Started");
+// }
 
-// TODO: replace strings with GAMESTATE Enum entries
-var stateMatrix = {
-    "LOADING": new State("LOADING", { "AssetsLoaded": "TITLE" }, startGame),
-    "TITLE": new State("TITLE", { "KeyPress": "RUNNING" }),
-    "RUNNING": new State("RUNNING", { "PlayerDie": "GAMELOSE", "PLAYERWIN": "GAMEWIN" }),
-    "GAMELOSE": new State("GAMELOSE", { "KeyPress": "TITLE" }),
-    "GAMEWIN": new State("GAMEWIN", { "KeyPress": "TITLE" })
-}
+// // TODO: replace strings with GAMESTATE Enum entries
+// var stateMatrix = {
+//     "LOADING": new State("LOADING", { "AssetsLoaded": "TITLE" }, startGame),
+//     "TITLE": new State("TITLE", { "KeyPress": "RUNNING" }),
+//     "RUNNING": new State("RUNNING", { "PlayerDie": "GAMELOSE", "PLAYERWIN": "GAMEWIN" }),
+//     "GAMELOSE": new State("GAMELOSE", { "KeyPress": "TITLE" }),
+//     "GAMEWIN": new State("GAMEWIN", { "KeyPress": "TITLE" })
+// }
 
-var FSM = new FiniteStateMachine(stateMatrix, "LOADING");
-FSM.triggerEvent("AssetsLoaded");
-let changedSuccessfully = (FSM.currentState.name === "TITLE");
+// var FSM = new FiniteStateMachine(stateMatrix, "LOADING");
+// FSM.triggerEvent("AssetsLoaded");
+// let changedSuccessfully = (FSM.currentState.name === "TITLE");

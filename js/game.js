@@ -1,4 +1,4 @@
-const GAMESTATES = {
+const GAME_STATES = {
     LOADING: "Loading",
     TITLE: "Title",
     RUNNING: "Running",
@@ -6,13 +6,29 @@ const GAMESTATES = {
     GAMEWIN: "GameWin"
 };
 
+const GAME_EVENTS = {
+    ASSETSLOADED: "AssetsLoaded",
+    KEYPRESS: "KeyPress",
+    PLAYERWIN: "PlayerWin",   
+    PLAYERLOSE: "PlayerLose"
+}
+
+// Define our States and how they change based on events raised
+const stateMatrix = {};
+stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, GAME.loadAssets);
+stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, GAME.showTitle);
+stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMELOSE, "PlayerWin": GAME_STATES.GAMEWIN }, GAME.startGame);
+stateMatrix[GAME_STATES.GAMELOSE] = new State(GAME_STATES.GAMELOSE, { "KeyPress": GAME_STATES.TITLE, }, GAME.showGameLose);
+stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, GAME.showGameWin);
+
 const GAME = (function () {
+    var version = 'alpha';
     var level = 1;
     var maxHp = 6;
     var startingHp = 3;
     var numLevels = 10;
     var numTiles = 12;
-    var gameState = GAMESTATES.LOADING;
+    var FSM = null;
 
     function getState() {
         return gameState;
@@ -27,7 +43,7 @@ const GAME = (function () {
     }
 
     function init() {
-        loadAssets();
+        FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
         
         renderer.setupCanvas(numTiles);
         addEventHandlers();
@@ -43,17 +59,16 @@ const GAME = (function () {
     function addEventHandlers() {
         document.querySelector("html").onkeydown = function (e) {
             switch (getState()) {
-                case GAMESTATES.GAMEWIN:
-                case GAMESTATES.GAMEOVER:
-                    showTitle();
+                case GAME_STATES.GAMEWIN:
+                    FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
+                case GAME_STATES.GAMEOVER:
+                    FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
                     break;
-                case GAMESTATES.TITLE:
+                case GAME_STATES.TITLE:
                     startGame();
                     break;
-                case GAMESTATES.RUNNING:
+                case GAME_STATES.RUNNING:
                     handleKeypress(e);
-                    break;
-                case GAMESTATES.LOADING:
                     break;
             }
         };
@@ -94,7 +109,7 @@ const GAME = (function () {
     }
 
     function draw() {
-        if (gameState == GAMESTATES.RUNNING || gameState == GAMESTATES.GAMEOVER) {
+        if (gameState == GAME_STATES.RUNNING) {
             renderer.clearCanvas();
             renderer.screenshake();
 
@@ -133,8 +148,7 @@ const GAME = (function () {
 
         if (player.dead) {
             addScore(score, false);
-            gameState = GAMESTATES.GAMEOVER;
-            renderer.showGameOver(score);
+            GAME.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
         }
 
         spawnCounter--;
@@ -145,15 +159,23 @@ const GAME = (function () {
         }
     }
 
-    function showTitle() {
-        gameState = GAMESTATES.TITLE;
-        renderer.showTitle();
-        drawScores();
+    function showTitle() {        
+        renderer.showTitle(getScores());        
+    }
+
+    function showGameWin(){
+        // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
+        addScore(score, true);            
+        renderer.showGameWin(score);
+    }
+
+    function showGameLose() {
+        // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
+        addScore(score, true);            
+        renderer.showGameLose(score);
     }
 
     function startGame() {
-        gameState = GAMESTATES.RUNNING;
-
         level = 1;
         score = 0;
         numSpells = 1;
@@ -168,12 +190,13 @@ const GAME = (function () {
 
         player = new Player(MAP.randomPassableTile());
         player.hp = playerHp;
+        //player.tile.replace(StairUp); // PG: Future bi-directional travel
 
         if (playerSpells) {
             player.spells = playerSpells;
         }
 
-        MAP.randomPassableTile().replace(Exit);
+        MAP.randomPassableTile().replace(StairDown);
     }
 
     function getScores() {
@@ -202,18 +225,9 @@ const GAME = (function () {
         localStorage["scores"] = JSON.stringify(scores);
     }
 
-    function drawScores() {
-        let scores = getScores();
-        if (scores && scores.length) {
-            renderer.drawScores(scores);
-        }
-    }
-
     function nextLevel() {
         if (level == numLevels) {
-            // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
-            addScore(score, true);            
-            renderer.showGameWin(score);
+            FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);            
         } else {
             audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             level++;
@@ -241,7 +255,7 @@ const GAME = (function () {
     return {
         addScore: addScore,
         draw: draw,
-        GAMESTATES: GAMESTATES,
+        GAMESTATES: GAME_STATES,
         getLevel: getLevel,
         getMaxHP: getMaxHP,
         getPlayerTile: getPlayerTile,

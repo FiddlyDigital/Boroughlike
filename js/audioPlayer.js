@@ -1,16 +1,16 @@
 const SOUNDFX = {
-    PLAYERHIT: "hit1",
-    MONSTERHIT: "hit2",
-    BOOK: "book",
-    NEWLEVEL: "newLevel",
-    SPELL: "spell",
+    PLAYERHIT: "hit1.wav",
+    MONSTERHIT: "hit2.wav",
+    BOOK: "book.wav",
+    NEWLEVEL: "newLevel.wav",
+    SPELL: "spell.wav",
 }
 
 class AudioPlayer {
     constructor() {
         if(!AudioPlayer.instance){
             this.sounds = {};
-            
+
             // Populate all values with nulls now
             // as we won't be able to add entries/props after freezing this instance
             for (let [key, value] of Object.entries(SOUNDFX)) {                
@@ -26,7 +26,7 @@ class AudioPlayer {
     initSounds() {  
         // Load each sound
         for (let [key, value] of Object.entries(SOUNDFX)) {                
-            this.sounds[value] = new Audio(`sounds/${value}.wav`);
+            this.sounds[value] = new Audio(`assets/sounds/${value}`);
         }                
     }
 
