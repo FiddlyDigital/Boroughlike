@@ -20,8 +20,7 @@ const GAME = (function () {
     var level = 1;
     var maxHp = 6;
     var startingHp = 3;
-    var numLevels = 10;
-    var numTiles = 12;
+    var numLevels = 10;    
     var FSM = null;
 
     function getMaxHP() {
@@ -42,7 +41,7 @@ const GAME = (function () {
         stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, showGameWin);
         FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
 
-        renderer.setupCanvas(numTiles);
+        renderer.setupCanvas();
         addEventHandlers();
 
         setInterval(draw, 15); // ever 15ms, or 60 fps
@@ -177,7 +176,7 @@ const GAME = (function () {
         spawnRate = 15;
         spawnCounter = spawnRate;
 
-        MAP.generateLevel(numTiles, level);
+        MAP.generateLevel(level);
 
         player = new Player(MAP.randomPassableTile());
         player.hp = playerHp;

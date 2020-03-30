@@ -2,8 +2,7 @@ const spells = {
     WOOP: function (caster) {
         caster.move(MAP.randomPassableTile());
     },
-    QUAKE: function (caster) {
-        let numTiles = MAP.getNumTiles();
+    QUAKE: function (caster) {        
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = MAP.getTile(i, j);
@@ -53,8 +52,7 @@ const spells = {
             });
         }
     },
-    DIG: function (caster) {
-        let numTiles = MAP.getNumTiles();
+    DIG: function (caster) {        
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = MAP.getTile(i, j);
@@ -131,6 +129,7 @@ function boltTravel(caster, direction, effect, damage) {
             if (newTile.monster) {
                 newTile.monster.hit(damage);
             }
+            console.log(effect);
             newTile.setEffect(effect);
         } else {
             break;

@@ -1,18 +1,13 @@
 const MAP = (function () {
-    var monsters = [];
-    var numTiles = 0;
+    var monsters = [];    
     var level = 1;
 
     function getMonsters() {
         return monsters;
     }
 
-    function getNumTiles() {
-        return numTiles;
-    }
 
-    function generateLevel(nt, lvl) {
-        numTiles = nt;
+    function generateLevel(lvl) {
         level = lvl;
 
         Utilities.tryTo('generate map', function () {
@@ -94,8 +89,7 @@ const MAP = (function () {
 
     return {
         generateLevel: generateLevel,
-        getMonsters: getMonsters,
-        getNumTiles: getNumTiles,
+        getMonsters: getMonsters,        
         getTile: getTile,
         inBounds: inBounds,
         randomPassableTile: randomPassableTile,

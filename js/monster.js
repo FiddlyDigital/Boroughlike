@@ -52,9 +52,9 @@ class Monster {
 
     draw() {
         if (this.teleportCounter > 0) {
-            renderer.drawSprite(10, this.getDisplayX(), this.getDisplayY());
+            renderer.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, this.getDisplayX(), this.getDisplayY());
         } else {
-            renderer.drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
+            renderer.drawSprite(SPRITETYPES.MONSTER, this.sprite, this.getDisplayX(), this.getDisplayY());
             this.drawHp();
         }
 
@@ -65,7 +65,8 @@ class Monster {
     drawHp() {
         for (let i = 0; i < this.hp; i++) {
             renderer.drawSprite(
-                9,
+                SPRITETYPES.MONSTER,
+                MONSTER_SPRITE_INDICES.HP,
                 this.getDisplayX() + (i % 3) * (5 / 16),
                 this.getDisplayY() - Math.floor(i / 3) * (5 / 16)
             );

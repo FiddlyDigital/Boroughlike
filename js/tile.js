@@ -1,13 +1,3 @@
-const SPRITE_INDICES = {
-    "Floor": 2,
-    "Wall": 3,
-    "StairDown": 11,
-    "StairUp": 11,
-    "SpikePit" : 17,
-    "FountainActive" : 18,
-    "FountainInactive" : 19
-}
-
 class Tile {
     constructor(x, y, sprite, passable) {
         this.x = x;
@@ -56,16 +46,16 @@ class Tile {
     }
 
     draw() {
-        renderer.drawSprite(this.sprite, this.x, this.y);
+        renderer.drawSprite(SPRITETYPES.TILE, this.sprite, this.x, this.y);
 
         if (this.book) {
-            renderer.drawSprite(12, this.x, this.y);
+            renderer.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, this.x, this.y);
         }
 
         if (this.effectCounter) {
             this.effectCounter--;
 
-            renderer.drawSprite(this.effect, this.x, this.y, this.effectCounter);
+            renderer.drawSprite(SPRITETYPES.EFFECT, this.effect, this.x, this.y, this.effectCounter);
         }
     }
 
@@ -77,7 +67,7 @@ class Tile {
 
 class Floor extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.Floor, true);
+        super(x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
     stepOn(monster) {
@@ -90,14 +80,14 @@ class Floor extends Tile {
 
 class Wall extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.Wall, false);
+        super(x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 }
 
 // Brings Player to the next level
 class StairDown extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.StairDown, true);
+        super(x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
 
     stepOn(monster) {
@@ -109,7 +99,7 @@ class StairDown extends Tile {
 
 class StairUp extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.StairUp, true);
+        super(x, y, TILE_SPRITE_INDICES.StairUp, true);
     }
 
     stepOn(monster) {
@@ -123,7 +113,7 @@ class StairUp extends Tile {
 // Affects monsters, so can be used tactically
 class SpikePit extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.SpikePit, true);
+        super(x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
 
     stepOn(monster) {
@@ -138,14 +128,14 @@ class SpikePit extends Tile {
 // Can only be used once, and Monsters can't use them.
 class Fountain extends Tile {
     constructor(x, y) {
-        super(x, y, SPRITE_INDICES.FountainActive, true);
+        super(x, y, TILE_SPRITE_INDICES.FountainActive, true);
         this.isActive = true;
     };
 
     stepOn(monster) {
         if (this.isActive && monster.isPlayer) {
             this.isActive = false;
-            this.sprite = SPRITE_INDICES.FountainInactive;
+            this.sprite = TILE_SPRITE_INDICES.FountainInactive;
             monster.heal(10);
         }
     }

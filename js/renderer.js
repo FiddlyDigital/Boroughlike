@@ -1,16 +1,19 @@
 class Renderer {
     constructor() {
-        if (!Renderer.instance) {
-            this.spritesheet = new Image();
+        if (!Renderer.instance) {            
+            this.monsterSpriteSheet = new Image();                
+            this.tileSpriteSheet = new Image();                
+            this.effectSpriteSheet = new Image();
+            this.itemSpriteSheet = new Image();
+            this.callback = {
+                onLoadCompleted: null
+            };
+
             this.shake = {
                 amount: 0,
                 x: 0,
                 y: 0
-            };
-
-            this.tileSize = 64;
-            this.numTiles = 12;
-            this.uiWidth = 3;
+            };                        
 
             this.canvas = document.querySelector("canvas");
             this.ctx = this.canvas.getContext("2d");
@@ -22,40 +25,71 @@ class Renderer {
     }
 
     initSpriteSheet(callback) {
-        this.spritesheet.src = 'assets/images/spritesheet.png';
-        this.spritesheet.onload = callback;
+        this.callback.onLoadCompleted = callback; // store for later
+
+        this.monsterSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
+        this.tileSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
+        this.effectSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
+        this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
+
+        this.monsterSpriteSheet.src = "assets/images/monsters.png";
+        this.tileSpriteSheet.src = "assets/images/library.png";
+        this.effectSpriteSheet.src = "assets/images/effects.png";
+        this.itemSpriteSheet.src = "assets/images/items.png";
+    }
+
+    checkAllSpriteSheetsLoaded(){
+        if(this.monsterSpriteSheet.complete 
+            && this.tileSpriteSheet.complete
+            && this.effectSpriteSheet.complete
+            && this.itemSpriteSheet.complete) {
+                this.callback.onLoadCompleted();
+            }
     }
 
     setupCanvas() {
-        this.canvas.width = this.tileSize * (this.numTiles + this.uiWidth);
-        this.canvas.height = this.tileSize * this.numTiles;
+        this.canvas.width = tileSize * (numTiles + uiWidth);
+        this.canvas.height = tileSize * numTiles;
         this.canvas.style.width = this.canvas.width + 'px';
         this.canvas.style.height = this.canvas.height + 'px';
         this.ctx.imageSmoothingEnabled = false;
     }
 
+    getSpriteSheet(spriteType) {
+        switch(spriteType) {
+            case SPRITETYPES.MONSTER:
+                return this.monsterSpriteSheet;                
+            case SPRITETYPES.TILE:
+                return this.tileSpriteSheet;                
+            case SPRITETYPES.EFFECTS:
+                return this.effectSpriteSheet;
+            case SPRITETYPES.ITEMS:
+                return this.itemSpriteSheet;
+        }
+    }
+
     /**
      * Draws a sprite on the canvas
-     * @param {number} sprite - Index of the sprite to show
+     * @param {number} spriteIdx - Index of the sprite to show
      * @param {number} x - X position of the sprite on the map
      * @param {number} y - X position of the sprite on the map
      * @param {?number} effectCounter - Used for alpha effects
      */
-    drawSprite(sprite, x, y, effectCounter) {
+    drawSprite(spriteType, spriteIdx, x, y, effectCounter) {
         if (effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / 30;
         }
 
         this.ctx.drawImage(
-            this.spritesheet,
-            sprite * 16,
+            this.getSpriteSheet(spriteType),
+            spriteIdx * 16,
             0,
             16,
             16,
-            x * this.tileSize + this.shake.x,
-            y * this.tileSize + this.shake.y,
-            this.tileSize,
-            this.tileSize
+            x * tileSize + this.shake.x,
+            y * tileSize + this.shake.y,
+            tileSize,
+            tileSize
         );
 
         if (!effectCounter || effectCounter <= 0) {
@@ -133,7 +167,7 @@ class Renderer {
         if (centered) {
             textX = (this.canvas.width - this.ctx.measureText(text).width) / 2;
         } else {
-            textX = this.canvas.width - this.uiWidth * this.tileSize + 25;
+            textX = this.canvas.width - uiWidth * tileSize + 25;
         }
 
         this.ctx.fillText(text, textX, textY);
