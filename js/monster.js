@@ -142,7 +142,7 @@ class Monster {
 
 class Player extends Monster {
     constructor(tile) {
-        super(tile, 0, 3);
+        super(tile, MONSTER_SPRITE_INDICES.Player, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
         this.spells = Utilities.shuffle(Object.keys(spells)).splice(0, numSpells);
@@ -177,14 +177,14 @@ class Player extends Monster {
 // Basic monster with no special behavior
 class Bird extends Monster {
     constructor(tile) {
-        super(tile, 4, 3);
+        super(tile, MONSTER_SPRITE_INDICES.Bird, 3);
     }
 }
 
 // Moves twice 
 class Snake extends Monster {
     constructor(tile) {
-        super(tile, 5, 1);
+        super(tile, MONSTER_SPRITE_INDICES.Snake, 1);
     }
 
     doStuff() {
@@ -200,7 +200,7 @@ class Snake extends Monster {
 // Moves every other turn
 class Tank extends Monster {
     constructor(tile) {
-        super(tile, 6, 2);
+        super(tile, MONSTER_SPRITE_INDICES.Tank, 2);
     }
 
     update() {
@@ -215,7 +215,7 @@ class Tank extends Monster {
 // Destroys walls and heals by doing so
 class Eater extends Monster {
     constructor(tile) {
-        super(tile, 7, 1);
+        super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
     doStuff() {
@@ -232,7 +232,7 @@ class Eater extends Monster {
 // Moves randomly
 class Jester extends Monster {
     constructor(tile) {
-        super(tile, 8, 2);
+        super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
 
     doStuff() {
