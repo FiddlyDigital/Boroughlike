@@ -82,7 +82,7 @@ const MAP = (function () {
     }
 
     function spawnMonster() {
-        let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester])[0];
+        let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
         let monster = new monsterType(randomPassableTile());
         monsters.push(monster);
     }

@@ -50,7 +50,7 @@ class Tile {
         while(currentTile != null) {
             currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-            if (!currentTile instanceof Wall) {                
+            if (!(currentTile instanceof Wall)) {                
                 chain.push(currentTile);                
             } else {
                 currentTile = null;
@@ -87,7 +87,7 @@ class Tile {
         if (this.effectCounter) {
             this.effectCounter--;
 
-            renderer.drawSprite(SPRITETYPES.EFFECT, this.effect, this.x, this.y, this.effectCounter);
+            renderer.drawSprite(SPRITETYPES.EFFECTS, this.effect, this.x, this.y, this.effectCounter);
         }
     }
 

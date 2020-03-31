@@ -28,7 +28,11 @@ const MONSTER_SPRITE_INDICES = {
     Eater: 5,
     Jester: 6,
     HP : 7,
-    MonsterLoad : 8
+    MonsterLoad : 8,
+    Turret_N: 9,
+    Turret_E: 10,
+    Turret_S: 11,
+    Turret_W: 12,
 }
 
 const EFFECT_SPRITE_INDICES = {

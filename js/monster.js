@@ -257,19 +257,19 @@ class Turret extends Monster {
             this.currentDirection = 0;
         }
 
-        //this.sprite = MONSTER_SPRITE_INDICES["Turret_" + this.directions[this.currentDirection]];
-        var targetTiles = this.tile.getNeighbourChain(this.directions[this.currentDirection]);
+        let cardinalDirection = this.directions[this.currentDirection];
+        this.sprite = MONSTER_SPRITE_INDICES["Turret_" + cardinalDirection];
+        var targetTiles = this.tile.getNeighbourChain(cardinalDirection);
 
         // if the player is in LOS
-        if (targetTiles.some(t => t.monster.isPlayer)) {
-
+        if (targetTiles.some(t => { return (t.monster && t.monster.isPlayer)})) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
                 if (t.monster) {
-                    t.monster.damage(1);
+                    t.monster.hit(1);
                 }
 
-                switch(direction) {
+                switch(cardinalDirection) {
                     case "N":
                     case "S":
                         t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);

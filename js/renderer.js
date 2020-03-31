@@ -1,8 +1,8 @@
 class Renderer {
     constructor() {
-        if (!Renderer.instance) {            
-            this.monsterSpriteSheet = new Image();                
-            this.tileSpriteSheet = new Image();                
+        if (!Renderer.instance) {
+            this.monsterSpriteSheet = new Image();
+            this.tileSpriteSheet = new Image();
             this.effectSpriteSheet = new Image();
             this.itemSpriteSheet = new Image();
             this.callback = {
@@ -13,7 +13,7 @@ class Renderer {
                 amount: 0,
                 x: 0,
                 y: 0
-            };                        
+            };
 
             this.canvas = document.querySelector("canvas");
             this.ctx = this.canvas.getContext("2d");
@@ -38,13 +38,13 @@ class Renderer {
         this.itemSpriteSheet.src = "assets/images/items.png";
     }
 
-    checkAllSpriteSheetsLoaded(){
-        if(this.monsterSpriteSheet.complete 
+    checkAllSpriteSheetsLoaded() {
+        if (this.monsterSpriteSheet.complete
             && this.tileSpriteSheet.complete
             && this.effectSpriteSheet.complete
             && this.itemSpriteSheet.complete) {
-                this.callback.onLoadCompleted();
-            }
+            this.callback.onLoadCompleted();
+        }
     }
 
     setupCanvas() {
@@ -56,11 +56,11 @@ class Renderer {
     }
 
     getSpriteSheet(spriteType) {
-        switch(spriteType) {
+        switch (spriteType) {
             case SPRITETYPES.MONSTER:
-                return this.monsterSpriteSheet;                
+                return this.monsterSpriteSheet;
             case SPRITETYPES.TILE:
-                return this.tileSpriteSheet;                
+                return this.tileSpriteSheet;
             case SPRITETYPES.EFFECTS:
                 return this.effectSpriteSheet;
             case SPRITETYPES.ITEMS:
@@ -111,7 +111,7 @@ class Renderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    drawDarkBackground() {        
+    drawDarkBackground() {
         this.clearCanvas();
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -130,7 +130,7 @@ class Renderer {
     }
 
     showGameWin(score) {
-        this.drawDarkBackground();        
+        this.drawDarkBackground();
         this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
     }

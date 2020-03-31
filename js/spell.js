@@ -23,12 +23,12 @@ const spells = {
     },
     AURA: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            t.setEffect(13);
+            t.setEffect(EFFECT_SPRITE_INDICES.Heal);
             if (t.monster) {
                 t.monster.heal(1);
             }
         });
-        caster.tile.setEffect(13);
+        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
         caster.heal(1);
     },
     DASH: function (caster) {
@@ -45,7 +45,7 @@ const spells = {
             caster.move(newTile);
             newTile.getAdjacentNeighbors().forEach(t => {
                 if (t.monster) {
-                    t.setEffect(14);
+                    t.setEffect(EFFECT_SPRITE_INDICES.Flame);
                     t.monster.stunned = true;
                     t.monster.hit(1);
                 }
@@ -61,7 +61,7 @@ const spells = {
                 }
             }
         }
-        caster.tile.setEffect(13);
+        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
         caster.heal(2);
     },
     KINGMAKER: function () {
@@ -104,7 +104,8 @@ const spells = {
             [1, 0]
         ];
         for (let k = 0; k < directions.length; k++) {
-            boltTravel(caster, directions[k], 15 + Math.abs(directions[k][1]), 2);
+            let dirSprite = Math.abs(directions[k][1]) == 0 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal : EFFECT_SPRITE_INDICES.Bolt_Vertical;
+            boltTravel(caster, directions[k], dirSprite, 2);
         }
     },
     EX: function (caster) {
@@ -115,7 +116,7 @@ const spells = {
             [1, 1]
         ];
         for (let k = 0; k < directions.length; k++) {
-            boltTravel(caster, directions[k], 14, 3);
+            boltTravel(caster, directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
         }
     }
 };
@@ -129,7 +130,7 @@ function boltTravel(caster, direction, effect, damage) {
             if (newTile.monster) {
                 newTile.monster.hit(damage);
             }
-            console.log(effect);
+            
             newTile.setEffect(effect);
         } else {
             break;
