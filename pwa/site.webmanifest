@@ -1,0 +1,28 @@
+{
+	"background_color" : "transparent",
+	"description" : "Book themed Roguelike/Roguelite",
+	"dir" : "ltr",
+    "display" : "standalone",
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+	"lang" : "English",
+	"name" : "Boroughlike",
+	"orientation" : "landscape",
+	"prefer_related_applications" : false,
+	"related_applications" : [],
+	"scope" : "/Boroughlike/",
+	"short_name" : "Boroughlike",
+	"start_url" : "https://fiddlydigital.github.io/Boroughlike/",
+	"theme_color" : "transparent",
+    "url" : "https://fiddlydigital.github.io/Boroughlike/"
+}
