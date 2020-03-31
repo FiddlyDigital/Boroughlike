@@ -242,3 +242,44 @@ class Jester extends Monster {
         }
     }
 }
+
+class Turret extends Monster {
+    constructor(tile) {
+        super(tile, MONSTER_SPRITE_INDICES.Turret, 1);
+        this.directions = ["N", "E", "S", "W"];
+        this.currentDirection = Utilities.randomRange(0, 3);
+    }
+
+    doStuff() {
+        // Rotate 90 degrees
+        this.currentDirection += 1;
+        if (this.currentDirection == 4) {
+            this.currentDirection = 0;
+        }
+
+        //this.sprite = MONSTER_SPRITE_INDICES["Turret_" + this.directions[this.currentDirection]];
+        var targetTiles = this.tile.getNeighbourChain(this.directions[this.currentDirection]);
+
+        // if the player is in LOS
+        if (targetTiles.some(t => t.monster.isPlayer)) {
+
+            // Shoot lighting at everything in that direction
+            targetTiles.forEach(t => {
+                if (t.monster) {
+                    t.monster.damage(1);
+                }
+
+                switch(direction) {
+                    case "N":
+                    case "S":
+                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
+                        break;
+                    case "E":
+                    case "W":
+                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
+                        break;
+                }
+            })
+        }
+    }
+}

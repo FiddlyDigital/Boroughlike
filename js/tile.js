@@ -28,6 +28,38 @@ class Tile {
         ]);
     }
 
+    getNeighbourChain(direction) {
+        let xy = [0,0];
+        switch(direction) {
+            case "N":
+                xy = [0,-1];
+                break;
+            case "S":
+                xy = [0, 1];
+                break;
+            case "E":
+                xy = [1,0];
+                break;
+            case "W":
+                xy = [-1,0];
+                break;
+        }
+
+        let chain = [];
+        let currentTile = this;
+        while(currentTile != null) {
+            currentTile = currentTile.getNeighbor(xy[0], xy[1]);
+
+            if (!currentTile instanceof Wall) {                
+                chain.push(currentTile);                
+            } else {
+                currentTile = null;
+            }
+        }
+        
+        return chain;
+    }
+
     getAdjacentPassableNeighbors() {
         return this.getAdjacentNeighbors().filter(t => t.passable);
     }
