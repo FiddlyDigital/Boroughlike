@@ -76,7 +76,7 @@ class Renderer {
      * @param {?number} effectCounter - Used for alpha effects
      */
     drawSprite(spriteType, spriteIdx, x, y, effectCounter) {
-        if (effectCounter && effectCounter > 0) {
+        if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / 30;
         }
 
@@ -92,7 +92,7 @@ class Renderer {
             tileSize
         );
 
-        if (!effectCounter || effectCounter <= 0) {
+        if (spriteType === SPRITETYPES.EFFECTS && (!effectCounter || effectCounter <= 0)) {
             this.ctx.globalAlpha = 1;
         }
     }
