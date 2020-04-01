@@ -1,11 +1,11 @@
 const spells = {
     WOOP: function (caster) {
-        caster.move(MAP.randomPassableTile());
+        caster.move(map.randomPassableTile());
     },
     QUAKE: function (caster) {        
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = MAP.getTile(i, j);
+                let tile = map.getTile(i, j);
                 if (tile.monster && tile.monster != caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
@@ -16,9 +16,9 @@ const spells = {
         renderer.setShakeAmount(20);
     },
     TORNADO: function () {
-        for (let i = 0; i < MAP.getMonsters().length; i++) {
-            MAP.getMonsters()[i].move(MAP.randomPassableTile());
-            MAP.getMonsters()[i].teleportCounter = 2;
+        for (let i = 0; i < map.getMonsters().length; i++) {
+            map.getMonsters()[i].move(map.randomPassableTile());
+            map.getMonsters()[i].teleportCounter = 2;
         }
     },
     AURA: function (caster) {
@@ -55,9 +55,9 @@ const spells = {
     FLATTEN: function (caster) {        
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
-                let tile = MAP.getTile(i, j);
+                let tile = map.getTile(i, j);
                 if (!tile.passable) {
-                    tile.replace(Floor);
+                    map.replaceTile(i,j, Floor);
                 }
             }
         }
@@ -66,8 +66,9 @@ const spells = {
     },
     ALCHEMY: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if (!t.passable && MAP.inBounds(t.x, t.y)) {
-                t.replace(Floor).book = true;
+            if (!t.passable && map.inBounds(t.x, t.y)) {
+                map.replaceTile(t.x, t.y, Floor);
+                map.getTile(t.x, t.y).book = true;                
             }
         });
     },
@@ -76,8 +77,8 @@ const spells = {
     },
     PROTECT: function (caster) {
         caster.shield = 2;
-        for (let i = 0; i < MAP.getMonsters().length; i++) {
-            MAP.getMonsters()[i].stunned = true;
+        for (let i = 0; i < map.getMonsters().length; i++) {
+            map.getMonsters()[i].stunned = true;
         }
     },
     BOLT: function (caster) {
@@ -114,7 +115,7 @@ function boltTravel(caster, direction, effect, damage) {
         let testTile = newTile.getNeighbor(direction[0], direction[1]);
         if (testTile.passable) {
             newTile = testTile;
-            
+
             if (newTile.monster) {
                 newTile.monster.hit(damage);
             }

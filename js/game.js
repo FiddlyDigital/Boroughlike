@@ -11,10 +11,10 @@ const GAME = (function () {
         // Define our States and how they change based on events raised
         const stateMatrix = {};
         stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, loadAssets);
-        stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, showTitle);
-        stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, startGame);
-        stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, showGameLose);
-        stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, showGameWin);
+        stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, showTitle.bind(this));
+        stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, startGame.bind(this));
+        stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, showGameLose.bind(this));
+        stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, showGameWin.bind(this));
         FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
 
         renderer.setupCanvas();
@@ -86,12 +86,12 @@ const GAME = (function () {
 
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
-                    MAP.getTile(i, j).draw();
+                    map.getTile(i, j).draw();
                 }
             }
 
-            for (let i = 0; i < MAP.getMonsters().length; i++) {
-                MAP.getMonsters()[i].draw();
+            for (let i = 0; i < map.getMonsters().length; i++) {
+                map.getMonsters()[i].draw();
             }
 
             player.draw();
@@ -101,11 +101,11 @@ const GAME = (function () {
 
     function tick() {
         if (FSM.currentState.name == GAME_STATES.RUNNING) {
-            for (let k = MAP.getMonsters().length - 1; k >= 0; k--) {
-                if (!MAP.getMonsters()[k].dead) {
-                    MAP.getMonsters()[k].update();
+            for (let k = map.getMonsters().length - 1; k >= 0; k--) {
+                if (!map.getMonsters()[k].dead) {
+                    map.getMonsters()[k].update();
                 } else {
-                    MAP.getMonsters().splice(k, 1);
+                    map.getMonsters().splice(k, 1);
                 }
             }
 
@@ -118,7 +118,7 @@ const GAME = (function () {
 
             spawnCounter--;
             if (spawnCounter <= 0) {
-                MAP.spawnMonster();
+                map.spawnMonster();
                 spawnCounter = spawnRate;
                 spawnRate--;
             }
@@ -152,17 +152,19 @@ const GAME = (function () {
         spawnRate = 15;
         spawnCounter = spawnRate;
 
-        MAP.generateLevel(level);
+        map.generateLevel(level);
 
-        player = new Player(MAP.randomPassableTile());
+        player = new Player(map.randomPassableTile());
         player.hp = playerHp;
-        //player.tile.replace(StairUp); // PG: Future bi-directional travel
+        
+        //map.replaceTile(player.tile.x, player.tile.y, StairDown); // PG: Future bi-directional travel        
 
         if (playerSpells) {
             player.spells = playerSpells;
         }
 
-        MAP.randomPassableTile().replace(StairDown);
+        let levelExit = map.randomPassableTile();
+        map.replaceTile(levelExit.x, levelExit.y, StairDown);        
     }
 
     function getScores() {
@@ -211,7 +213,7 @@ const GAME = (function () {
             player.addSpell();
         }
 
-        MAP.spawnMonster();
+        map.spawnMonster();
     }
 
     function getPlayerTile() {
@@ -220,8 +222,7 @@ const GAME = (function () {
 
     return {
         addScore: addScore,
-        draw: draw,
-        GAMESTATES: GAME_STATES,
+        draw: draw,        
         getLevel: getLevel,        
         getPlayerTile: getPlayerTile,
         incrementScore: incrementScore,

@@ -1,45 +1,65 @@
-const MAP = (function () {
-    var monsters = [];    
-    var level = 1;
+class Map {
+    constructor() {
+        if (!Map.instance) {
+            this.props = {
+                monsters : [],                
+                tiles : [],
+                level : 1,
+            };
 
-    function getMonsters() {
-        return monsters;
+            Map.instance = this;
+        }
+
+        return Map.instance;
     }
 
-    function generateLevel(lvl) {
-        level = lvl;
+    replaceTile(x,y, newTileType) {
+        this.props.tiles[x][y] = new newTileType(x, y)
+        return this.props.tiles[x][y]
+    }
+
+    tiles () {
+        return this.props.tiles;
+    }
+
+    getMonsters() {
+        return this.props.monsters;
+    }
+
+    generateLevel(lvl) {
+        this.props.level = lvl;
 
         Utilities.tryTo('generate map', function () {
-            return generateTiles() == randomPassableTile().getConnectedTiles().length;
+            return map.generateTiles() == map.randomPassableTile().getConnectedTiles().length;
         });
 
-        generateMonsters();
+        this.generateMonsters();
         
         var booksPlaced = 0
         while(booksPlaced < 3) {        
-            let t = randomPassableTile()
+            let t = this.randomPassableTile()
             if (t instanceof Floor) {                
                 booksPlaced++;
-                randomPassableTile().book = true;
+                t.book = true;
             }
         }
     }
 
-    function generateTiles() {
+    generateTiles() {
         let passableTiles = 0;
-        tiles = [];
+        this.props.tiles = [];
         for (let i = 0; i < numTiles; i++) {
-            tiles[i] = [];
+            this.props.tiles[i] = [];
             for (let j = 0; j < numTiles; j++) {
-                if (Math.random() < 0.3 || !inBounds(i, j)) {
-                    tiles[i][j] = new Wall(i, j);
+                if (Math.random() < 0.3 || !this.inBounds(i, j)) {
+                    this.props.tiles[i][j] = new Wall(i, j);
                 } else {
                     if (Math.random() < 0.02) {
-                        tiles[i][j] = new SpikePit(i, j);
+                        this.props.tiles[i][j] = new SpikePit(i, j);
                     } else if (Math.random() < 0.005) {
-                        tiles[i][j] = new Fountain(i, j);
+                        this.props.tiles[i][j] = new Fountain(i, j);
                     } else {
-                        tiles[i][j] = new Floor(i, j);
+                        this.props.tiles[i][j] = new Floor(i, j);
                     }
 
                     passableTiles++;
@@ -49,49 +69,45 @@ const MAP = (function () {
         return passableTiles;
     }
 
-    function inBounds(x, y) {
+    inBounds(x, y) {
         return x > 0 && y > 0 && x < numTiles - 1 && y < numTiles - 1;
     }
 
-    function getTile(x, y) {
-        if (inBounds(x, y)) {
-            return tiles[x][y];
+    getTile(x, y) {
+        if (this.inBounds(x, y)) {
+            return this.props.tiles[x][y];
         } else {
             return new Wall(x, y);
         }
     }
 
-    function randomPassableTile() {
+    randomPassableTile() {
         let tile;
         Utilities.tryTo('get random passable tile', function () {
             let x = Utilities.randomRange(0, numTiles - 1);
             let y = Utilities.randomRange(0, numTiles - 1);
-            tile = getTile(x, y);
+            tile = map.getTile(x, y);
             return tile.passable && !tile.monster;
         });
         return tile;
     }
 
-    function generateMonsters() {
-        monsters = [];
-        let numMonsters = Math.ceil(level / 2) + 1;
+    generateMonsters() {
+        this.props.monsters = [];
+        let numMonsters = Math.ceil(this.props.level / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
-            spawnMonster();
+            this.spawnMonster();
         }
     }
 
-    function spawnMonster() {
+    spawnMonster() {
         let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
-        let monster = new monsterType(randomPassableTile());
-        monsters.push(monster);
+        let monster = new monsterType(this.randomPassableTile());
+        this.props.monsters.push(monster);
     }
+}
 
-    return {
-        generateLevel: generateLevel,
-        getMonsters: getMonsters,        
-        getTile: getTile,
-        inBounds: inBounds,
-        randomPassableTile: randomPassableTile,
-        spawnMonster: spawnMonster
-    }
-}());
+const map = new Map();
+Object.freeze(map);
+
+//export default map;
