@@ -1,5 +1,5 @@
 const GAME = (function () {
-    var version = 'alpha';
+    var version = 'alpha-0.1';
     var level = 1;
     var FSM = null;
 
