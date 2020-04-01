@@ -120,6 +120,10 @@ class Renderer {
     showTitle(scores) {
         this.drawDarkBackground();
 
+        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 6, 1);
+        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player, 7, 1);
+        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 8, 1);
+        
         this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
         this.drawText("1-9 to use spells", 32, true, this.canvas.height / 2 - 40, "white");
@@ -127,18 +131,34 @@ class Renderer {
         if (scores && scores.length > 0) {
             this.drawScores(scores);
         }
+
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
     }
 
     showGameWin(score) {
         this.drawDarkBackground();
+
+        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 6, 1);
+        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player, 7, 1);
+        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 8, 1);
+
         this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
+
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
     }
 
     showGameLose(score) {
         this.drawDarkBackground();
-        this.drawText("Uh-oh!", 64, true, this.canvas.height / 2 - 150, "white");
-        this.drawText("You didn't make it out. Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
+        
+        this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 6, 1);
+        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player_Dead, 7, 1);
+        this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 8, 1);
+
+        this.drawText("You didn't make it out!", 64, true, this.canvas.height / 2 - 150, "white");
+        this.drawText("Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
+
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
     }
 
     updateSidebar(level, score, spells) {
