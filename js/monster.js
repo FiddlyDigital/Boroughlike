@@ -11,7 +11,7 @@ class Monster {
     }
 
     heal(damage) {
-        this.hp = Math.min(GAME.getMaxHP(), this.hp + damage);
+        this.hp = Math.min(maxHp, this.hp + damage);
 
         if (this.isPlayer) {
             //audioPlayer.playSound(SOUNDFX.PLAYERHEAL);

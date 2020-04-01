@@ -1,31 +1,7 @@
-const GAME_STATES = {
-    LOADING: "Loading",
-    TITLE: "Title",
-    RUNNING: "Running",
-    GAMEOVER: "GameOver",
-    GAMEWIN: "GameWin"
-};
-
-const GAME_EVENTS = {
-    ASSETSLOADED: "AssetsLoaded",
-    KEYPRESS: "KeyPress",
-    PLAYERWIN: "PlayerWin",
-    PLAYERLOSE: "PlayerLose"
-}
-
-
-
 const GAME = (function () {
     var version = 'alpha';
     var level = 1;
-    var maxHp = 6;
-    var startingHp = 3;
-    var numLevels = 10;    
     var FSM = null;
-
-    function getMaxHP() {
-        return maxHp;
-    }
 
     function getLevel() {
         return level;
@@ -246,8 +222,7 @@ const GAME = (function () {
         addScore: addScore,
         draw: draw,
         GAMESTATES: GAME_STATES,
-        getLevel: getLevel,
-        getMaxHP: getMaxHP,
+        getLevel: getLevel,        
         getPlayerTile: getPlayerTile,
         incrementScore: incrementScore,
         init: init,

@@ -6,7 +6,6 @@ const MAP = (function () {
         return monsters;
     }
 
-
     function generateLevel(lvl) {
         level = lvl;
 

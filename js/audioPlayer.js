@@ -1,11 +1,3 @@
-const SOUNDFX = {
-    PLAYERHIT: "hit1.wav",
-    MONSTERHIT: "hit2.wav",
-    BOOK: "book.wav",
-    NEWLEVEL: "newLevel.wav",
-    SPELL: "spell.wav",
-}
-
 class AudioPlayer {
     constructor() {
         if(!AudioPlayer.instance){
