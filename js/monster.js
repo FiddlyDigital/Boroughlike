@@ -243,6 +243,8 @@ class Jester extends Monster {
     }
 }
 
+// Doesn't move. 
+// Just rotates in place and shoots player (and everything else on that line) when it sees them.
 class Turret extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Turret, 1);

@@ -15,7 +15,7 @@ const spells = {
 
         renderer.setShakeAmount(20);
     },
-    MAELSTROM: function () {
+    TORNADO: function () {
         for (let i = 0; i < MAP.getMonsters().length; i++) {
             MAP.getMonsters()[i].move(MAP.randomPassableTile());
             MAP.getMonsters()[i].teleportCounter = 2;
@@ -28,8 +28,8 @@ const spells = {
                 t.monster.heal(1);
             }
         });
-        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
-        caster.heal(1);
+        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Heal);
+        caster.heal(3);
     },
     DASH: function (caster) {
         let newTile = caster.tile;
@@ -52,7 +52,7 @@ const spells = {
             });
         }
     },
-    DIG: function (caster) {        
+    FLATTEN: function (caster) {        
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = MAP.getTile(i, j);
@@ -64,12 +64,6 @@ const spells = {
         caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
         caster.heal(2);
     },
-    KINGMAKER: function () {
-        for (let i = 0; i < MAP.getMonsters().length; i++) {
-            MAP.getMonsters()[i].heal(1);
-            MAP.getMonsters()[i].tile.book = true;
-        }
-    },
     ALCHEMY: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (!t.passable && MAP.inBounds(t.x, t.y)) {
@@ -77,17 +71,10 @@ const spells = {
             }
         });
     },
-    POWER: function (caster) {
+    POWERATTACK: function (caster) {
         caster.bonusAttack = 5;
     },
-    BUBBLE: function (caster) {
-        for (let i = caster.spells.length - 1; i > 0; i--) {
-            if (!caster.spells[i]) {
-                caster.spells[i] = caster.spells[i - 1];
-            }
-        }
-    },
-    BRAVERY: function (caster) {
+    PROTECT: function (caster) {
         caster.shield = 2;
         for (let i = 0; i < MAP.getMonsters().length; i++) {
             MAP.getMonsters()[i].stunned = true;
@@ -127,6 +114,7 @@ function boltTravel(caster, direction, effect, damage) {
         let testTile = newTile.getNeighbor(direction[0], direction[1]);
         if (testTile.passable) {
             newTile = testTile;
+            
             if (newTile.monster) {
                 newTile.monster.hit(damage);
             }
