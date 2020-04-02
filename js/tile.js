@@ -99,7 +99,7 @@ class Floor extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer && this.book) {
-            GAME.incrementScore();
+            game.incrementScore();
             this.book = false;
         }
     }
@@ -119,7 +119,7 @@ class StairDown extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer) {
-            GAME.nextLevel();
+            game.nextLevel();
         }
     }
 }
@@ -131,7 +131,7 @@ class StairUp extends Tile {
 
     stepOn(monster) {
         if (monster.isPlayer) {
-            GAME.previousLevel();
+            game.previousLevel();
         }
     }
 }

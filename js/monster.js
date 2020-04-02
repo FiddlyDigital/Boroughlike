@@ -33,7 +33,7 @@ class Monster {
 
         neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer);
 
-        let playerTile = GAME.getPlayerTile();
+        let playerTile = game.getPlayerTile();
 
         if (neighbors.length) {
             neighbors.sort((a, b) => a.dist(playerTile) - b.dist(playerTile));
@@ -154,7 +154,7 @@ class Player extends Monster {
 
     tryMove(dx, dy) {
         if (super.tryMove(dx, dy)) {
-            GAME.tick();
+            game.tick();
         }
     }
 
@@ -169,7 +169,7 @@ class Player extends Monster {
             delete this.spells[index];
             spells[spellName](this);
             audioPlayer.playSound(SOUNDFX.SPELL);
-            GAME.tick();
+            game.tick();
         }
     }
 }

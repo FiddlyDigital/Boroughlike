@@ -4,6 +4,7 @@ const numTiles = 12;
 const startingHp = 3;
 const tileSize = 64;
 const uiWidth = 3;
+var numSpells = 1;
 
 const EFFECT_SPRITE_INDICES = {
     Heal : 0,

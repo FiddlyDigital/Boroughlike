@@ -1,51 +1,59 @@
-const GAME = (function () {
-    var version = 'alpha-0.1';
-    var level = 1;
-    var FSM = null;
+class Game {
+    constructor() {
+        if(!Game.instance) {
+            this.version = 'alpha-0.1';
+            this.props = {
+                level: 1,
+                player: null,
+                score: 0,
+                spawnRate: 15,
+                spawnCounter: 0
+            };
 
-    function getLevel() {
-        return level;
+            const stateMatrix = {};
+            stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets);
+            stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, this.showTitle.bind(this));
+            stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, this.startGame.bind(this));
+            stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, this.showGameLose.bind(this));
+            stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, this.showGameWin.bind(this));
+
+            this.FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
+
+            Game.instance = this;
+        }
+
+        return Game.instance;
     }
 
-    function init() {
-        // Define our States and how they change based on events raised
-        const stateMatrix = {};
-        stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, loadAssets);
-        stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, showTitle.bind(this));
-        stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, startGame.bind(this));
-        stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, showGameLose.bind(this));
-        stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, showGameWin.bind(this));
-        FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
-
+    init() {
         renderer.setupCanvas();
-        addEventHandlers();
-
-        setInterval(draw, 15); // ever 15ms, or 60 fps
+        this.addEventHandlers();
+        setInterval(this.draw.bind(this), 15); // ever 15ms, or 60 fps
     }
 
-    function loadAssets() {
+    loadAssets() {
         audioPlayer.initSounds();
         renderer.initSpriteSheet(function () {
-            FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
+            game.FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
     }
 
-    function addEventHandlers() {
+    addEventHandlers() {
         document.querySelector("html").onkeydown = function (e) {
-            switch (FSM.currentState.name) {
+            switch (game.FSM.currentState.name) {
                 case GAME_STATES.GAMEWIN:
                 case GAME_STATES.GAMEOVER:
                 case GAME_STATES.TITLE:
-                    FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
+                    game.FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
                     break;
                 case GAME_STATES.RUNNING:
-                    handleKeypress(e);
+                    game.handleKeypress(e);
                     break;
             }
         };
     }
 
-    function handleKeypress(e) {
+    handleKeypress(e) {
         e = e || window.event;
         if (e.defaultPrevented) {
             return; // Do nothing if the event was already processed
@@ -54,33 +62,33 @@ const GAME = (function () {
         switch (e.key) {
             case "Up": case "ArrowUp":
             case "w": case "W":
-                player.tryMove(0, -1)
+                this.props.player.tryMove(0, -1)
                 break;
             case "Down": case "ArrowDown":
             case "s": case "S":
-                player.tryMove(0, 1);
+                this.props.player.tryMove(0, 1);
                 break;
             case "Left": case "ArrowLeft":
             case "a": case "A":
-                player.tryMove(-1, 0);
+                this.props.player.tryMove(-1, 0);
                 break;
             case "Right": case "ArrowRight":
             case "d": case "D":
-                player.tryMove(1, 0);
+                this.props.player.tryMove(1, 0);
                 break;
             case " ": // Spacebar; 'Pass' a turn
-                player.tryMove(0, 0);
+                this.props.player.tryMove(0, 0);
                 break;
             case 1: case "1": case 2: case "2": case 3: case "3":
             case 4: case "4": case 5: case "5": case 6: case "6":
             case 7: case "7": case 8: case "8": case 9: case "9":
-                player.castSpell(parseInt(e.key) - 1);
+                this.props.player.castSpell(parseInt(e.key) - 1);
                 break;
         }
     }
 
-    function draw() {
-        if (FSM.currentState.name == GAME_STATES.RUNNING) {
+    draw() {
+        if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             renderer.clearCanvas();
             renderer.screenshake();
 
@@ -94,13 +102,13 @@ const GAME = (function () {
                 map.getMonsters()[i].draw();
             }
 
-            player.draw();
-            renderer.updateSidebar(level, score, player.spells);
+            this.props.player.draw();
+            renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
         }
     }
 
-    function tick() {
-        if (FSM.currentState.name == GAME_STATES.RUNNING) {
+    tick() {
+        if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             for (let k = map.getMonsters().length - 1; k >= 0; k--) {
                 if (!map.getMonsters()[k].dead) {
                     map.getMonsters()[k].update();
@@ -109,74 +117,67 @@ const GAME = (function () {
                 }
             }
 
-            player.update();
+            this.props.player.update();
 
-            if (player.dead) {
-                addScore(score, false);
-                FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
+            if (this.props.player.dead) {
+                this.addScore(this.props.score, false);
+                this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
             }
 
-            spawnCounter--;
-            if (spawnCounter <= 0) {
+            this.props.spawnCounter--;
+            if (this.props.spawnCounter <= 0) {
                 map.spawnMonster();
-                spawnCounter = spawnRate;
-                spawnRate--;
+                this.props.spawnCounter = this.props.spawnRate;
+                this.props.spawnRate--;
             }
         }
     }
 
-    function showTitle() {
-        renderer.showTitle(getScores());
+    showTitle() {
+        renderer.showTitle(this.getScores());
     }
 
-    function showGameWin() {
+    showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
-        addScore(score, true);
-        renderer.showGameWin(score);
+        this.addScore(this.props.score, true);
+        renderer.showGameWin(this.props.score);
     }
 
-    function showGameLose() {
+    showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
-        addScore(score, true);
-        renderer.showGameLose(score);
+        this.addScore(this.props.score, true);
+        renderer.showGameLose(this.props.score);
     }
 
-    function startGame() {
-        level = 1;
-        score = 0;
+    startGame() {
+        this.props.level = 1;
+        this.props.score = 0;
         numSpells = 1;
-        startLevel(startingHp);
+        this.startLevel(startingHp);
     }
 
-    function startLevel(playerHp, playerSpells) {
-        spawnRate = 15;
-        spawnCounter = spawnRate;
+    startLevel(playerHp, playerSpells) {
+        this.props.spawnRate = 15;
+        this.props.spawnCounter = this.props.spawnRate;
 
-        map.generateLevel(level);
+        map.generateLevel(this.props.level);
 
-        player = new Player(map.randomPassableTile());
-        player.hp = playerHp;
+        this.props.player = new Player(map.randomPassableTile());
+        this.props.player.hp = playerHp;
         
-        //map.replaceTile(player.tile.x, player.tile.y, StairDown); // PG: Future bi-directional travel        
+        // PG: Future bi-directional travel
+        //map.replaceTile(player.tile.x, player.tile.y, StairDown); 
 
         if (playerSpells) {
-            player.spells = playerSpells;
+            this.props.player.spells = playerSpells;
         }
 
         let levelExit = map.randomPassableTile();
         map.replaceTile(levelExit.x, levelExit.y, StairDown);        
     }
 
-    function getScores() {
-        if (localStorage["scores"]) {
-            return JSON.parse(localStorage["scores"]);
-        } else {
-            return [];
-        }
-    }
-
-    function addScore(score, won) {
-        let scores = getScores();
+    addScore(score, won) {
+        let scores = this.getScores();
         let scoreObject = { score: score, run: 1, totalScore: score, active: won };
         let lastScore = scores.pop();
 
@@ -193,45 +194,42 @@ const GAME = (function () {
         localStorage["scores"] = JSON.stringify(scores);
     }
 
-    function nextLevel() {
-        if (level == numLevels) {
-            FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
+    getScores() {
+        if (localStorage["scores"]) {
+            return JSON.parse(localStorage["scores"]);
         } else {
-            audioPlayer.playSound(SOUNDFX.NEWLEVEL);
-            level++;
-            startLevel(Math.min(maxHp, player.hp + 1));
+            return [];
         }
     }
 
-    function incrementScore() {
+    nextLevel() {
+        if (this.props.level == numLevels) {
+            this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
+        } else {
+            audioPlayer.playSound(SOUNDFX.NEWLEVEL);
+            this.props.level++;
+            this.startLevel(Math.min(maxHp, this.props.player.hp + 1));
+        }
+    }
+
+    incrementScore() {
         audioPlayer.playSound(SOUNDFX.BOOK);
 
-        score++;
+        this.props.score++;
 
-        if (score % 3 == 0 && numSpells < 9) {
+        if (this.props.score % 3 == 0 && numSpells < 9) {
             numSpells++;
-            player.addSpell();
+            this.props.player.addSpell();
         }
 
         map.spawnMonster();
     }
 
-    function getPlayerTile() {
-        return player.tile;
+    getPlayerTile() {
+        return this.props.player.tile;
     }
+}
 
-    return {
-        addScore: addScore,
-        draw: draw,        
-        getLevel: getLevel,        
-        getPlayerTile: getPlayerTile,
-        incrementScore: incrementScore,
-        init: init,
-        loadAssets: loadAssets,
-        nextLevel: nextLevel,
-        showTitle: showTitle,
-        startGame: startGame,
-        startLevel: startLevel,
-        tick: tick,
-    }
-}());
+const game = new Game();
+Object.freeze(game);
+//export default game;
