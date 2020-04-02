@@ -39,19 +39,11 @@
 
 <body>
     <canvas></canvas>
+    
+    <script src="js/game.js" type="module"></script> 
 
-    <script src="js/constants.js"></script>
-    <script src="js/FiniteStateMachine.js"></script>
-    <script src="js/audioPlayer.js"></script>
-    <script src="js/map.js"></script>       
-    <script src="js/monster.js"></script>
-    <script src="js/renderer.js"></script>
-    <script src="js/spell.js"></script>
-    <script src="js/tile.js"></script>
-    <script src="js/utilities.js"></script>
-    <script src="js/game.js"></script> 
-
-    <script>
+    <script type="module">
+        import game from './js/game.js';
         game.init();
     </script>
 </body>

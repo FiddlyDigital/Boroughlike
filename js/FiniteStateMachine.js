@@ -1,7 +1,7 @@
 // PG: Exploring FSM
 // Needs to be generic enough to handle the game loop, but also something like Monster AI
 
-class FiniteStateMachine {
+export class FiniteStateMachine {
     /**
      * 
      * @param {!Object.<string, State>} stateMatrix 
@@ -51,7 +51,7 @@ class FiniteStateMachine {
 /**
  * Represents a State in a Finite State Machine
  */
-class State {
+export class State {
     /**
      * 
      * @param {!string} name - Name of the State
@@ -80,23 +80,3 @@ class State {
         }
     }
 }
-
-////////////////////////
-// PG: Example Usage: //
-////////////////////////
-// function startGame() {
-//     console.log("Game Started");
-// }
-
-// // TODO: replace strings with GAMESTATE Enum entries
-// var stateMatrix = {
-//     "LOADING": new State("LOADING", { "AssetsLoaded": "TITLE" }, startGame),
-//     "TITLE": new State("TITLE", { "KeyPress": "RUNNING" }),
-//     "RUNNING": new State("RUNNING", { "PlayerDie": "GAMELOSE", "PLAYERWIN": "GAMEWIN" }),
-//     "GAMELOSE": new State("GAMELOSE", { "KeyPress": "TITLE" }),
-//     "GAMEWIN": new State("GAMEWIN", { "KeyPress": "TITLE" })
-// }
-
-// var FSM = new FiniteStateMachine(stateMatrix, "LOADING");
-// FSM.triggerEvent("AssetsLoaded");
-// let changedSuccessfully = (FSM.currentState.name === "TITLE");

@@ -35,3 +35,5 @@ class Utilities {
         return finalText;
     }
 }
+
+export default Utilities;

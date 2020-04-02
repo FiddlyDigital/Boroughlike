@@ -1,3 +1,12 @@
+import { maxHp, SOUNDFX, SPRITETYPES, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
+import audioPlayer from "./audioPlayer.js";
+import game from './game.js';
+import map from "./map.js";
+import renderer from "./renderer.js";
+import { spells } from "./spell.js";
+import { Floor } from "./tile.js";
+import Utilities from "./utilities.js";
+
 class Monster {
     constructor(tile, sprite, hp) {
         this.move(tile);
@@ -140,12 +149,12 @@ class Monster {
     }
 }
 
-class Player extends Monster {
+export class Player extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Player, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = Utilities.shuffle(Object.keys(spells)).splice(0, numSpells);
+        this.spells = Utilities.shuffle(Object.keys(spells)).splice(0, game.props.numSpells);
     }
 
     update() {
@@ -175,14 +184,14 @@ class Player extends Monster {
 }
 
 // Basic monster with no special behavior
-class Bird extends Monster {
+export class Bird extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Bird, 3);
     }
 }
 
 // Moves twice 
-class Snake extends Monster {
+export class Snake extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Snake, 1);
     }
@@ -198,7 +207,7 @@ class Snake extends Monster {
 }
 
 // Moves every other turn
-class Tank extends Monster {
+export class Tank extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Tank, 2);
     }
@@ -213,15 +222,15 @@ class Tank extends Monster {
 }
 
 // Destroys walls and heals by doing so
-class Eater extends Monster {
+export class Eater extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
     doStuff() {
         let neighbors = this.tile.getAdjacentNeighbors().filter(t => !t.passable && map.inBounds(t.x, t.y));
-        if (neighbors.length) {            
-            map.replaceTile(neighbors[0].x, neighbors[0].y, Floor);            
+        if (neighbors.length) {
+            map.replaceTile(neighbors[0].x, neighbors[0].y, Floor);
             this.heal(0.5);
         } else {
             super.doStuff();
@@ -230,7 +239,7 @@ class Eater extends Monster {
 }
 
 // Moves randomly
-class Jester extends Monster {
+export class Jester extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
@@ -245,7 +254,7 @@ class Jester extends Monster {
 
 // Doesn't move. 
 // Just rotates in place and shoots player (and everything else on that line) when it sees them.
-class Turret extends Monster {
+export class Turret extends Monster {
     constructor(tile) {
         super(tile, MONSTER_SPRITE_INDICES.Turret, 1);
         this.directions = ["N", "E", "S", "W"];
@@ -264,14 +273,14 @@ class Turret extends Monster {
         var targetTiles = this.tile.getNeighbourChain(cardinalDirection);
 
         // if the player is in LOS
-        if (targetTiles.some(t => { return (t.monster && t.monster.isPlayer)})) {
+        if (targetTiles.some(t => { return (t.monster && t.monster.isPlayer) })) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
                 if (t.monster) {
                     t.monster.hit(1);
                 }
 
-                switch(cardinalDirection) {
+                switch (cardinalDirection) {
                     case "N":
                     case "S":
                         t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);

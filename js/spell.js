@@ -1,8 +1,13 @@
-const spells = {
+import { EFFECT_SPRITE_INDICES, numTiles } from "./constants.js";
+import map from "./map.js";
+import renderer from "./renderer.js";
+import { Floor } from "./tile.js";
+
+export const spells = {
     WOOP: function (caster) {
         caster.move(map.randomPassableTile());
     },
-    QUAKE: function (caster) {        
+    QUAKE: function (caster) {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = map.getTile(i, j);
@@ -52,12 +57,12 @@ const spells = {
             });
         }
     },
-    FLATTEN: function (caster) {        
+    FLATTEN: function (caster) {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = map.getTile(i, j);
                 if (!tile.passable) {
-                    map.replaceTile(i,j, Floor);
+                    map.replaceTile(i, j, Floor);
                 }
             }
         }
@@ -68,7 +73,7 @@ const spells = {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (!t.passable && map.inBounds(t.x, t.y)) {
                 map.replaceTile(t.x, t.y, Floor);
-                map.getTile(t.x, t.y).book = true;                
+                map.getTile(t.x, t.y).book = true;
             }
         });
     },
@@ -119,7 +124,7 @@ function boltTravel(caster, direction, effect, damage) {
             if (newTile.monster) {
                 newTile.monster.hit(damage);
             }
-            
+
             newTile.setEffect(effect);
         } else {
             break;

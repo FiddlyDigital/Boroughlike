@@ -1,13 +1,22 @@
+import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX } from "./constants.js";
+import audioPlayer from "./audioPlayer.js";
+import { FiniteStateMachine, State } from "./FiniteStateMachine.js";
+import map from "./map.js";
+import { Player } from "./monster.js";
+import renderer from "./renderer.js";
+import { StairDown } from "./tile.js";
+
 class Game {
     constructor() {
-        if(!Game.instance) {
+        if (!Game.instance) {
             this.version = 'alpha-0.1';
             this.props = {
                 level: 1,
+                numSpells: 1,
                 player: null,
                 score: 0,
+                spawnCounter: 0,
                 spawnRate: 15,
-                spawnCounter: 0
             };
 
             const stateMatrix = {};
@@ -152,7 +161,7 @@ class Game {
     startGame() {
         this.props.level = 1;
         this.props.score = 0;
-        numSpells = 1;
+        this.props.numSpells = 1;
         this.startLevel(startingHp);
     }
 
@@ -164,7 +173,7 @@ class Game {
 
         this.props.player = new Player(map.randomPassableTile());
         this.props.player.hp = playerHp;
-        
+
         // PG: Future bi-directional travel
         //map.replaceTile(player.tile.x, player.tile.y, StairDown); 
 
@@ -173,7 +182,7 @@ class Game {
         }
 
         let levelExit = map.randomPassableTile();
-        map.replaceTile(levelExit.x, levelExit.y, StairDown);        
+        map.replaceTile(levelExit.x, levelExit.y, StairDown);
     }
 
     addScore(score, won) {
@@ -217,8 +226,8 @@ class Game {
 
         this.props.score++;
 
-        if (this.props.score % 3 == 0 && numSpells < 9) {
-            numSpells++;
+        if (this.props.score % 3 == 0 && this.props.numSpells < 9) {
+            this.props.numSpells++;
             this.props.player.addSpell();
         }
 
@@ -232,4 +241,4 @@ class Game {
 
 const game = new Game();
 Object.freeze(game);
-//export default game;
+export default game;

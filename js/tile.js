@@ -1,4 +1,10 @@
-class Tile {
+import {SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES} from "./constants.js";
+import game from "./game.js";
+import map from "./map.js";
+import renderer from "./renderer.js";
+import Utilities from "./utilities.js";
+
+export class Tile {
     constructor(x, y, sprite, passable) {
         this.x = x;
         this.y = y;
@@ -92,7 +98,7 @@ class Tile {
     }
 }
 
-class Floor extends Tile {
+export class Floor extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.Floor, true);
     };
@@ -105,14 +111,14 @@ class Floor extends Tile {
     }
 }
 
-class Wall extends Tile {
+export class Wall extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 }
 
 // Brings Player to the next level
-class StairDown extends Tile {
+export class StairDown extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
@@ -124,7 +130,7 @@ class StairDown extends Tile {
     }
 }
 
-class StairUp extends Tile {
+export class StairUp extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.StairUp, true);
     }
@@ -138,7 +144,7 @@ class StairUp extends Tile {
 
 // When stepped on deals damage
 // Affects monsters, so can be used tactically
-class SpikePit extends Tile {
+export class SpikePit extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
@@ -153,7 +159,7 @@ class SpikePit extends Tile {
 
 // When stepped on brings Player back to full-health.
 // Can only be used once, and Monsters can't use them.
-class Fountain extends Tile {
+export class Fountain extends Tile {
     constructor(x, y) {
         super(x, y, TILE_SPRITE_INDICES.FountainActive, true);
         this.isActive = true;

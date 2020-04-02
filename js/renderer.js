@@ -1,3 +1,6 @@
+import { SPRITETYPES, ITEM_SPRITE_INDICES, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants.js';
+import Utilities from './utilities.js';
+
 class Renderer {
     constructor() {
         if (!Renderer.instance) {
@@ -123,7 +126,7 @@ class Renderer {
         this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 6, 1);
         this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player, 7, 1);
         this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 8, 1);
-        
+
         this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
         this.drawText("1-9 to use spells", 32, true, this.canvas.height / 2 - 40, "white");
@@ -132,7 +135,7 @@ class Renderer {
             this.drawScores(scores);
         }
 
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
     }
 
     showGameWin(score) {
@@ -145,12 +148,12 @@ class Renderer {
         this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
 
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
     }
 
     showGameLose(score) {
         this.drawDarkBackground();
-        
+
         this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 6, 1);
         this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player_Dead, 7, 1);
         this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 8, 1);
@@ -158,7 +161,7 @@ class Renderer {
         this.drawText("You didn't make it...", 64, true, this.canvas.height / 2 - 150, "white");
         this.drawText("Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
 
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height -40, "white");
+        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
     }
 
     updateSidebar(level, score, spells) {
@@ -228,4 +231,4 @@ class Renderer {
 const renderer = new Renderer();
 Object.freeze(renderer);
 
-//export default renderer;
+export default renderer;

@@ -1,3 +1,8 @@
+import {numTiles} from "./constants.js";
+import {Bird, Snake, Tank, Eater, Jester, Turret} from "./monster.js";
+import {Floor, Wall, SpikePit, Fountain, StairDown, StairUp} from "./tile.js";
+import Utilities from "./utilities.js";
+
 class Map {
     constructor() {
         if (!Map.instance) {
@@ -110,4 +115,4 @@ class Map {
 const map = new Map();
 Object.freeze(map);
 
-//export default map;
+export default map;
