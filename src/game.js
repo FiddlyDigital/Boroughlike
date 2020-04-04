@@ -5,11 +5,12 @@ import map from "./map.js";
 import { Player } from "./monster.js";
 import renderer from "./renderer.js";
 import { StairDown } from "./tile.js";
+import { version } from '../package.json';
 
 class Game {
     constructor() {
-        if (!Game.instance) {
-            this.version = 'alpha-0.1';
+        if (!Game.instance) {  
+            this.version = version;          
             this.props = {
                 level: 1,
                 numSpells: 1,
