@@ -40,7 +40,7 @@ class Monster {
     doStuff() {
         let neighbors = this.tile.getAdjacentPassableNeighbors();
 
-        neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer);
+        neighbors = neighbors.filter(t => t && (!t.monster || t.monster.isPlayer));
 
         let playerTile = game.getPlayerTile();
 
@@ -85,7 +85,7 @@ class Monster {
 
     tryMove(dx, dy) {
         let newTile = this.tile.getNeighbor(dx, dy);
-        if (newTile.passable) {
+        if (newTile && newTile.passable) {
             this.lastMove = [dx, dy];
 
             if (!newTile.monster) {
@@ -175,7 +175,7 @@ export class Player extends Monster {
     castSpell(index) {
         let spellName = this.spells[index];
         if (spellName) {
-            delete this.spells[index];
+            this.spells.splice(index, 1);
             spells[spellName](this);
             audioPlayer.playSound(SOUNDFX.SPELL);
             game.tick();
@@ -228,7 +228,7 @@ export class Eater extends Monster {
     }
 
     doStuff() {
-        let neighbors = this.tile.getAdjacentNeighbors().filter(t => !t.passable && map.inBounds(t.x, t.y));
+        let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && map.inBounds(t.x, t.y));
         if (neighbors.length) {
             map.replaceTile(neighbors[0].x, neighbors[0].y, Floor);
             this.heal(0.5);
@@ -245,7 +245,7 @@ export class Jester extends Monster {
     }
 
     doStuff() {
-        let neighbors = this.tile.getAdjacentPassableNeighbors();
+        let neighbors = Utilities.shuffle(this.tile.getAdjacentPassableNeighbors());
         if (neighbors.length) {
             this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
         }
@@ -273,22 +273,24 @@ export class Turret extends Monster {
         var targetTiles = this.tile.getNeighbourChain(cardinalDirection);
 
         // if the player is in LOS
-        if (targetTiles.some(t => { return (t.monster && t.monster.isPlayer) })) {
+        if (targetTiles.some(t => { return (t && t.monster && t.monster.isPlayer) })) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
-                if (t.monster) {
-                    t.monster.hit(1);
-                }
+                if (t) {
+                    if (t.monster) {
+                        t.monster.hit(1);
+                    }
 
-                switch (cardinalDirection) {
-                    case "N":
-                    case "S":
-                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
-                        break;
-                    case "E":
-                    case "W":
-                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
-                        break;
+                    switch (cardinalDirection) {
+                        case "N":
+                        case "S":
+                            t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
+                            break;
+                        case "E":
+                        case "W":
+                            t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
+                            break;
+                    }
                 }
             })
         }

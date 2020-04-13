@@ -5,12 +5,12 @@ import map from "./map.js";
 import { Player } from "./monster.js";
 import renderer from "./renderer.js";
 import { StairDown } from "./tile.js";
-import { version } from '../package.json';
+//import { version } from '../package.json';
 
 class Game {
     constructor() {
-        if (!Game.instance) {  
-            this.version = version;          
+        if (!Game.instance) {
+            //this.version = version;          
             this.props = {
                 level: 1,
                 numSpells: 1,
@@ -49,18 +49,29 @@ class Game {
     }
 
     addEventHandlers() {
-        document.querySelector("html").onkeydown = function (e) {
-            switch (game.FSM.currentState.name) {
-                case GAME_STATES.GAMEWIN:
-                case GAME_STATES.GAMEOVER:
-                case GAME_STATES.TITLE:
-                    game.FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
-                    break;
-                case GAME_STATES.RUNNING:
+        document.querySelector("html").onkeydown = game.handleInteraction;
+        window.addEventListener('touchstart', function() { game.handleInteraction(null); });
+        window.addEventListener('mousedown', function() { game.handleInteraction(null); });
+        document.getElementById("moveUp").addEventListener("click", function () { game.handleInteraction({ key: "Up" }) });
+        document.getElementById("moveDown").addEventListener("click", function () { game.handleInteraction({ key:"Down"}) });
+        document.getElementById("moveLeft").addEventListener("click", function () { game.handleInteraction({ key:"Left"}) });
+        document.getElementById("moveRight").addEventListener("click", function () { game.handleInteraction({ key:"Right"}) });
+        document.getElementById("movePass").addEventListener("click", function () { game.handleInteraction({ key:" "}) });
+    }
+
+    handleInteraction(e) {        
+        switch (game.FSM.currentState.name) {
+            case GAME_STATES.LOADING:
+                break; // do nothing                
+            case GAME_STATES.RUNNING:                
+                if (e) {
                     game.handleKeypress(e);
-                    break;
-            }
-        };
+                }
+                break;
+            default:
+                game.FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
+                break;
+        }
     }
 
     handleKeypress(e) {
@@ -93,6 +104,7 @@ class Game {
             case 4: case "4": case 5: case "5": case 6: case "6":
             case 7: case "7": case 8: case "8": case 9: case "9":
                 this.props.player.castSpell(parseInt(e.key) - 1);
+                this.props.sidebarNeedsUpdate = true;
                 break;
         }
     }
@@ -113,7 +125,11 @@ class Game {
             }
 
             this.props.player.draw();
-            renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+
+            if (this.props.sidebarNeedsUpdate) {
+                this.props.sidebarNeedsUpdate = false;
+                renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+            }
         }
     }
 
@@ -131,6 +147,7 @@ class Game {
 
             if (this.props.player.dead) {
                 this.addScore(this.props.score, false);
+                this.props.sidebarNeedsUpdate = true;
                 this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
             }
 
@@ -150,20 +167,22 @@ class Game {
     showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
         this.addScore(this.props.score, true);
-        renderer.showGameWin(this.props.score);
+        renderer.showGameWin(this.props.scores);
     }
 
     showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
         this.addScore(this.props.score, true);
-        renderer.showGameLose(this.props.score);
+        renderer.showGameLose(this.props.scores);
     }
 
     startGame() {
+        renderer.hideOverlays();
         this.props.level = 1;
         this.props.score = 0;
         this.props.numSpells = 1;
         this.startLevel(startingHp);
+        this.props.sidebarNeedsUpdate = true;
     }
 
     startLevel(playerHp, playerSpells) {
@@ -184,6 +203,7 @@ class Game {
 
         let levelExit = map.randomPassableTile();
         map.replaceTile(levelExit.x, levelExit.y, StairDown);
+        this.props.sidebarNeedsUpdate = true;
     }
 
     addScore(score, won) {
@@ -202,6 +222,7 @@ class Game {
         scores.push(scoreObject);
 
         localStorage["scores"] = JSON.stringify(scores);
+        
     }
 
     getScores() {
@@ -219,6 +240,7 @@ class Game {
             audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             this.props.level++;
             this.startLevel(Math.min(maxHp, this.props.player.hp + 1));
+            this.props.sidebarNeedsUpdate = true;
         }
     }
 
@@ -233,6 +255,7 @@ class Game {
         }
 
         map.spawnMonster();
+        this.props.sidebarNeedsUpdate = true;
     }
 
     getPlayerTile() {

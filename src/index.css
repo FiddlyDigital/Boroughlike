@@ -1,0 +1,134 @@
+html {
+    line-height: 1.15; /* Correct the line height in all browsers. */
+    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. */
+    font-family: consolas, monospace !important;
+  }
+  
+* {
+    margin:0;
+    padding:0;
+    border:0;
+    font-family: inherit;
+}
+
+button {
+  font-size: 100%; 
+  line-height: 1.15; 
+  margin: 0; 
+}
+
+hr {
+    box-sizing: content-box; 
+    height: 0;
+    border-top:1px white solid; 
+    overflow: visible; 
+    margin: 15px 0px;;
+    padding:0;
+  }
+
+body {
+    background-color: black;
+    color: white;
+    
+    margin-top: 50px;
+    text-align: center;
+}
+
+.wrapper {                
+    display: grid;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    grid-template-columns: 12fr 4fr;
+    grid-template-rows: repeat(12, 1fr);
+    left: calc(50% - 512px);
+    position: absolute;
+    top:0px;
+    width: 1024px;
+}
+
+canvas {
+    grid-area: 1 / 1 / 13 / 2;
+}
+
+.sidebar {
+    grid-area: 1 / 2 / 13 / 3;
+    text-align: left;
+    padding: 16px;
+    font-size: 16px monospace;
+    width: 100%;
+}
+
+.sidebar .btnMatrix {
+    margin: 0 auto;
+    width: 192px; /*64 x 3*/
+    height: 192px;
+}
+
+.sidebar .btnMatrix button {
+    height: 64px;
+    width: 64px;
+    font-size: 32px;
+    text-align: center;
+}
+
+.sidebar .stats {
+    width: 100%;
+}
+
+.overlay {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: black;
+    color:white;    
+    height: 100%;
+    width: 100%;
+    display: none;
+    text-align: center;
+}
+
+.overlay .contents {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.overlay .contents .scores {
+    min-height: 400px;  
+    min-height: 400px;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.overlay .contents .scores th,
+.overlay .contents .scores td {
+    text-align: center;
+}
+
+.overlay .contents .scores tbody tr:first-of-type {
+    color:aqua;
+}
+
+#spells {
+    padding: 5px;
+    text-align: center;
+}
+
+#spells .spellButton {
+    width: 200px;
+    padding: 5px 10px;
+    margin: 10px auto;
+    display: block;
+}
+
+button {
+    background: grey;
+    border-bottom: 2px darkgrey solid;
+    border-left: 2px darkgrey solid;
+    border-top: 2px white solid;
+    border-right: 2px white solid;
+    color:white;
+}

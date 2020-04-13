@@ -2,7 +2,6 @@ import {SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES} from "./constants
 import game from "./game.js";
 import map from "./map.js";
 import renderer from "./renderer.js";
-import Utilities from "./utilities.js";
 
 export class Tile {
     constructor(x, y, sprite, passable) {
@@ -21,12 +20,15 @@ export class Tile {
     }
 
     getAdjacentNeighbors() {
-        return Utilities.shuffle([
-            this.getNeighbor(0, -1),
-            this.getNeighbor(0, 1),
-            this.getNeighbor(-1, 0),
-            this.getNeighbor(1, 0)
-        ]);
+        //return Utilities.shuffle([
+
+        return [
+            this.getNeighbor(0, -1),// Top
+            this.getNeighbor(0, 1), // Bottom
+            this.getNeighbor(-1, 0),// Left
+            this.getNeighbor(1, 0)  // Right
+        ];
+        //]);
     }
 
     getNeighbourChain(direction) {
@@ -62,7 +64,7 @@ export class Tile {
     }
 
     getAdjacentPassableNeighbors() {
-        return this.getAdjacentNeighbors().filter(t => t.passable);
+        return this.getAdjacentNeighbors().filter(t => t && t.passable);
     }
 
     getConnectedTiles() {
@@ -71,7 +73,7 @@ export class Tile {
         while (frontier.length) {
             let neighbors = frontier.pop()
                 .getAdjacentPassableNeighbors()
-                .filter(t => !connectedTiles.includes(t));
+                .filter(t => t && !connectedTiles.includes(t));
             connectedTiles = connectedTiles.concat(neighbors);
             frontier = frontier.concat(neighbors);
         }

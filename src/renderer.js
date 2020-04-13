@@ -1,4 +1,5 @@
 import { SPRITETYPES, ITEM_SPRITE_INDICES, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants.js';
+import game from './game.js';
 import Utilities from './utilities.js';
 
 class Renderer {
@@ -11,6 +12,8 @@ class Renderer {
             this.callback = {
                 onLoadCompleted: null
             };
+            this.playerLocationElem = document.getElementById("playerLocation");
+            this.playerBooksElem = document.getElementById("playerBooks");
 
             this.shake = {
                 amount: 0,
@@ -36,7 +39,7 @@ class Renderer {
         this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
 
         this.monsterSpriteSheet.src = "assets/images/monsters.png";
-        this.tileSpriteSheet.src = "assets/images/library.png";
+        this.tileSpriteSheet.src = "assets/images/library_new.png";
         this.effectSpriteSheet.src = "assets/images/effects.png";
         this.itemSpriteSheet.src = "assets/images/items.png";
     }
@@ -56,6 +59,7 @@ class Renderer {
         this.canvas.style.width = this.canvas.width + 'px';
         this.canvas.style.height = this.canvas.height + 'px';
         this.ctx.imageSmoothingEnabled = false;
+        this.ctx.font = "consolas, monospace";
     }
 
     getSpriteSheet(spriteType) {
@@ -73,7 +77,7 @@ class Renderer {
 
     /**
      * Draws a sprite on the canvas
-     * @param {number} spriteIdx - Index of the sprite to show
+     * @param {array} spriteIdx - Index [x,y] of the sprite to show
      * @param {number} x - X position of the sprite on the map
      * @param {number} y - X position of the sprite on the map
      * @param {?number} effectCounter - Used for alpha effects
@@ -85,8 +89,8 @@ class Renderer {
 
         this.ctx.drawImage(
             this.getSpriteSheet(spriteType),
-            spriteIdx * 16,
-            0,
+            spriteIdx[0] * 16,
+            spriteIdx[1] * 16,
             16,
             16,
             x * tileSize + this.shake.x,
@@ -120,107 +124,91 @@ class Renderer {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    hideOverlays() {
+        var overlays = document.getElementsByClassName("overlay");
+        for(let i =0 ;i< overlays.length; i++) {
+            overlays[i].style.display = "none";
+        }
+    }
+
     showTitle(scores) {
-        this.drawDarkBackground();
-
-        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 6, 1);
-        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player, 7, 1);
-        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 8, 1);
-
-        this.drawText("Boroughlike", 64, true, this.canvas.height / 2 - 150, "white");
-        this.drawText("Arrow Keys or WASD to Move", 32, true, this.canvas.height / 2 - 90, "white");
-        this.drawText("1-9 to use spells", 32, true, this.canvas.height / 2 - 40, "white");
-
+        var titleOverlay = document.getElementById("TitleOverlay");
         if (scores && scores.length > 0) {
             this.drawScores(scores);
         }
-
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
+        titleOverlay.style.display = "block";
     }
 
-    showGameWin(score) {
-        this.drawDarkBackground();
-
-        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 6, 1);
-        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player, 7, 1);
-        this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, 8, 1);
-
-        this.drawText("Congratulations", 64, true, this.canvas.height / 2 - 150, "white");
-        this.drawText("You successfully escaped the Library", 32, true, this.canvas.height / 2 - 90, "white");
-
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
+    showGameWin(scores) {
+        var gameWinOverlay = document.getElementById("GameWinOverlay");
+        if (scores && scores.length > 0) {
+            this.drawScores(scores);
+        }
+        gameWinOverlay.style.display = "block";
     }
 
-    showGameLose(score) {
-        this.drawDarkBackground();
-
-        this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 6, 1);
-        this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.Player_Dead, 7, 1);
-        this.drawSprite(SPRITETYPES.EFFECTS, EFFECT_SPRITE_INDICES.Flame, 8, 1);
-
-        this.drawText("You didn't make it...", 64, true, this.canvas.height / 2 - 150, "white");
-        this.drawText("Better luck next time!", 32, true, this.canvas.height / 2 - 90, "white");
-
-        this.drawText("Press any key to continue...", 20, true, this.canvas.height - 40, "white");
+    showGameLose(scores) {
+        var gameLoseOverlay = document.getElementById("GameLoseOverlay");
+        if (scores && scores.length > 0) {
+            this.drawScores(scores);
+        }
+        gameLoseOverlay.style.display = "block";
     }
 
     updateSidebar(level, score, spells) {
-        renderer.drawText("Level: " + level, 30, false, 40, "violet");
-        renderer.drawText("Books: " + score, 30, false, 70, "violet");
+        this.playerBooksElem.innerText = score;
+        this.playerLocationElem.innerText = level;
+        
+        var spellList = document.getElementById("spells");
+        while(spellList.hasChildNodes())
+        {
+            spellList.removeChild(spellList.firstChild);
+        }
 
+        let docFrag = document.createDocumentFragment();
         for (let i = 0; i < spells.length; i++) {
-            let spellText = (i + 1) + ") " + (spells[i] || "");
-            renderer.drawText(spellText, 20, false, 110 + i * 40, "aqua");
+            let btn = document.createElement('button');
+            btn.className = "spellButton";
+            btn.innerText = "(" + (i + 1) + ") " + (spells[i] || "");
+            btn.addEventListener("click", function(){
+                game.handleInteraction({ key:"" + (i + 1)});
+            });
+            docFrag.append(btn);
         }
-    }
+        spellList.appendChild(docFrag)
+    }    
 
-    /**
-     * Draws text on the Canvas
-     * @param {string} text - The text to display
-     * @param {number} size - The fontsize of the text
-     * @param {boolean} centered - is the text centered?
-     * @param {number} textY - Y value of the text
-     * @param {string} color - color of the text
-     */
-    drawText(text, size, centered, textY, color) {
-        this.ctx.fillStyle = color;
-        this.ctx.font = size + "px monospace";
-
-        let textX;
-        if (centered) {
-            textX = (this.canvas.width - this.ctx.measureText(text).width) / 2;
-        } else {
-            textX = this.canvas.width - uiWidth * tileSize + 25;
-        }
-
-        this.ctx.fillText(text, textX, textY);
-    }
-
-    drawScores(scores) {
-        this.drawText(
-            Utilities.rightPad(["RUN", "BOOKS", "TOTAL"]),
-            18,
-            true,
-            this.canvas.height / 2,
-            "white"
-        );
-
+    drawScores(scores) {       
         let newestScore = scores.pop();
         scores.sort(function (a, b) {
             return b.totalScore - a.totalScore;
         });
         scores.unshift(newestScore);
 
-        for (let i = 0; i < Math.min(10, scores.length); i++) {
-            let scoreText = Utilities.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
-            this.drawText(
-                scoreText,
-                18,
-                true,
-                this.canvas.height / 2 + 24 + i * 24,
-                i == 0 ? "aqua" : "violet"
-            );
-        }
+        var scoreBoards = document.getElementsByClassName("scores");
+        for (let i = 0; i< scoreBoards.length; i++) {
+            let existingTbodyRows = scoreBoards[i].children[1];            
+            while(existingTbodyRows.hasChildNodes())
+            {
+                existingTbodyRows.removeChild(existingTbodyRows.firstChild);
+            }
+
+            let docFrag = new DocumentFragment();
+            for (let i = 0; i < Math.min(10, scores.length); i++) {
+                let tr = document.createElement('tr');
+                let td1 =document.createElement('td');
+                let td2 =document.createElement('td');
+                let td3 =document.createElement('td');
+                td1.innerHTML = scores[i].run;
+                td2.innerHTML = scores[i].score;
+                td3.innerHTML = scores[i].totalScore;
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);                
+                docFrag.appendChild(tr);
+            }
+            existingTbodyRows.appendChild(docFrag);
+        }       
     }
 
     setShakeAmount(amt) {

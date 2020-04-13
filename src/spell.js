@@ -11,7 +11,7 @@ export const spells = {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = map.getTile(i, j);
-                if (tile.monster && tile.monster != caster) {
+                if (tile && tile.monster && tile.monster != caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
                 }
@@ -28,9 +28,11 @@ export const spells = {
     },
     AURA: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            t.setEffect(EFFECT_SPRITE_INDICES.Heal);
-            if (t.monster) {
-                t.monster.heal(1);
+            if(t) {
+                t.setEffect(EFFECT_SPRITE_INDICES.Heal);
+                if (t.monster) {
+                    t.monster.heal(1);
+                }
             }
         });
         caster.tile.setEffect(EFFECT_SPRITE_INDICES.Heal);
@@ -49,7 +51,7 @@ export const spells = {
         if (caster.tile != newTile) {
             caster.move(newTile);
             newTile.getAdjacentNeighbors().forEach(t => {
-                if (t.monster) {
+                if (t && t.monster) {
                     t.setEffect(EFFECT_SPRITE_INDICES.Flame);
                     t.monster.stunned = true;
                     t.monster.hit(1);
@@ -61,7 +63,7 @@ export const spells = {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = map.getTile(i, j);
-                if (!tile.passable) {
+                if (tile && !tile.passable) {
                     map.replaceTile(i, j, Floor);
                 }
             }
@@ -71,9 +73,12 @@ export const spells = {
     },
     ALCHEMY: function (caster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if (!t.passable && map.inBounds(t.x, t.y)) {
+            if (t && !t.passable && map.inBounds(t.x, t.y)) {
                 map.replaceTile(t.x, t.y, Floor);
-                map.getTile(t.x, t.y).book = true;
+                let tile = map.getTile(t.x, t.y);
+                if (tile) {
+                    tile.book = true;
+                }                
             }
         });
     },

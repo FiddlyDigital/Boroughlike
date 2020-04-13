@@ -3,11 +3,11 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="robots" content="noindex" />
 
-    <title>Boroughlike</title>    
+    <title>Boroughlike</title>
 
     <link rel="apple-touch-icon" sizes="180x180" href="pwa/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="pwa/favicon-32x32.png">
@@ -23,26 +23,139 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="msapplication-starturl" content="/">
-    
-    <style>        
-        body {
-            background-color: black;
-            text-align: center;
-            margin-top: 50px;
-        }
 
-        canvas {
-            outline: 1px solid white;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="src/index.css">    
 </head>
 
 <body>
-    <canvas></canvas>    
+    <div class="wrapper">
+        <canvas></canvas>
+        <div class="sidebar">
+            <table class="btnMatrix">
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td><button id="moveUp">↑</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><button id="moveLeft">←</button></td>
+                        <td><button id="movePass">⬤</button></td>
+                        <td><button id="moveRight">→</button></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><button id="moveDown">↓</button></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+            <hr />
+
+            <h3>Stats:</h3>
+            <table class="stats">
+                <tbody>                    
+                    <tr>
+                        <td>
+                            Location: L<span id="playerLocation"></span>
+                        </td>
+                        <td>
+                            Books:<span id="playerBooks"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr />
+
+            <h3>Spells:</h3>
+            <div id="spells"></div>
+        </div>
+    </div>
+    
+    <div id="TitleOverlay" class="overlay">
+        <div class="contents">
+            <h1>Boroughlike</h1>
+            <h2>WASD or Arrow Keys to Move</h2>
+
+            <hr/>
+
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to continue
+            </h3>
+        </div>
+    </div>
+
+    <div id="GameWinOverlay" class="overlay">
+        <div class="contents">
+            <h1>Congratulations!</h1>
+            <h2>You made it out in one piece!</h2>
+
+            <hr/>
+            
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to continue
+            </h3>
+        </div>
+    </div>
+
+    <div id="GameLoseOverlay" class="overlay">
+        <div class="contents">
+            <h1>Uh-oh!</h1>
+            <h2>Looks like you didn't make it!</h2>
+
+            <hr/>
+            
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to try again!
+            </h3>
+        </div>
+    </div>
 
     <script type="module">
-        //import game from './src/game.js';
-        import game from './dist/boroughlike_0.1.1.min.js';
+        import game from './src/game.js';
+        //import game from './dist/boroughlike_0.1.1.min.js';
         game.init();
     </script>
 </body>
