@@ -91,16 +91,6 @@ class Map {
                         }
                     }
                 }
-
-                // if (tile instanceof Floor) {
-                //     let neighbours = tile.getAdjacentNeighbors();
-                //     if (neighbours && neighbours.length > 0) {
-                //         let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, Floor);
-                //         if (newSpriteName) {                            
-                //             tile.sprite = TILE_SPRITE_INDICES["Floor_" + newSpriteName];
-                //         }
-                //     }
-                // }
             }
         }
 
