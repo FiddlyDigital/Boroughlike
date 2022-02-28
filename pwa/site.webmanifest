@@ -17,12 +17,12 @@
     ],
 	"lang" : "English",
 	"name" : "Boroughlike",
-	"orientation" : "landscape",
+    "orientation" : "landscape",    
 	"prefer_related_applications" : false,
 	"related_applications" : [],
 	"scope" : "/Boroughlike/",
 	"short_name" : "Boroughlike",
-	"start_url" : "https://fiddlydigital.github.io/Boroughlike/",
+	"start_url" : "https://fiddlydigital.github.io/apps/boroughlike/index.html",
 	"theme_color" : "transparent",
-    "url" : "https://fiddlydigital.github.io/Boroughlike/"
+    "url" : "https://fiddlydigital.github.io/apps/Boroughlike/index.html"
 }

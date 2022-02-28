@@ -1,8 +1,8 @@
 export const maxHp = 6;
 export const numLevels = 10;
-export const numTiles = 12;
+export const numTiles = 16; //12;
 export const startingHp = 3;
-export const tileSize = 64;
+export const tileSize = 48; //64;
 export const uiWidth = 0; // Was 3 originally
 
 export const EFFECT_SPRITE_INDICES = {

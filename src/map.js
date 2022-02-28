@@ -1,15 +1,20 @@
 import { numTiles, TILE_SPRITE_INDICES } from "./constants.js";
-import { Bird, Snake, Tank, Eater, Jester, Turret } from "./monster.js";
-import { Floor, Wall, SpikePit, Fountain } from "./tile.js";
+import { Bird, Snake, Tank, Eater, Jester, Turret } from "./monster.js"
+import { Wall } from "./tile.js";
+import { LevelGenerator, Branches } from './mapping/levelGenerator.js'
 import Utilities from "./utilities.js";
 
 class Map {
     constructor() {
         if (!Map.instance) {
+            this.levelGenerator = new LevelGenerator();
             this.props = {
                 monsters: [],
                 tiles: [], // floors: []
-                level: 1,
+                levelNum: 1,
+                height: numTiles,
+                width: numTiles,
+                branch: Branches.LIBRARY
             };
 
             Map.instance = this;
@@ -31,70 +36,36 @@ class Map {
         return this.props.monsters;
     }
 
-    generateLevel(lvl) {
-        this.props.level = lvl;
+    generateLevel(newLevelNum) {
+        this.props.levelNum = newLevelNum;
 
-        Utilities.tryTo('generate map', function () {
-            return map.generateTiles() == map.randomPassableTile().getConnectedTiles().length;
-        });
+        let level = this.levelGenerator.generateLevel(this.props.levelNum, this.props.branch);
 
-        this.generateMonsters();
+        this.props.height = level.height;
+        this.props.width = level.width;
+        this.props.tiles = level.tiles;
+        this.props.monsters = level.monsters;
 
-        var booksPlaced = 0
-        while (booksPlaced < 3) {
-            let t = this.randomPassableTile()
-            if (t instanceof Floor) {
-                booksPlaced++;
-                t.book = true;
-            }
-        }
+        this.overrideSprites();
     }
 
-    generateTiles() {
-        let passableTiles = 0;
-        this.props.tiles = [];
-        for (let i = 0; i < numTiles; i++) {
-            this.props.tiles[i] = [];
-            for (let j = 0; j < numTiles; j++) {
-                if (i == 0 || j == 0 || i == (numTiles -1) || j == (numTiles -1)){
-                    this.props.tiles[i][j] = new Wall(i, j);
-                } else {                    
-                    if (Math.random() < 0.3) {
-                        this.props.tiles[i][j] = new Wall(i, j);
-                    } else {
-                        if (Math.random() < 0.02) {
-                            this.props.tiles[i][j] = new SpikePit(i, j);
-                        } else if (Math.random() < 0.005) {
-                            this.props.tiles[i][j] = new Fountain(i, j);
-                        } else {
-                            this.props.tiles[i][j] = new Floor(i, j);
-                        }
-
-                        passableTiles++;
-                    }
-                }
-            }
-        }
-
-        // Repass over, changing sprite depending on neighbours
-        for (let y = 0; y < numTiles; y++) {
-            for (let x = 0; x < numTiles; x++) {            
+    overrideSprites() {
+        // Repass over the map, changing map sprites depending on neighbours (if required)
+        for (let y = 0; y < this.props.height; y++) {
+            for (let x = 0; x < this.props.width; x++) {
                 let tile = this.props.tiles[x][y];
 
-                // Below candidates for extraction/refactoring....
                 if (tile instanceof Wall) {
                     let neighbours = tile.getAdjacentNeighbors();
                     if (neighbours && neighbours.length > 0) {
                         let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, Wall);
-                        if (newSpriteName) {                            
+                        if (newSpriteName) {
                             tile.sprite = TILE_SPRITE_INDICES["Wall_" + newSpriteName];
                         }
                     }
                 }
             }
         }
-
-        return passableTiles;
     }
 
     getSpriteVariationSuffixForTile(neighbours, tileClass) {
@@ -117,7 +88,7 @@ class Map {
     }
 
     inBounds(x, y) {
-        return x >= 0 && y >= 0 && x < numTiles && y < numTiles;
+        return (x >= 0) && (y >= 0) && (x < this.props.width) && (y < this.props.height);
     }
 
     getTile(x, y) {
@@ -129,22 +100,15 @@ class Map {
     }
 
     randomPassableTile() {
+        let self = this;
         let tile;
         Utilities.tryTo('get random passable tile', function () {
-            let x = Utilities.randomRange(0, numTiles - 1);
-            let y = Utilities.randomRange(0, numTiles - 1);
+            let x = Utilities.randomRange(0, self.props.width - 1);
+            let y = Utilities.randomRange(0, self.props.height - 1);
             tile = map.getTile(x, y);
             return tile && tile.passable && !tile.monster;
         });
         return tile;
-    }
-
-    generateMonsters() {
-        this.props.monsters = [];
-        let numMonsters = Math.ceil(this.props.level / 2) + 1;
-        for (let i = 0; i < numMonsters; i++) {
-            this.spawnMonster();
-        }
     }
 
     spawnMonster() {

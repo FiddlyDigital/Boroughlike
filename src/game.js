@@ -17,7 +17,7 @@ class Game {
                 player: null,
                 score: 0,
                 spawnCounter: 0,
-                spawnRate: 15,
+                spawnRate: 15,                
             };
 
             const stateMatrix = {};
@@ -50,20 +50,20 @@ class Game {
 
     addEventHandlers() {
         document.querySelector("html").onkeydown = game.handleInteraction;
-        window.addEventListener('touchstart', function() { game.handleInteraction(null); });
-        window.addEventListener('mousedown', function() { game.handleInteraction(null); });
+        window.addEventListener('touchstart', function () { game.handleInteraction(null); });
+        window.addEventListener('mousedown', function () { game.handleInteraction(null); });
         document.getElementById("moveUp").addEventListener("click", function () { game.handleInteraction({ key: "Up" }) });
-        document.getElementById("moveDown").addEventListener("click", function () { game.handleInteraction({ key:"Down"}) });
-        document.getElementById("moveLeft").addEventListener("click", function () { game.handleInteraction({ key:"Left"}) });
-        document.getElementById("moveRight").addEventListener("click", function () { game.handleInteraction({ key:"Right"}) });
-        document.getElementById("movePass").addEventListener("click", function () { game.handleInteraction({ key:" "}) });
+        document.getElementById("moveDown").addEventListener("click", function () { game.handleInteraction({ key: "Down" }) });
+        document.getElementById("moveLeft").addEventListener("click", function () { game.handleInteraction({ key: "Left" }) });
+        document.getElementById("moveRight").addEventListener("click", function () { game.handleInteraction({ key: "Right" }) });
+        document.getElementById("movePass").addEventListener("click", function () { game.handleInteraction({ key: " " }) });
     }
 
-    handleInteraction(e) {        
+    handleInteraction(e) {  
         switch (game.FSM.currentState.name) {
             case GAME_STATES.LOADING:
                 break; // do nothing                
-            case GAME_STATES.RUNNING:                
+            case GAME_STATES.RUNNING:
                 if (e) {
                     game.handleKeypress(e);
                 }
@@ -222,7 +222,7 @@ class Game {
         scores.push(scoreObject);
 
         localStorage["scores"] = JSON.stringify(scores);
-        
+
     }
 
     getScores() {

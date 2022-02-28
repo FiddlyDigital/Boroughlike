@@ -1,6 +1,5 @@
-import { SPRITETYPES, ITEM_SPRITE_INDICES, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants.js';
+import { SPRITETYPES, numTiles, tileSize, uiWidth } from './constants.js';
 import game from './game.js';
-import Utilities from './utilities.js';
 
 class Renderer {
     constructor() {
@@ -9,9 +8,11 @@ class Renderer {
             this.tileSpriteSheet = new Image();
             this.effectSpriteSheet = new Image();
             this.itemSpriteSheet = new Image();
+            
             this.callback = {
                 onLoadCompleted: null
             };
+
             this.playerLocationElem = document.getElementById("playerLocation");
             this.playerBooksElem = document.getElementById("playerBooks");
 
