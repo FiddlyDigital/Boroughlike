@@ -2,26 +2,21 @@
 // Needs to be generic enough to handle the game loop, but also something like Monster AI
 
 export class FiniteStateMachine {
-    /**
-     * 
-     * @param {!Object.<string, State>} stateMatrix 
-     * @param {!string} startingStateName 
-     */
-    constructor(stateMatrix, startingStateName) {
+    stateMatrix: any;
+    currentState: any;
+    previousState: any;
+
+    constructor(stateMatrix: any, startingStateName: string) {
         this.stateMatrix = stateMatrix;
-        
+
         // Dummy Data, will be replaced via enterState below
-        this.currentState = { name: "" }; 
+        this.currentState = { name: "" };
         this.previousState = null;
 
         this.enterState(startingStateName);
     }
 
-    /**
-     * Raises an Event that can changes the Machine's current state
-     * @param {string} eventName - Name of the Event to raise
-     */
-    triggerEvent(eventName) {
+    public triggerEvent(eventName: string) {
         let newStateName = this.currentState.getNewState(eventName);
         if (newStateName) {
             this.enterState(newStateName);
@@ -29,7 +24,7 @@ export class FiniteStateMachine {
     }
 
     // private
-    enterState(newStateName) {
+    private enterState(newStateName: string) {
         // If we're coming back to the same state, we dont want to either:
         // - Call it's own OnEnter/OnExit
         // - Incorrectly mark the previous state as the current one        
@@ -52,26 +47,19 @@ export class FiniteStateMachine {
  * Represents a State in a Finite State Machine
  */
 export class State {
-    /**
-     * 
-     * @param {!string} name - Name of the State
-     * @param {!Object.<string, string>} transformations - When a given event is raised, what state should we change to?
-     * @param {?function} onEnter - Function to call when entering this state
-     * @param {?function} onExit - Function to call when leaving this state
-     */
-    constructor(name, transformations, onEnter, onExit) {
+    name: string;
+    transformations: any;
+    onEnter: Function | null;
+    onExit: Function | null
+
+    constructor(name: string, transformations: any, onEnter: Function | null, onExit: Function | null) {
         this.name = name || "";
-        this.transformations = transformations || {},
-            this.onEnter = onEnter;
+        this.transformations = transformations || {};
+        this.onEnter = onEnter;
         this.onExit = onExit;
     }
 
-    /**
-     * Given an eventName, see if there is a corresponding entry in transformations
-     * @param {!*} eventName 
-     * @returns The StateName of the corresponding entry if it exists, otherwise false
-     */
-    getNewState(eventName) {
+    getNewState(eventName: string) {
         eventName = eventName || "";
         if (this.transformations[eventName]) {
             return this.transformations[eventName];

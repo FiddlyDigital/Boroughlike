@@ -1,5 +1,14 @@
 export class Room {
-    constructor(x, y, width, height) {
+    x: number = 0;
+    y: number = 0;
+    width: number = 0;
+    height: number = 0;
+    maxX: number = 0;
+    maxY: number = 0;
+    centerX: number = 0;
+    centerY: number = 0;
+
+    constructor(x: number | undefined, y: number | undefined, width: number | undefined, height: number | undefined) {
         this.x = (x || 0);
         this.y = (y || 0);
         this.width = (width || 0);

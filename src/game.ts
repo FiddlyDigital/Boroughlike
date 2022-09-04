@@ -1,75 +1,89 @@
-import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX } from "./constants.js";
-import audioPlayer from "./audioPlayer.js";
-import { FiniteStateMachine, State } from "./FiniteStateMachine.js";
-import map from "./map.js";
-import { Player } from "./monster.js";
-import renderer from "./renderer.js";
-import { StairDown } from "./tile.js";
+import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX } from "./constants";
+import { AudioPlayer } from "./audioPlayer";
+import { FiniteStateMachine, State } from "./FiniteStateMachine";
+import { Mapper } from "./mapper";
+import { Player } from "./monster";
+import { Renderer } from "./renderer";
+import { StairDown } from "./tile";
+import { Dictionary } from "./utilities";
 //import { version } from '../package.json';
 
-class Game {
-    constructor() {
+export default class Game {
+    private static instance: Game;
+    props: any;
+    FSM: FiniteStateMachine;
+    localStorage: Dictionary<string>;
+
+    private constructor() {
+        this.localStorage = {};
+        //this.version = version;          
+        this.props = {
+            level: 1,
+            numSpells: 1,
+            player: null,
+            score: 0,
+            spawnCounter: 0,
+            spawnRate: 15,
+        };
+
+        const stateMatrix: Dictionary<State> = {
+            "Loading": new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets, null),
+            "Title": new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, this.showTitle.bind(this), null),
+            "Running": new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, this.startGame.bind(this), null),
+            "GameOver": new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, this.showGameLose.bind(this), null),
+            "GameWin": new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, this.showGameWin.bind(this), null)
+        };
+
+        this.FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
+    }
+
+    public static getInstance(): Game {
         if (!Game.instance) {
-            //this.version = version;          
-            this.props = {
-                level: 1,
-                numSpells: 1,
-                player: null,
-                score: 0,
-                spawnCounter: 0,
-                spawnRate: 15,                
-            };
-
-            const stateMatrix = {};
-            stateMatrix[GAME_STATES.LOADING] = new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets);
-            stateMatrix[GAME_STATES.TITLE] = new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, this.showTitle.bind(this));
-            stateMatrix[GAME_STATES.RUNNING] = new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, this.startGame.bind(this));
-            stateMatrix[GAME_STATES.GAMEOVER] = new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, this.showGameLose.bind(this));
-            stateMatrix[GAME_STATES.GAMEWIN] = new State(GAME_STATES.GAMEWIN, { "KeyPress": GAME_STATES.TITLE }, this.showGameWin.bind(this));
-
-            this.FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
-
-            Game.instance = this;
+            Game.instance = new Game();
         }
 
         return Game.instance;
     }
 
     init() {
-        renderer.setupCanvas();
+        Renderer.getInstance().setupCanvas();
         this.addEventHandlers();
         setInterval(this.draw.bind(this), 15); // ever 15ms, or 60 fps
     }
 
     loadAssets() {
-        audioPlayer.initSounds();
-        renderer.initSpriteSheet(function () {
-            game.FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
+        AudioPlayer.getInstance().initSounds();
+        Renderer.getInstance().initSpriteSheet(function () {
+            Game.getInstance().FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
     }
 
     addEventHandlers() {
-        document.querySelector("html").onkeydown = game.handleInteraction;
-        window.addEventListener('touchstart', function () { game.handleInteraction(null); });
-        window.addEventListener('mousedown', function () { game.handleInteraction(null); });
+        let htmlElem = document.querySelector("html");
+        if (htmlElem){
+            htmlElem.onkeydown = Game.getInstance().handleInteraction;
+        }
+        
+        window.addEventListener('touchstart', function () { Game.getInstance().handleInteraction(null); });
+        window.addEventListener('mousedown', function () { Game.getInstance().handleInteraction(null); });
     }
 
-    handleInteraction(e) {  
-        switch (game.FSM.currentState.name) {
+    handleInteraction(e: any) {
+        switch (Game.getInstance().FSM.currentState.name) {
             case GAME_STATES.LOADING:
                 break; // do nothing                
             case GAME_STATES.RUNNING:
                 if (e) {
-                    game.handleKeypress(e);
+                    Game.getInstance().handleKeypress(e);
                 }
                 break;
             default:
-                game.FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
+                Game.getInstance().FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
                 break;
         }
     }
 
-    handleKeypress(e) {
+    handleKeypress(e: any) {
         e = e || window.event;
         if (e.defaultPrevented) {
             return; // Do nothing if the event was already processed
@@ -106,35 +120,35 @@ class Game {
 
     draw() {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
-            renderer.clearCanvas();
-            renderer.screenshake();
+            Renderer.getInstance().clearCanvas();
+            Renderer.getInstance().screenshake();
 
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
-                    map.getTile(i, j).draw();
+                    Mapper.getInstance().getTile(i, j).draw();
                 }
             }
 
-            for (let i = 0; i < map.getMonsters().length; i++) {
-                map.getMonsters()[i].draw();
+            for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
+                Mapper.getInstance().getMonsters()[i].draw();
             }
 
             this.props.player.draw();
 
             if (this.props.sidebarNeedsUpdate) {
                 this.props.sidebarNeedsUpdate = false;
-                renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+                Renderer.getInstance().updateSidebar(this.props.level, this.props.score, this.props.player.spells);
             }
         }
     }
 
     tick() {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
-            for (let k = map.getMonsters().length - 1; k >= 0; k--) {
-                if (!map.getMonsters()[k].dead) {
-                    map.getMonsters()[k].update();
+            for (let k = Mapper.getInstance().getMonsters().length - 1; k >= 0; k--) {
+                if (!Mapper.getInstance().getMonsters()[k].dead) {
+                    Mapper.getInstance().getMonsters()[k].update();
                 } else {
-                    map.getMonsters().splice(k, 1);
+                    Mapper.getInstance().getMonsters().splice(k, 1);
                 }
             }
 
@@ -148,7 +162,7 @@ class Game {
 
             this.props.spawnCounter--;
             if (this.props.spawnCounter <= 0) {
-                map.spawnMonster();
+                Mapper.getInstance().spawnMonster();
                 this.props.spawnCounter = this.props.spawnRate;
                 this.props.spawnRate--;
             }
@@ -156,37 +170,39 @@ class Game {
     }
 
     showTitle() {
-        renderer.showTitle(this.getScores());
+        Renderer.getInstance().showTitle(this.getScores());
     }
 
     showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
         this.addScore(this.props.score, true);
-        renderer.showGameWin(this.props.scores);
+        Renderer.getInstance().showGameWin(this.props.scores);
     }
 
     showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
         this.addScore(this.props.score, true);
-        renderer.showGameLose(this.props.scores);
+        Renderer.getInstance().showGameLose(this.props.scores);
     }
 
     startGame() {
-        renderer.hideOverlays();
+        Renderer.getInstance().hideOverlays();
         this.props.level = 1;
         this.props.score = 0;
         this.props.numSpells = 1;
-        this.startLevel(startingHp);
+        this.startLevel(startingHp, []);
         this.props.sidebarNeedsUpdate = true;
     }
 
-    startLevel(playerHp, playerSpells) {
+    startLevel(playerHp: number, playerSpells: any) {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
-        map.generateLevel(this.props.level);
-
-        this.props.player = new Player(map.randomPassableTile());
+        Mapper.getInstance().generateLevel(this.props.level);
+        let freeTile = Mapper.getInstance().randomPassableTile();
+        if (freeTile) {
+            this.props.player = new Player(freeTile);
+        }
         this.props.player.hp = playerHp;
 
         // PG: Future bi-directional travel
@@ -196,12 +212,15 @@ class Game {
             this.props.player.spells = playerSpells;
         }
 
-        let levelExit = map.randomPassableTile();
-        map.replaceTile(levelExit.x, levelExit.y, StairDown);
+        let levelExit = Mapper.getInstance().randomPassableTile();
+        if (levelExit) {
+            Mapper.getInstance().replaceTile(levelExit.x, levelExit.y, StairDown);
+        }
+
         this.props.sidebarNeedsUpdate = true;
     }
 
-    addScore(score, won) {
+    addScore(score: number, won: boolean) {
         let scores = this.getScores();
         let scoreObject = { score: score, run: 1, totalScore: score, active: won };
         let lastScore = scores.pop();
@@ -216,13 +235,13 @@ class Game {
         }
         scores.push(scoreObject);
 
-        localStorage["scores"] = JSON.stringify(scores);
+        this.localStorage["scores"] = JSON.stringify(scores);
 
     }
 
     getScores() {
-        if (localStorage["scores"]) {
-            return JSON.parse(localStorage["scores"]);
+        if (this.localStorage["scores"]) {
+            return JSON.parse(this.localStorage["scores"]);
         } else {
             return [];
         }
@@ -232,15 +251,15 @@ class Game {
         if (this.props.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
-            audioPlayer.playSound(SOUNDFX.NEWLEVEL);
+            AudioPlayer.getInstance().playSound(SOUNDFX.NEWLEVEL);
             this.props.level++;
-            this.startLevel(Math.min(maxHp, this.props.player.hp + 1));
+            this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
             this.props.sidebarNeedsUpdate = true;
         }
     }
 
     incrementScore() {
-        audioPlayer.playSound(SOUNDFX.BOOK);
+        AudioPlayer.getInstance().playSound(SOUNDFX.BOOK);
 
         this.props.score++;
 
@@ -249,7 +268,7 @@ class Game {
             this.props.player.addSpell();
         }
 
-        map.spawnMonster();
+        Mapper.getInstance().spawnMonster();
         this.props.sidebarNeedsUpdate = true;
     }
 
@@ -257,7 +276,3 @@ class Game {
         return this.props.player.tile;
     }
 }
-
-const game = new Game();
-Object.freeze(game);
-export default game;

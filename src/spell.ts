@@ -1,16 +1,21 @@
-import { EFFECT_SPRITE_INDICES, numTiles } from "./constants.js";
-import map from "./map.js";
-import renderer from "./renderer.js";
-import { Floor } from "./tile.js";
+import { EFFECT_SPRITE_INDICES, numTiles } from "./constants";
+import { Mapper } from "./mapper";
+import { Monster } from "./monster";
+import { Renderer } from "./renderer";
+import { Floor } from "./tile";
 
 export const spells = {
-    WOOP: function (caster) {
-        caster.move(map.randomPassableTile());
+    WOOP: function (caster: Monster) {
+        let newTile = Mapper.getInstance().randomPassableTile();
+        if (newTile) {
+            caster.move(newTile);
+        }
+
     },
-    QUAKE: function (caster) {
+    QUAKE: function (caster: Monster) {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = map.getTile(i, j);
+                let tile = Mapper.getInstance().getTile(i, j);
                 if (tile && tile.monster && tile.monster != caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
@@ -18,17 +23,17 @@ export const spells = {
             }
         }
 
-        renderer.setShakeAmount(20);
+        Renderer.getInstance().setShakeAmount(20);
     },
     TORNADO: function () {
-        for (let i = 0; i < map.getMonsters().length; i++) {
-            map.getMonsters()[i].move(map.randomPassableTile());
-            map.getMonsters()[i].teleportCounter = 2;
+        for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
+            Mapper.getInstance().getMonsters()[i].move(Mapper.getInstance().randomPassableTile());
+            Mapper.getInstance().getMonsters()[i].teleportCounter = 2;
         }
     },
-    AURA: function (caster) {
+    AURA: function (caster: Monster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if(t) {
+            if (t) {
                 t.setEffect(EFFECT_SPRITE_INDICES.Heal);
                 if (t.monster) {
                     t.monster.heal(1);
@@ -38,7 +43,7 @@ export const spells = {
         caster.tile.setEffect(EFFECT_SPRITE_INDICES.Heal);
         caster.heal(3);
     },
-    DASH: function (caster) {
+    DASH: function (caster: Monster) {
         let newTile = caster.tile;
         while (true) {
             let testTile = newTile.getNeighbor(caster.lastMove[0], caster.lastMove[1]);
@@ -59,42 +64,42 @@ export const spells = {
             });
         }
     },
-    FLATTEN: function (caster) {
+    FLATTEN: function (caster: Monster) {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
-                let tile = map.getTile(i, j);
+                let tile = Mapper.getInstance().getTile(i, j);
                 if (tile && !tile.passable) {
-                    map.replaceTile(i, j, Floor);
+                    Mapper.getInstance().replaceTile(i, j, Floor);
                 }
             }
         }
         caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
         caster.heal(2);
     },
-    ALCHEMY: function (caster) {
+    ALCHEMY: function (caster: Monster) {
         caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if (t && !t.passable && map.inBounds(t.x, t.y)) {
-                map.replaceTile(t.x, t.y, Floor);
-                let tile = map.getTile(t.x, t.y);
+            if (t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y)) {
+                Mapper.getInstance().replaceTile(t.x, t.y, Floor);
+                let tile = Mapper.getInstance().getTile(t.x, t.y);
                 if (tile) {
                     tile.book = true;
-                }                
+                }
             }
         });
     },
-    POWERATTACK: function (caster) {
+    POWERATTACK: function (caster: Monster) {
         caster.bonusAttack = 5;
     },
-    PROTECT: function (caster) {
+    PROTECT: function (caster: Monster) {
         caster.shield = 2;
-        for (let i = 0; i < map.getMonsters().length; i++) {
-            map.getMonsters()[i].stunned = true;
+        for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
+            Mapper.getInstance().getMonsters()[i].stunned = true;
         }
     },
-    BOLT: function (caster) {
+    BOLT: function (caster: Monster) {
         boltTravel(caster, caster.lastMove, 15 + Math.abs(caster.lastMove[1]), 4);
     },
-    CROSS: function (caster) {
+    CROSS: function (caster: Monster) {
         let directions = [
             [0, -1],
             [0, 1],
@@ -106,7 +111,7 @@ export const spells = {
             boltTravel(caster, directions[k], dirSprite, 2);
         }
     },
-    EX: function (caster) {
+    EX: function (caster: Monster) {
         let directions = [
             [-1, -1],
             [-1, 1],
@@ -119,7 +124,7 @@ export const spells = {
     }
 };
 
-function boltTravel(caster, direction, effect, damage) {
+function boltTravel(caster: Monster, direction: Array<number>, effect: any, damage: number) {
     let newTile = caster.tile;
     while (true) {
         let testTile = newTile.getNeighbor(direction[0], direction[1]);

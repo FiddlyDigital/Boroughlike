@@ -1,10 +1,16 @@
-import { Wall, Floor, SpikePit, Fountain } from "../../tile.js";
-import { Bird, Snake, Tank, Eater, Jester, Turret } from "../../monster.js"
-import { numTiles } from "../../constants.js";
-import Utilities from '../../utilities.js';
+import { Tile, Wall, Floor, SpikePit, Fountain } from "../../tile";
+import { Monster, Bird, Snake, Tank, Eater, Jester, Turret } from "../../monster"
+import { numTiles } from "../../constants";
+import { tryTo, randomRange, shuffle } from "../../utilities";
 
 export class DefaultLevel {
-    constructor(levelNum) {
+    levelNum: number;
+    width: number;
+    height: number;
+    tiles: Array<Array<Tile>>;
+    monsters: Array<Array<Monster>>;
+
+    constructor(levelNum: number) {
         this.levelNum = levelNum;
         this.width = numTiles;   // TODO: + Math.floor((numTiles / 100) * levelNum);
         this.height = numTiles;  // TODO: + Math.floor((numTiles / 100) * levelNum);
@@ -51,7 +57,7 @@ export class DefaultLevel {
     }
 
     spawnMonster() {
-        let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
+        let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
         return new monsterType(this.randomPassableTile());
     }
 
@@ -59,22 +65,24 @@ export class DefaultLevel {
         var booksPlaced = 0
         while (booksPlaced < 3) {
             let t = this.randomPassableTile()
-            if (t instanceof Floor) {
+            if (t && t instanceof Floor) {
                 booksPlaced++;
                 t.book = true;
             }
         }
     }
 
-    randomPassableTile() {
+    randomPassableTile() : Tile | undefined {
         let self = this;
         let tile;
-        Utilities.tryTo('Get random passable tile', function () {
-            let x = Utilities.randomRange(0, self.width - 1);
-            let y = Utilities.randomRange(0, self.height - 1);
+
+        tryTo('Get random passable tile', function () {
+            let x = randomRange(0, self.width - 1);
+            let y = randomRange(0, self.height - 1);
             tile = self.tiles[x][y];
             return tile.passable && !tile.monster;
         });
+
         return tile;
     }
 }

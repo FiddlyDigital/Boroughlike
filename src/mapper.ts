@@ -1,29 +1,35 @@
-import { numTiles, TILE_SPRITE_INDICES } from "./constants.js";
-import { Bird, Snake, Tank, Eater, Jester, Turret } from "./monster.js"
-import { Wall } from "./tile.js";
-import { LevelGenerator, Branches } from './mapping/levelGenerator.js'
-import Utilities from "./utilities.js";
+import { numTiles, TILE_SPRITE_INDICES } from "./constants";
+import { Bird, Snake, Tank, Eater, Jester, Turret } from "./monster"
+import { Floor, Tile, Wall } from "./tile";
+import { LevelGenerator, Branches } from './mapping/levelGenerator'
+import { randomRange, tryTo, shuffle } from "./utilities";
 
-class Map {
-    constructor() {
-        if (!Map.instance) {
-            this.levelGenerator = new LevelGenerator();
-            this.props = {
-                monsters: [],
-                tiles: [], // floors: []
-                levelNum: 1,
-                height: numTiles,
-                width: numTiles,
-                branch: Branches.LIBRARY
-            };
+export class Mapper {
+    private static instance: Mapper;
+    props: any;
+    levelGenerator: any;
 
-            Map.instance = this;
-        }
-
-        return Map.instance;
+    private constructor() {
+        this.levelGenerator = new LevelGenerator();
+        this.props = {
+            monsters: [],
+            tiles: [], // floors: []
+            levelNum: 1,
+            height: numTiles,
+            width: numTiles,
+            branch: Branches.LIBRARY
+        };
     }
 
-    replaceTile(x, y, newTileType) {
+    public static getInstance(): Mapper {
+        if (!Mapper.instance) {
+            Mapper.instance = new Mapper();
+        }
+
+        return Mapper.instance;
+    }
+
+    replaceTile(x: number, y: number, newTileType: any) {
         this.props.tiles[x][y] = new newTileType(x, y)
         return this.props.tiles[x][y]
     }
@@ -36,7 +42,7 @@ class Map {
         return this.props.monsters;
     }
 
-    generateLevel(newLevelNum) {
+    generateLevel(newLevelNum: number) {
         this.props.levelNum = newLevelNum;
 
         let level = this.levelGenerator.generateLevel(this.props.levelNum, this.props.branch);
@@ -68,7 +74,7 @@ class Map {
         }
     }
 
-    getSpriteVariationSuffixForTile(neighbours, tileClass) {
+    getSpriteVariationSuffixForTile(neighbours: Array<Tile>, tileClass: any) {
         let suffix = "";
 
         if (neighbours[2] && (neighbours[2] instanceof tileClass)) {
@@ -87,11 +93,11 @@ class Map {
         return suffix;
     }
 
-    inBounds(x, y) {
+    inBounds(x: number, y: number) {
         return (x >= 0) && (y >= 0) && (x < this.props.width) && (y < this.props.height);
     }
 
-    getTile(x, y) {
+    getTile(x: number, y: number) {
         if (this.inBounds(x, y)) {
             return this.props.tiles[x][y];
         } else {
@@ -99,26 +105,23 @@ class Map {
         }
     }
 
-    randomPassableTile() {
+    randomPassableTile() : Floor | undefined{
         let self = this;
         let tile;
-        Utilities.tryTo('get random passable tile', function () {
-            let x = Utilities.randomRange(0, self.props.width - 1);
-            let y = Utilities.randomRange(0, self.props.height - 1);
-            tile = map.getTile(x, y);
+
+        tryTo('get random passable tile', function () {
+            let x = randomRange(0, self.props.width - 1);
+            let y = randomRange(0, self.props.height - 1);
+            tile = Mapper.getInstance().getTile(x, y);
             return tile && tile.passable && !tile.monster;
         });
+
         return tile;
     }
 
     spawnMonster() {
-        let monsterType = Utilities.shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
+        let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
         let monster = new monsterType(this.randomPassableTile());
         this.props.monsters.push(monster);
     }
 }
-
-const map = new Map();
-Object.freeze(map);
-
-export default map;
