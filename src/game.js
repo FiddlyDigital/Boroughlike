@@ -52,11 +52,6 @@ class Game {
         document.querySelector("html").onkeydown = game.handleInteraction;
         window.addEventListener('touchstart', function () { game.handleInteraction(null); });
         window.addEventListener('mousedown', function () { game.handleInteraction(null); });
-        document.getElementById("moveUp").addEventListener("click", function () { game.handleInteraction({ key: "Up" }) });
-        document.getElementById("moveDown").addEventListener("click", function () { game.handleInteraction({ key: "Down" }) });
-        document.getElementById("moveLeft").addEventListener("click", function () { game.handleInteraction({ key: "Left" }) });
-        document.getElementById("moveRight").addEventListener("click", function () { game.handleInteraction({ key: "Right" }) });
-        document.getElementById("movePass").addEventListener("click", function () { game.handleInteraction({ key: " " }) });
     }
 
     handleInteraction(e) {  

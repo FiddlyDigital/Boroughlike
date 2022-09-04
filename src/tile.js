@@ -1,4 +1,4 @@
-import {SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES} from "./constants.js";
+import { SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES } from "./constants.js";
 import game from "./game.js";
 import map from "./map.js";
 import renderer from "./renderer.js";
@@ -32,34 +32,50 @@ export class Tile {
     }
 
     getNeighbourChain(direction) {
-        let xy = [0,0];
-        switch(direction) {
+        let xy = [0, 0];
+        switch (direction) {
             case "N":
-                xy = [0,-1];
+                xy = [0, -1];
                 break;
+            case "NE":
+                xy = [1, -1];
+                break;
+            case "NW":
+                xy = [-1, -1];
+                break;
+
             case "S":
                 xy = [0, 1];
                 break;
-            case "E":
-                xy = [1,0];
+            case "SE":
+                xy = [1, 1];
                 break;
+            case "SW":
+                xy = [-1, 1];
+                break;
+
+
+            case "E":
+                xy = [1, 0];
+                break;
+
             case "W":
-                xy = [-1,0];
+                xy = [-1, 0];
                 break;
         }
 
         let chain = [];
         let currentTile = this;
-        while(currentTile != null) {
+        while (currentTile != null) {
             currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-            if (!(currentTile instanceof Wall)) {                
-                chain.push(currentTile);                
+            if (!(currentTile instanceof Wall)) {
+                chain.push(currentTile);
             } else {
                 currentTile = null;
             }
         }
-        
+
         return chain;
     }
 
@@ -152,7 +168,7 @@ export class SpikePit extends Tile {
     };
 
     stepOn(monster) {
-        if (monster.isPlayer){
+        if (monster.isPlayer) {
             renderer.setShakeAmount(5);
         }
         monster.hit(1);

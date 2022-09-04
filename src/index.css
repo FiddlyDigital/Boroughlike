@@ -58,19 +58,6 @@ canvas {
     width: 100%;
 }
 
-.sidebar .btnMatrix {
-    margin: 0 auto;
-    width: 192px; /*64 x 3*/
-    height: 192px;
-}
-
-.sidebar .btnMatrix button {
-    height: 64px;
-    width: 64px;
-    font-size: 32px;
-    text-align: center;
-}
-
 .sidebar .stats {
     width: 100%;
 }
