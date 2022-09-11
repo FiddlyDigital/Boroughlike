@@ -31,7 +31,7 @@ export const spells = {
             let monster = monsters[i];
             if (monster) {
                 let randomTile = Mapper.getInstance().randomPassableTile();
-                if(randomTile){
+                if (randomTile) {
                     monster.move(randomTile);
                     monster.teleportCounter = 2;
                 }
