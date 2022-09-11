@@ -26,9 +26,17 @@ export const spells = {
         Renderer.getInstance().setShakeAmount(20);
     },
     TORNADO: function () {
-        for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
-            Mapper.getInstance().getMonsters()[i].move(Mapper.getInstance().randomPassableTile());
-            Mapper.getInstance().getMonsters()[i].teleportCounter = 2;
+        let monsters = Mapper.getInstance().getMonsters();
+        for (let i = 0; i < monsters.length; i++) {
+            let monster = monsters[i];
+            if (monster) {
+                let randomTile = Mapper.getInstance().randomPassableTile();
+                if(randomTile){
+                    monster.move(randomTile);
+                    monster.teleportCounter = 2;
+                }
+            }
+
         }
     },
     AURA: function (caster: Monster) {
@@ -47,7 +55,7 @@ export const spells = {
         let newTile = caster.tile;
         while (true) {
             let testTile = newTile.getNeighbor(caster.lastMove[0], caster.lastMove[1]);
-            if (testTile.passable && !testTile.monster) {
+            if (testTile && testTile.passable && !testTile.monster) {
                 newTile = testTile;
             } else {
                 break;
@@ -128,7 +136,7 @@ function boltTravel(caster: Monster, direction: Array<number>, effect: any, dama
     let newTile = caster.tile;
     while (true) {
         let testTile = newTile.getNeighbor(direction[0], direction[1]);
-        if (testTile.passable) {
+        if (testTile && testTile.passable) {
             newTile = testTile;
 
             if (newTile.monster) {

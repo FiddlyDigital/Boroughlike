@@ -1,40 +1,43 @@
 html {
-    line-height: 1.15; /* Correct the line height in all browsers. */
-    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. */
+    line-height: 1.15;
+    /* Correct the line height in all browsers. */
+    -webkit-text-size-adjust: 100%;
+    /* Prevent adjustments of font size after orientation changes in iOS. */
     font-family: consolas, monospace !important;
-  }
-  
+}
+
 * {
-    margin:0;
-    padding:0;
-    border:0;
+    margin: 0;
+    padding: 0;
+    border: 0;
     font-family: inherit;
 }
 
 button {
-  font-size: 100%; 
-  line-height: 1.15; 
-  margin: 0; 
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
 }
 
 hr {
-    box-sizing: content-box; 
+    box-sizing: content-box;
     height: 0;
-    border-top:1px white solid; 
-    overflow: visible; 
-    margin: 15px 0px;;
-    padding:0;
-  }
+    border-top: 1px white solid;
+    overflow: visible;
+    margin: 15px 0px;
+    ;
+    padding: 0;
+}
 
 body {
     background-color: black;
     color: white;
-    
+
     margin-top: 50px;
     text-align: center;
 }
 
-.wrapper {                
+.wrapper {
     display: grid;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -42,7 +45,7 @@ body {
     grid-template-rows: repeat(12, 1fr);
     left: calc(50% - 512px);
     position: absolute;
-    top:0px;
+    top: 0px;
     width: 1024px;
 }
 
@@ -64,12 +67,12 @@ canvas {
 
 .overlay {
     position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-color: black;
-    color:white;    
+    color: white;
     height: 100%;
     width: 100%;
     display: none;
@@ -84,7 +87,7 @@ canvas {
 }
 
 .overlay .contents .scores {
-    min-height: 400px;  
+    min-height: 400px;
     min-height: 400px;
     width: 300px;
     margin: 0 auto;
@@ -96,7 +99,7 @@ canvas {
 }
 
 .overlay .contents .scores tbody tr:first-of-type {
-    color:aqua;
+    color: aqua;
 }
 
 #spells {
@@ -117,5 +120,5 @@ button {
     border-left: 2px darkgrey solid;
     border-top: 2px white solid;
     border-right: 2px white solid;
-    color:white;
+    color: white;
 }

@@ -1,13 +1,26 @@
-import { maxHp, SOUNDFX, SPRITETYPES, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
-import { AudioPlayer} from "./audioPlayer";
+import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
+import { AudioPlayer } from "./audioPlayer";
 import Game from './game';
 import { Mapper } from "./mapper";
-import { Renderer} from "./renderer";
+import { Renderer } from "./renderer";
 import { spells } from "./spell";
 import { Floor, Tile } from "./tile";
 import { shuffle, randomRange, Dictionary } from "./utilities";
 
-export class Monster {
+export interface IMonster {
+    dead:boolean;
+    stunned : boolean;
+    teleportCounter : number;
+    getDisplayX(): number;
+    getDisplayY(): number;
+    heal(damage: number): void;
+    hit(damage: number): void;
+    move(tile: Floor): void;
+    tryMove(dx: number, dy: number): boolean;
+    update(): void;
+}
+
+export abstract class Monster implements IMonster {
     sprite: Array<number>
     hp: number;
     teleportCounter: number;
@@ -20,13 +33,13 @@ export class Monster {
     attackedThisTurn: boolean;
     shield: number;
     dead: boolean;
-    tile: Floor;
+    tile: Tile;
 
-    constructor(tile: Floor, sprite: Array<number>, hp: number) {        
+    public constructor(tile: Tile, sprite: Array<number>, hp: number) {
         this.tile = tile;
         this.isPlayer = false;
         this.stunned = false;
-        
+
         this.attackedThisTurn = false;
         this.shield = 0;
         this.dead = false;
@@ -39,18 +52,14 @@ export class Monster {
         this.offsetY = 0;
         this.lastMove = [-1, 0];
         this.bonusAttack = 0;
-        
+
     }
 
-    heal(damage: number) {
+    public heal(damage: number): void {
         this.hp = Math.min(maxHp, this.hp + damage);
-
-        if (this.isPlayer) {
-            //audioPlayer.playSound(SOUNDFX.PLAYERHEAL);
-        }
     }
 
-    update() {
+    public update(): void {
         this.teleportCounter--;
         if (this.stunned || this.teleportCounter > 0) {
             this.stunned = false;
@@ -60,12 +69,12 @@ export class Monster {
         this.doStuff();
     }
 
-    doStuff() {
+    protected doStuff(): void {
         let neighbors = this.tile.getAdjacentPassableNeighbors();
 
         neighbors = neighbors.filter(t => t && (!t.monster || t.monster.isPlayer));
 
-        let playerTile = Game.getInstance().getPlayerTile();
+        let playerTile = this.tile; //Game.getInstance().getPlayerTile();
 
         if (neighbors.length) {
             neighbors.sort((a, b) => a.dist(playerTile) - b.dist(playerTile));
@@ -74,39 +83,15 @@ export class Monster {
         }
     }
 
-    getDisplayX() {
+    public getDisplayX(): number {
         return this.tile.x + this.offsetX;
     }
 
-    getDisplayY() {
+    public getDisplayY(): number {
         return this.tile.y + this.offsetY;
     }
 
-    draw() {
-        if (this.teleportCounter > 0) {
-            Renderer.getInstance().drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, this.getDisplayX(), this.getDisplayY());
-        } else {
-            Renderer.getInstance().drawSprite(SPRITETYPES.MONSTER, this.sprite, this.getDisplayX(), this.getDisplayY());
-            this.drawHp();
-        }
-
-        this.offsetX -= Math.sign(this.offsetX) * (1 / 8);
-        this.offsetY -= Math.sign(this.offsetY) * (1 / 8);
-    }
-
-    drawHp() {
-        for (let i = 0; i < this.hp; i++) {
-            Renderer.getInstance().drawSprite(
-                SPRITETYPES.MONSTER,
-                MONSTER_SPRITE_INDICES.HP,
-                this.getDisplayX() + (i % 3) * (5 / 16),
-                this.getDisplayY() - Math.floor(i / 3) * (5 / 16)
-            );
-
-        }
-    }
-
-    tryMove(dx: number, dy: number) : boolean {
+    public tryMove(dx: number, dy: number): boolean {
         let newTile = this.tile.getNeighbor(dx, dy);
         if (newTile && newTile.passable) {
             this.lastMove = [dx, dy];
@@ -126,13 +111,14 @@ export class Monster {
                     this.offsetY = (newTile.y - this.tile.y) / 2;
                 }
             }
+
             return true;
         }
 
         return false;
     }
 
-    hit(damage: number) {
+    public hit(damage: number): void {
         if (this.shield > 0) {
             return;
         }
@@ -146,22 +132,22 @@ export class Monster {
             }
         }
 
-        if (this.isPlayer) {
+        if (this instanceof Player) {
             AudioPlayer.getInstance().playSound(SOUNDFX.PLAYERHIT);
         } else {
             AudioPlayer.getInstance().playSound(SOUNDFX.MONSTERHIT);
         }
     }
 
-    die() {
+    private die(): void {
         this.dead = true;
         this.tile.monster = null;
-        if (this.isPlayer) {
+        if (this instanceof Player) {
             this.sprite = MONSTER_SPRITE_INDICES.Player_Dead;
         }
     }
 
-    move(tile: Floor) {
+    public move(tile: Tile): void {
         if (this.tile) {
             this.tile.monster = null;
             this.offsetX = this.tile.x - tile.x;
@@ -184,31 +170,26 @@ export class Player extends Monster {
         this.spells = shuffle(Object.keys(spells)).splice(0, Game.getInstance().props.numSpells);
     }
 
-    update() {
+    update(): void {
         this.shield--;
     };
 
-    tryMove(dx: number, dy: number) : boolean {
-        if (super.tryMove(dx, dy)) {
-            Game.getInstance().tick();
-            return true;
-        }
-
-        return false;
+    heal(damage: number): void {
+        super.heal(damage);
+        AudioPlayer.getInstance().playSound(SOUNDFX.PLAYERHEAL);
     }
 
-    addSpell() {
+    addSpell(): void {
         let newSpell = shuffle(Object.keys(spells))[0];
         this.spells.push(newSpell);
     };
 
-    castSpell(index: number) {
-        let spellName : string = this.spells[index];
+    castSpell(index: number): void {
+        let spellName: string = this.spells[index];
         if (spellName) {
             this.spells.splice(index, 1);
             this.spells[spellName](this);
             AudioPlayer.getInstance().playSound(SOUNDFX.SPELL);
-            Game.getInstance().tick();
         }
     };
 }
@@ -226,7 +207,7 @@ export class Snake extends Monster {
         super(tile, MONSTER_SPRITE_INDICES.Snake, 1);
     }
 
-    doStuff() {
+    doStuff(): void {
         this.attackedThisTurn = false;
         super.doStuff();
 
@@ -242,7 +223,7 @@ export class Tank extends Monster {
         super(tile, MONSTER_SPRITE_INDICES.Tank, 2);
     }
 
-    update() {
+    update(): void {
         let startedStunned = this.stunned;
         super.update();
         if (!startedStunned) {
@@ -257,7 +238,7 @@ export class Eater extends Monster {
         super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
-    doStuff() {
+    doStuff(): void {
         let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y));
         if (neighbors.length) {
             Mapper.getInstance().replaceTile(neighbors[0].x, neighbors[0].y, Floor);
@@ -274,7 +255,7 @@ export class Jester extends Monster {
         super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
 
-    doStuff() {
+    doStuff(): void {
         let neighbors = shuffle(this.tile.getAdjacentPassableNeighbors());
         if (neighbors.length) {
             this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
@@ -294,7 +275,7 @@ export class Turret extends Monster {
         this.currentDirection = randomRange(0, 3);
     }
 
-    doStuff() {
+    doStuff(): void {
         // Rotate 90 degrees
         this.currentDirection += 1;
         if (this.currentDirection == 4) {
@@ -303,10 +284,12 @@ export class Turret extends Monster {
 
         let cardinalDirection = this.directions[this.currentDirection];
         this.sprite = MONSTER_SPRITE_INDICES["Turret_" + cardinalDirection];
-        var targetTiles = this.tile.getNeighbourChain(cardinalDirection);
+        var targetTiles = this.tile.getNeighborChain(cardinalDirection);
+
+        console.log(targetTiles);
 
         // if the player is in LOS
-        if (targetTiles.some(t => { return (t && t.monster && t.monster.isPlayer) })) {
+        if (targetTiles.some(t => { return (t.monster && t.monster instanceof Player) })) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
                 if (t) {

@@ -3,14 +3,19 @@ import { Monster, Bird, Snake, Tank, Eater, Jester, Turret } from "../../monster
 import { numTiles } from "../../constants";
 import { tryTo, randomRange, shuffle } from "../../utilities";
 
-export class DefaultLevel {
+export interface ILevelGenerator {
+    generate(): void;
+    generateTiles(): void;
+}
+
+export class DefaultLevel implements ILevelGenerator {
     levelNum: number;
     width: number;
     height: number;
     tiles: Array<Array<Tile>>;
     monsters: Array<Array<Monster>>;
 
-    constructor(levelNum: number) {
+    public constructor(levelNum: number) {
         this.levelNum = levelNum;
         this.width = numTiles;   // TODO: + Math.floor((numTiles / 100) * levelNum);
         this.height = numTiles;  // TODO: + Math.floor((numTiles / 100) * levelNum);
@@ -18,13 +23,13 @@ export class DefaultLevel {
         this.monsters = [];
     }
 
-    generate() {
+    public generate(): void {
         this.generateTiles();
         this.generateMonsters();
         this.placeBooks();
     }
 
-    generateTiles() {
+    public generateTiles(): void {
         for (let x = 0; x < this.width; x++) {
             this.tiles[x] = [];
 
@@ -49,19 +54,19 @@ export class DefaultLevel {
         }
     }
 
-    generateMonsters() {
+    protected generateMonsters() {
         let numMonsters = Math.ceil(this.levelNum / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             this.monsters.push(this.spawnMonster());
         }
     }
 
-    spawnMonster() {
+    private spawnMonster() {
         let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
         return new monsterType(this.randomPassableTile());
     }
 
-    placeBooks() {
+    protected placeBooks() {
         var booksPlaced = 0
         while (booksPlaced < 3) {
             let t = this.randomPassableTile()
@@ -72,7 +77,7 @@ export class DefaultLevel {
         }
     }
 
-    randomPassableTile() : Tile | undefined {
+    private randomPassableTile(): Tile | undefined {
         let self = this;
         let tile;
 

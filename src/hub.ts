@@ -46,7 +46,7 @@ export class Hub {
                     if (callback) {
                         callback(eventData);
                     }
-            });
+                });
         }
     }
 }

@@ -40,12 +40,12 @@ export function rightPad(textArray: Array<string>): string {
 }
 
 export interface Dictionary<T> {
-    [key: string] : T;
+    [key: string]: T;
 }
 
 //https://www.delftstack.com/howto/typescript/typescript-cloning-an-object/
-export function deepCopy<T>(instance : T) : T {
-    if ( instance == null){
+export function deepCopy<T>(instance: T): T {
+    if (instance == null) {
         return instance;
     }
 
@@ -55,19 +55,21 @@ export function deepCopy<T>(instance : T) : T {
     }
 
     // handle Array types
-    if (instance instanceof Array){
+    if (instance instanceof Array) {
         var cloneArr = [] as any[];
-        (instance as any[]).forEach((value)  => {cloneArr.push(value)});
+        (instance as any[]).forEach((value) => { cloneArr.push(value) });
         // for nested objects
         return cloneArr.map((value: any) => deepCopy<any>(value)) as any;
     }
 
     // handle objects
     if (instance instanceof Object) {
-        var copyInstance = { ...(instance as { [key: string]: any }
-        ) } as { [key: string]: any };
+        var copyInstance = {
+            ...(instance as { [key: string]: any }
+            )
+        } as { [key: string]: any };
         for (var attr in instance) {
-            if ( (instance as Object).hasOwnProperty(attr)) 
+            if ((instance as Object).hasOwnProperty(attr))
                 copyInstance[attr] = deepCopy<any>(instance[attr]);
         }
         return copyInstance as T;

@@ -30,19 +30,19 @@ export class BSPTreemapLevel extends DefaultLevel {
             successfulSplit = false;
 
             for (var i = 0; i < this.leaves.length; i++) {
-                let leaf =this.leaves[i];
+                let leaf = this.leaves[i];
                 if (leaf) {
                     if (!leaf.childLeafLeft && !leaf.childLeafRight) {
                         if ((leaf.leafWidth > this.maxLeafSize) || (leaf.leafHeight > this.maxLeafSize)) {
                             // Try to split the leaf
                             if (leaf.splitLeaf(this.minLeafSize)) {
-                                if(leaf.childLeafLeft){
+                                if (leaf.childLeafLeft) {
                                     this.leaves.push(leaf.childLeafLeft);
                                 }
-                                if(leaf.childLeafRight){
+                                if (leaf.childLeafRight) {
                                     this.leaves.push(leaf.childLeafRight);
                                 }
-                                
+
                                 successfulSplit = true;
                             }
                         }

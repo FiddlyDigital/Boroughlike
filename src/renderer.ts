@@ -1,5 +1,6 @@
-import { SPRITETYPES, numTiles, tileSize, uiWidth } from './constants';
+import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants';
 import Game from './game';
+import { Tile } from './tile';
 
 export class Renderer {
     private static instance: Renderer;
@@ -38,7 +39,6 @@ export class Renderer {
         } else {
             throw "can't load Player Books elem";
         }
-
 
         this.shake = {
             amount: 0,
@@ -118,7 +118,43 @@ export class Renderer {
         }
     }
 
-    public drawSprite(spriteType: string, spriteIdx: Array<number> | undefined, x: number, y: number, effectCounter: number = 0) {
+    public drawTile(tile: Tile) {
+        if (tile) {
+            this.drawSprite(SPRITETYPES.TILE, tile.sprite, tile.x, tile.y);
+
+            if (tile.book) {
+                this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, tile.x, tile.y);
+            }
+
+            if (tile.effectCounter) {
+                tile.effectCounter--;
+                this.drawSprite(SPRITETYPES.EFFECTS, tile.effectIndex, tile.x, tile.y, tile.effectCounter);
+            }
+
+            if (tile.monster) {
+                if (tile.monster.teleportCounter > 0) {
+                    this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, tile.monster.getDisplayX(), tile.monster.getDisplayY());
+                } else {
+                    this.drawSprite(SPRITETYPES.MONSTER, tile.monster.sprite, tile.monster.getDisplayX(), tile.monster.getDisplayY());
+
+                    for (let i = 0; i < tile.monster.hp; i++) {
+                        this.drawSprite(
+                            SPRITETYPES.MONSTER,
+                            MONSTER_SPRITE_INDICES.HP,
+                            tile.monster.getDisplayX() + (i % 3) * (5 / 16),
+                            tile.monster.getDisplayY() - Math.floor(i / 3) * (5 / 16)
+                        );
+
+                    }
+                }
+
+                tile.monster.offsetX -= Math.sign(tile.monster.offsetX) * (1 / 8);
+                tile.monster.offsetY -= Math.sign(tile.monster.offsetY) * (1 / 8);
+            }
+        }
+    }
+
+    private drawSprite(spriteType: string, spriteIdx: Array<number> | undefined, x: number, y: number, effectCounter: number = 0) {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / 30;
         }
@@ -167,7 +203,7 @@ export class Renderer {
         if (overlays) {
             for (let i = 0; i < overlays.length; i++) {
                 if (overlays[i]) {
-                    let overlay = overlays[i] as HTMLElement;                    
+                    let overlay = overlays[i] as HTMLElement;
                     overlay.style.display = "none";
                 }
             }

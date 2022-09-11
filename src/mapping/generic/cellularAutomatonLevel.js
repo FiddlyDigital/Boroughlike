@@ -4,7 +4,7 @@ import { DefaultLevel } from "./defaultLevel.js";
 
 export class CellularAutomationLevel extends DefaultLevel {
     constructor(levelNum) {
-        super(levelNum);        
+        super(levelNum);
         this.chanceToStartAlive = 0.4;
         this.deathLimit = 3;
         this.birthLimit = 4;
@@ -14,7 +14,7 @@ export class CellularAutomationLevel extends DefaultLevel {
     generate() {
         this.generateTiles();
         super.generateMonsters();
-        super.placeBooks();        
+        super.placeBooks();
     }
 
     generateTiles() {

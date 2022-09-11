@@ -1,4 +1,4 @@
-import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX } from "./constants";
+import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES, maxHp, SOUNDFX } from "./constants";
 import { AudioPlayer } from "./audioPlayer";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Mapper } from "./mapper";
@@ -60,10 +60,10 @@ export default class Game {
 
     addEventHandlers() {
         let htmlElem = document.querySelector("html");
-        if (htmlElem){
+        if (htmlElem) {
             htmlElem.onkeydown = Game.getInstance().handleInteraction;
         }
-        
+
         window.addEventListener('touchstart', function () { Game.getInstance().handleInteraction(null); });
         window.addEventListener('mousedown', function () { Game.getInstance().handleInteraction(null); });
     }
@@ -116,24 +116,24 @@ export default class Game {
                 this.props.sidebarNeedsUpdate = true;
                 break;
         }
+
+        this.tick();
     }
 
-    draw() {
+    private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             Renderer.getInstance().clearCanvas();
             Renderer.getInstance().screenshake();
 
+            // This will handle drawing the tiles, and the monsters/items on them.
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
-                    Mapper.getInstance().getTile(i, j).draw();
+                    let t = Mapper.getInstance().getTile(i, j);
+                    if (t) {
+                        Renderer.getInstance().drawTile(t);
+                    }
                 }
             }
-
-            for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
-                Mapper.getInstance().getMonsters()[i].draw();
-            }
-
-            this.props.player.draw();
 
             if (this.props.sidebarNeedsUpdate) {
                 this.props.sidebarNeedsUpdate = false;
@@ -142,7 +142,7 @@ export default class Game {
         }
     }
 
-    tick() {
+    private tick(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             for (let k = Mapper.getInstance().getMonsters().length - 1; k >= 0; k--) {
                 if (!Mapper.getInstance().getMonsters()[k].dead) {
@@ -166,26 +166,28 @@ export default class Game {
                 this.props.spawnCounter = this.props.spawnRate;
                 this.props.spawnRate--;
             }
+
+            this.draw();
         }
     }
 
-    showTitle() {
+    private showTitle(): void {
         Renderer.getInstance().showTitle(this.getScores());
     }
 
-    showGameWin() {
+    private showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
         this.addScore(this.props.score, true);
         Renderer.getInstance().showGameWin(this.props.scores);
     }
 
-    showGameLose() {
+    private showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
         this.addScore(this.props.score, true);
         Renderer.getInstance().showGameLose(this.props.scores);
     }
 
-    startGame() {
+    private startGame() {
         Renderer.getInstance().hideOverlays();
         this.props.level = 1;
         this.props.score = 0;
@@ -194,7 +196,7 @@ export default class Game {
         this.props.sidebarNeedsUpdate = true;
     }
 
-    startLevel(playerHp: number, playerSpells: any) {
+    private startLevel(playerHp: number, playerSpells: any) {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
@@ -220,7 +222,7 @@ export default class Game {
         this.props.sidebarNeedsUpdate = true;
     }
 
-    addScore(score: number, won: boolean) {
+    private addScore(score: number, won: boolean) {
         let scores = this.getScores();
         let scoreObject = { score: score, run: 1, totalScore: score, active: won };
         let lastScore = scores.pop();
@@ -239,7 +241,7 @@ export default class Game {
 
     }
 
-    getScores() {
+    private getScores() {
         if (this.localStorage["scores"]) {
             return JSON.parse(this.localStorage["scores"]);
         } else {
@@ -270,9 +272,5 @@ export default class Game {
 
         Mapper.getInstance().spawnMonster();
         this.props.sidebarNeedsUpdate = true;
-    }
-
-    getPlayerTile() {
-        return this.props.player.tile;
     }
 }
