@@ -1,6 +1,6 @@
 import { numTiles, TILE_SPRITE_INDICES } from "./constants";
-import { Bird, Snake, Tank, Eater, Jester, Turret, IMonster } from "./monster"
-import { Floor, ITile, Tile, Wall } from "./tile";
+import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor, IActor } from "./actor"
+import { FloorTile, ITile, Tile, WallTile } from "./tile";
 import { LevelGenerator, Branches } from './mapping/levelGenerator'
 import { randomRange, tryTo, shuffle } from "./utilities";
 
@@ -42,7 +42,7 @@ export class Mapper implements IMapper {
         return this.props.tiles;
     }
 
-    getMonsters(): Array<IMonster> {
+    getMonsters(): Array<IActor> {
         return this.props.monsters;
     }
 
@@ -65,10 +65,10 @@ export class Mapper implements IMapper {
             for (let x = 0; x < this.props.width; x++) {
                 let tile = this.props.tiles[x][y];
 
-                if (tile instanceof Wall) {
+                if (tile instanceof WallTile) {
                     let neighbours = tile.getAdjacentNeighbors();
                     if (neighbours && neighbours.length > 0) {
-                        let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, Wall);
+                        let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, WallTile);
                         if (newSpriteName) {
                             tile.sprite = TILE_SPRITE_INDICES["Wall_" + newSpriteName];
                         }
@@ -78,7 +78,7 @@ export class Mapper implements IMapper {
         }
     }
 
-    getSpriteVariationSuffixForTile(neighbours: Array<Tile>, tileClass: any): string {
+    getSpriteVariationSuffixForTile(neighbours: Array<Tile | null>, tileClass: any): string {
         let suffix = "";
 
         if (neighbours[2] && (neighbours[2] instanceof tileClass)) {
@@ -124,7 +124,7 @@ export class Mapper implements IMapper {
     }
 
     spawnMonster(): void {
-        let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
+        let monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
         let monster = new monsterType(this.randomPassableTile());
         this.props.monsters.push(monster);
     }

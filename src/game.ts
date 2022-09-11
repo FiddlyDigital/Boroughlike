@@ -2,9 +2,9 @@ import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES,
 import { AudioPlayer } from "./audioPlayer";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Mapper } from "./mapper";
-import { Player } from "./monster";
+import { PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
-import { StairDown } from "./tile";
+import { StairDownTile } from "./tile";
 import { Dictionary } from "./utilities";
 //import { version } from '../package.json';
 
@@ -203,7 +203,7 @@ export default class Game {
         Mapper.getInstance().generateLevel(this.props.level);
         let freeTile = Mapper.getInstance().randomPassableTile();
         if (freeTile) {
-            this.props.player = new Player(freeTile);
+            this.props.player = new PlayerActor(freeTile);
         }
         this.props.player.hp = playerHp;
 
@@ -216,7 +216,7 @@ export default class Game {
 
         let levelExit = Mapper.getInstance().randomPassableTile();
         if (levelExit) {
-            Mapper.getInstance().replaceTile(levelExit.x, levelExit.y, StairDown);
+            Mapper.getInstance().replaceTile(levelExit.x, levelExit.y, StairDownTile);
         }
 
         this.props.sidebarNeedsUpdate = true;

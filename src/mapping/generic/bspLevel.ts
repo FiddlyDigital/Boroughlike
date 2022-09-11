@@ -1,6 +1,6 @@
 import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
-import { Wall, Floor, SpikePit, Fountain } from "../../tile";
+import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../tile";
 import { DefaultLevel } from './defaultLevel';
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs
@@ -64,7 +64,7 @@ export class BSPTreemapLevel extends DefaultLevel {
             this.tiles[x] = [];
 
             for (var y = 0; y < this.height; y++) {
-                this.tiles[x][y] = new Wall(x, y);
+                this.tiles[x][y] = new WallTile(x, y);
             }
         }
     }
@@ -74,11 +74,11 @@ export class BSPTreemapLevel extends DefaultLevel {
             for (let y = (room.y + 1); y < room.maxY; y++) {
                 let ran = Math.random();
                 if (ran < 0.02) {
-                    this.tiles[x][y] = new SpikePit(x, y);
+                    this.tiles[x][y] = new SpikePitTile(x, y);
                 } else if (ran < 0.005) {
-                    this.tiles[x][y] = new Fountain(x, y);
+                    this.tiles[x][y] = new FountainTile(x, y);
                 } else {
-                    this.tiles[x][y] = new Floor(x, y);
+                    this.tiles[x][y] = new FloorTile(x, y);
                 }
             }
         }
@@ -102,13 +102,13 @@ export class BSPTreemapLevel extends DefaultLevel {
         let min = Math.min(xStart, xEnd);
         let max = Math.max(xStart, xEnd)
         for (let x = min; x <= max; x++) {
-            this.tiles[x][yPosition] = new Floor(x, yPosition);
+            this.tiles[x][yPosition] = new FloorTile(x, yPosition);
         }
     }
 
     makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number) {
         for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
-            this.tiles[xPosition][y] = new Floor(xPosition, y);
+            this.tiles[xPosition][y] = new FloorTile(xPosition, y);
         }
     }
 }

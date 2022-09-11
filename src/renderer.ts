@@ -1,5 +1,6 @@
 import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants';
 import Game from './game';
+import { ISpell } from './spell';
 import { Tile } from './tile';
 
 export class Renderer {
@@ -240,7 +241,7 @@ export class Renderer {
         }
     }
 
-    public updateSidebar(level: number, score: number, spells: Array<any>) {
+    public updateSidebar(level: number, score: number, spells: Array<ISpell>) {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
@@ -256,7 +257,7 @@ export class Renderer {
             for (let i = 0; i < spells.length; i++) {
                 let btn = document.createElement('button');
                 btn.className = "spellButton";
-                btn.innerText = "(" + (i + 1) + ") " + (spells[i] || "");
+                btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
                 btn.addEventListener("click", function () {
                     Game.getInstance().handleInteraction({ key: "" + (i + 1) });
                 });

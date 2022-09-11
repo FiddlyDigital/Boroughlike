@@ -1,5 +1,5 @@
-import { Tile, Wall, Floor, SpikePit, Fountain } from "../../tile";
-import { Monster, Bird, Snake, Tank, Eater, Jester, Turret } from "../../monster"
+import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile } from "../../tile";
+import { BaseActor, BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
 import { numTiles } from "../../constants";
 import { tryTo, randomRange, shuffle } from "../../utilities";
 
@@ -13,7 +13,7 @@ export class DefaultLevel implements ILevelGenerator {
     width: number;
     height: number;
     tiles: Array<Array<Tile>>;
-    monsters: Array<Array<Monster>>;
+    monsters: Array<Array<BaseActor>>;
 
     public constructor(levelNum: number) {
         this.levelNum = levelNum;
@@ -35,18 +35,18 @@ export class DefaultLevel implements ILevelGenerator {
 
             for (let y = 0; y < this.height; y++) {
                 if (x == 0 || y == 0 || x == (this.width - 1) || y == (this.height - 1)) {
-                    this.tiles[x][y] = new Wall(x, y);
+                    this.tiles[x][y] = new WallTile(x, y);
                 } else {
                     let ran = Math.random();
                     if (ran < 0.3) {
-                        this.tiles[x][y] = new Wall(x, y);
+                        this.tiles[x][y] = new WallTile(x, y);
                     } else {
                         if (ran < 0.02) {
-                            this.tiles[x][y] = new SpikePit(x, y);
+                            this.tiles[x][y] = new SpikePitTile(x, y);
                         } else if (ran < 0.005) {
-                            this.tiles[x][y] = new Fountain(x, y);
+                            this.tiles[x][y] = new FountainTile(x, y);
                         } else {
-                            this.tiles[x][y] = new Floor(x, y);
+                            this.tiles[x][y] = new FloorTile(x, y);
                         }
                     }
                 }
@@ -62,7 +62,7 @@ export class DefaultLevel implements ILevelGenerator {
     }
 
     private spawnMonster() {
-        let monsterType = shuffle([Bird, Snake, Tank, Eater, Jester, Turret])[0];
+        let monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
         return new monsterType(this.randomPassableTile());
     }
 
@@ -70,7 +70,7 @@ export class DefaultLevel implements ILevelGenerator {
         var booksPlaced = 0
         while (booksPlaced < 3) {
             let t = this.randomPassableTile()
-            if (t && t instanceof Floor) {
+            if (t && t instanceof FloorTile) {
                 booksPlaced++;
                 t.book = true;
             }

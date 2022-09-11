@@ -1,22 +1,71 @@
 import { EFFECT_SPRITE_INDICES, numTiles } from "./constants";
 import { Mapper } from "./mapper";
-import { Monster } from "./monster";
+import { BaseActor, IActor } from "./actor";
 import { Renderer } from "./renderer";
-import { Floor } from "./tile";
+import { FloorTile } from "./tile";
 
-export const spells = {
-    WOOP: function (caster: Monster) {
+
+
+export interface ISpell {
+    name: string;
+    caster: IActor;
+    cast(): void;
+}
+
+export abstract class BaseSpell {
+    public caster: BaseActor;
+    public name : string;
+
+    protected constructor(caster: BaseActor, name: string) {
+        this.caster = caster;
+        this.name = name;
+    }
+
+    public abstract cast(): void;
+
+    protected boltTravel(caster: BaseActor, direction: Array<number>, effect: any, damage: number): void {
+        let newTile = caster.tile;
+        while (true) {
+            let testTile = newTile.getNeighbor(direction[0], direction[1]);
+            if (testTile && testTile.passable) {
+                newTile = testTile;
+
+                if (newTile.monster) {
+                    newTile.monster.hit(damage);
+                }
+
+                newTile.setEffect(effect);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+export class WOOP extends BaseSpell {    
+    public constructor(caster: BaseActor){
+        super(caster, "WOOP");              
+    }
+
+    cast(): void {
         let newTile = Mapper.getInstance().randomPassableTile();
         if (newTile) {
-            caster.move(newTile);
+            this.caster.move(newTile);
         }
+    }
+}
 
-    },
-    QUAKE: function (caster: Monster) {
+export class Quake extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "Quake");              
+    }
+
+    cast(): void {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = Mapper.getInstance().getTile(i, j);
-                if (tile && tile.monster && tile.monster != caster) {
+
+                if (tile && tile.monster && tile.monster != this.caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
                 }
@@ -24,8 +73,15 @@ export const spells = {
         }
 
         Renderer.getInstance().setShakeAmount(20);
-    },
-    TORNADO: function () {
+    }
+}
+
+export class Tornado extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "Tornado");              
+    }
+
+    cast(): void {
         let monsters = Mapper.getInstance().getMonsters();
         for (let i = 0; i < monsters.length; i++) {
             let monster = monsters[i];
@@ -38,9 +94,16 @@ export const spells = {
             }
 
         }
-    },
-    AURA: function (caster: Monster) {
-        caster.tile.getAdjacentNeighbors().forEach(function (t) {
+    }
+}
+
+export class AURA extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "AURA");              
+    }
+
+    cast(): void {
+        this.caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (t) {
                 t.setEffect(EFFECT_SPRITE_INDICES.Heal);
                 if (t.monster) {
@@ -48,21 +111,29 @@ export const spells = {
                 }
             }
         });
-        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Heal);
-        caster.heal(3);
-    },
-    DASH: function (caster: Monster) {
-        let newTile = caster.tile;
+
+        this.caster.tile.setEffect(EFFECT_SPRITE_INDICES.Heal);
+        this.caster.heal(3);
+    }
+}
+
+export class DASH extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "DASH");              
+    }
+
+    cast(): void {
+        let newTile = this.caster.tile;
         while (true) {
-            let testTile = newTile.getNeighbor(caster.lastMove[0], caster.lastMove[1]);
+            let testTile = newTile.getNeighbor(this.caster.lastMove[0], this.caster.lastMove[1]);
             if (testTile && testTile.passable && !testTile.monster) {
                 newTile = testTile;
             } else {
                 break;
             }
         }
-        if (caster.tile != newTile) {
-            caster.move(newTile);
+        if (this.caster.tile != newTile) {
+            this.caster.move(newTile);
             newTile.getAdjacentNeighbors().forEach(t => {
                 if (t && t.monster) {
                     t.setEffect(EFFECT_SPRITE_INDICES.Flame);
@@ -71,43 +142,88 @@ export const spells = {
                 }
             });
         }
-    },
-    FLATTEN: function (caster: Monster) {
+    }
+}
+
+export class FLATTEN extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "FLATTEN");              
+    }
+
+    cast(): void {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = Mapper.getInstance().getTile(i, j);
                 if (tile && !tile.passable) {
-                    Mapper.getInstance().replaceTile(i, j, Floor);
+                    Mapper.getInstance().replaceTile(i, j, FloorTile);
                 }
             }
         }
-        caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
-        caster.heal(2);
-    },
-    ALCHEMY: function (caster: Monster) {
-        caster.tile.getAdjacentNeighbors().forEach(function (t) {
+
+        this.caster.tile.setEffect(EFFECT_SPRITE_INDICES.Flame);
+        this.caster.heal(2);
+    }
+}
+
+export class ALCHEMY extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "ALCHEMY");              
+    }
+
+    cast(): void {
+        this.caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y)) {
-                Mapper.getInstance().replaceTile(t.x, t.y, Floor);
+                Mapper.getInstance().replaceTile(t.x, t.y, FloorTile);
                 let tile = Mapper.getInstance().getTile(t.x, t.y);
                 if (tile) {
                     tile.book = true;
                 }
             }
         });
-    },
-    POWERATTACK: function (caster: Monster) {
-        caster.bonusAttack = 5;
-    },
-    PROTECT: function (caster: Monster) {
-        caster.shield = 2;
-        for (let i = 0; i < Mapper.getInstance().getMonsters().length; i++) {
-            Mapper.getInstance().getMonsters()[i].stunned = true;
+    }
+}
+
+export class POWERATTACK extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "POWERATTACK");              
+    }
+
+    cast(): void {
+        this.caster.bonusAttack = 5;
+    }
+}
+
+export class PROTECT extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "PROTECT");              
+    }
+
+    cast(): void {
+        this.caster.shield = 2;
+        let monsters = Mapper.getInstance().getMonsters();
+
+        for (let i = 0; i < monsters.length; i++) {
+            monsters[i].stunned = true;
         }
-    },
-    BOLT: function (caster: Monster) {
-        boltTravel(caster, caster.lastMove, 15 + Math.abs(caster.lastMove[1]), 4);
-    },
-    CROSS: function (caster: Monster) {
+    }
+}
+
+export class BOLT extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "BOLT");              
+    }
+
+    cast(): void {
+        super.boltTravel(this.caster, this.caster.lastMove, 15 + Math.abs(this.caster.lastMove[1]), 4);
+    }
+}
+
+export class CROSS extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "CROSS");              
+    }
+
+    cast(): void {
         let directions = [
             [0, -1],
             [0, 1],
@@ -116,10 +232,17 @@ export const spells = {
         ];
         for (let k = 0; k < directions.length; k++) {
             let dirSprite = Math.abs(directions[k][1]) == 0 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal : EFFECT_SPRITE_INDICES.Bolt_Vertical;
-            boltTravel(caster, directions[k], dirSprite, 2);
+            super.boltTravel(this.caster, directions[k], dirSprite, 2);
         }
-    },
-    EX: function (caster: Monster) {
+    }
+}
+
+export class EX extends BaseSpell {
+    public constructor(caster: BaseActor){
+        super(caster, "EX");              
+    }
+
+    cast(): void {
         let directions = [
             [-1, -1],
             [-1, 1],
@@ -127,25 +250,23 @@ export const spells = {
             [1, 1]
         ];
         for (let k = 0; k < directions.length; k++) {
-            boltTravel(caster, directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
-        }
-    }
-};
-
-function boltTravel(caster: Monster, direction: Array<number>, effect: any, damage: number) {
-    let newTile = caster.tile;
-    while (true) {
-        let testTile = newTile.getNeighbor(direction[0], direction[1]);
-        if (testTile && testTile.passable) {
-            newTile = testTile;
-
-            if (newTile.monster) {
-                newTile.monster.hit(damage);
-            }
-
-            newTile.setEffect(effect);
-        } else {
-            break;
+            super.boltTravel(this.caster, directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
         }
     }
 }
+
+export const Spells = [
+    WOOP,
+    Quake,
+    Tornado,
+    AURA,
+    DASH,
+    FLATTEN,
+    ALCHEMY,
+    POWERATTACK,
+    PROTECT,
+    PROTECT,
+    BOLT,
+    CROSS,
+    EX
+];

@@ -3,11 +3,11 @@ import { AudioPlayer } from "./audioPlayer";
 import Game from './game';
 import { Mapper } from "./mapper";
 import { Renderer } from "./renderer";
-import { spells } from "./spell";
-import { Floor, Tile } from "./tile";
+import { ISpell, Spells as ALLSPELLS } from "./spell";
+import { FloorTile, Tile } from "./tile";
 import { shuffle, randomRange, Dictionary } from "./utilities";
 
-export interface IMonster {
+export interface IActor {
     dead:boolean;
     stunned : boolean;
     teleportCounter : number;
@@ -15,12 +15,12 @@ export interface IMonster {
     getDisplayY(): number;
     heal(damage: number): void;
     hit(damage: number): void;
-    move(tile: Floor): void;
+    move(tile: FloorTile): void;
     tryMove(dx: number, dy: number): boolean;
     update(): void;
 }
 
-export abstract class Monster implements IMonster {
+export abstract class BaseActor implements IActor {
     sprite: Array<number>
     hp: number;
     teleportCounter: number;
@@ -127,12 +127,12 @@ export abstract class Monster implements IMonster {
         if (this.hp <= 0) {
             this.die();
 
-            if (this.tile instanceof Floor) {
+            if (this.tile instanceof FloorTile) {
                 this.tile.book = true;
             }
         }
 
-        if (this instanceof Player) {
+        if (this instanceof PlayerActor) {
             AudioPlayer.getInstance().playSound(SOUNDFX.PLAYERHIT);
         } else {
             AudioPlayer.getInstance().playSound(SOUNDFX.MONSTERHIT);
@@ -142,7 +142,7 @@ export abstract class Monster implements IMonster {
     private die(): void {
         this.dead = true;
         this.tile.monster = null;
-        if (this instanceof Player) {
+        if (this instanceof PlayerActor) {
             this.sprite = MONSTER_SPRITE_INDICES.Player_Dead;
         }
     }
@@ -160,14 +160,14 @@ export abstract class Monster implements IMonster {
     }
 }
 
-export class Player extends Monster {
-    spells: Dictionary<any>;
+export class PlayerActor extends BaseActor {
+    spells: Array<ISpell>;
 
-    constructor(tile: Floor) {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Player, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = shuffle(Object.keys(spells)).splice(0, Game.getInstance().props.numSpells);
+        this.spells = shuffle(ALLSPELLS).splice(0, Game.getInstance().props.numSpells);
     }
 
     update(): void {
@@ -180,30 +180,31 @@ export class Player extends Monster {
     }
 
     addSpell(): void {
-        let newSpell = shuffle(Object.keys(spells))[0];
-        this.spells.push(newSpell);
+        let spellType = shuffle(ALLSPELLS)[0];
+        let spell = new spellType(this);
+        this.spells.push(spell);
     };
 
     castSpell(index: number): void {
-        let spellName: string = this.spells[index];
-        if (spellName) {
+        let spell: ISpell = this.spells[index];
+        if (spell) {
             this.spells.splice(index, 1);
-            this.spells[spellName](this);
+            spell.cast();
             AudioPlayer.getInstance().playSound(SOUNDFX.SPELL);
         }
     };
 }
 
 // Basic monster with no special behavior
-export class Bird extends Monster {
-    constructor(tile: Floor) {
+export class BirdActor extends BaseActor {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Bird, 3);
     }
 }
 
 // Moves twice 
-export class Snake extends Monster {
-    constructor(tile: Floor) {
+export class SnakeActor extends BaseActor {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Snake, 1);
     }
 
@@ -218,8 +219,8 @@ export class Snake extends Monster {
 }
 
 // Moves every other turn
-export class Tank extends Monster {
-    constructor(tile: Floor) {
+export class TankActor extends BaseActor {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Tank, 2);
     }
 
@@ -233,16 +234,19 @@ export class Tank extends Monster {
 }
 
 // Destroys walls and heals by doing so
-export class Eater extends Monster {
-    constructor(tile: Floor) {
+export class EaterActor extends BaseActor {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
     doStuff(): void {
         let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y));
         if (neighbors.length) {
-            Mapper.getInstance().replaceTile(neighbors[0].x, neighbors[0].y, Floor);
-            this.heal(0.5);
+            let tileToEat = neighbors[0];
+            if(tileToEat){
+                Mapper.getInstance().replaceTile(tileToEat.x, tileToEat.y, FloorTile);
+                this.heal(0.5);
+            }
         } else {
             super.doStuff();
         }
@@ -250,8 +254,8 @@ export class Eater extends Monster {
 }
 
 // Moves randomly
-export class Jester extends Monster {
-    constructor(tile: Floor) {
+export class JesterActor extends BaseActor {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
 
@@ -265,11 +269,11 @@ export class Jester extends Monster {
 
 // Doesn't move. 
 // Just rotates in place and shoots player (and everything else on that line) when it sees them.
-export class Turret extends Monster {
+export class TurretActor extends BaseActor {
     directions: Array<string>;
     currentDirection: number;
 
-    constructor(tile: Floor) {
+    constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Turret, 1);
         this.directions = ["N", "E", "S", "W"];
         this.currentDirection = randomRange(0, 3);
@@ -289,7 +293,7 @@ export class Turret extends Monster {
         console.log(targetTiles);
 
         // if the player is in LOS
-        if (targetTiles.some(t => { return (t.monster && t.monster instanceof Player) })) {
+        if (targetTiles.some(t => { return (t.monster && t.monster instanceof PlayerActor) })) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
                 if (t) {

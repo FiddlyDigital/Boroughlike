@@ -1,9 +1,14 @@
 
-import { Wall, Floor } from "../../tile.js";
-import { DefaultLevel } from "./defaultLevel.js";
+import { WallTile, FloorTile } from "../../tile";
+import { DefaultLevel } from "./defaultLevel";
 
 export class CellularAutomationLevel extends DefaultLevel {
-    constructor(levelNum) {
+    chanceToStartAlive: number;
+    deathLimit: number;
+    birthLimit: number;
+    numberOfSteps: number;
+
+    constructor(levelNum: number) {
         super(levelNum);
         this.chanceToStartAlive = 0.4;
         this.deathLimit = 3;
@@ -11,17 +16,17 @@ export class CellularAutomationLevel extends DefaultLevel {
         this.numberOfSteps = 8; // TODO: Randomise between 2 and 4
     }
 
-    generate() {
+    generate(): void {
         this.generateTiles();
         super.generateMonsters();
         super.placeBooks();
     }
 
-    generateTiles() {
-        this.tiles = this.initialiseMap([[]]);
+    generateTiles(): void {
+        let maptiles = this.initialiseMap([[]]);
 
         for (var i = 0; i < this.numberOfSteps; i++) {
-            this.tiles = this.doSimulationStep(this.tiles);
+            maptiles = this.doSimulationStep(maptiles);
         }
 
         // at this stage we want to convert our "wall-or-not" map into a feature map.
@@ -29,18 +34,18 @@ export class CellularAutomationLevel extends DefaultLevel {
             for (var y = 0; y < this.height; y++) {
                 if (x == 0 || x == (this.width - 1) || y == 0 || y == (this.width - 1)) {
                     // All edges need to be a special type of wall
-                    this.tiles[x][y] = new Wall(x, y);
-                } else if (this.tiles[x][y] === 1) {
+                    this.tiles[x][y] = new WallTile(x, y);
+                } else if (maptiles[x][y] === 1) {
                     // every other 'alive' cell - becomes a normal wall.
-                    this.tiles[x][y] = new Wall(x, y);
+                    this.tiles[x][y] = new WallTile(x, y);
                 } else {
-                    this.tiles[x][y] = new Floor(x, y);
+                    this.tiles[x][y] = new FloorTile(x, y);
                 }
             }
         }
     }
 
-    initialiseMap(map) {
+    initialiseMap(map: Array<Array<number>>): Array<Array<number>> {
         for (var x = 0; x < this.width; x++) {
             map[x] = [];
 
@@ -57,14 +62,14 @@ export class CellularAutomationLevel extends DefaultLevel {
         return map;
     }
 
-    doSimulationStep(map) {
+    doSimulationStep(map: Array<Array<number>>): Array<Array<number>> {
         // Here's the new map we're going to copy our data into
-        var newmap = [
+        var newMap: Array<Array<number>> = [
             []
         ];
 
         for (var x = 0; x < map.length; x++) {
-            newmap[x] = [];
+            newMap[x] = [];
             for (var y = 0; y < map[0].length; y++) {
                 // Count up the neighbours
                 var nbs = this.countAliveNeighbours(map, x, y);
@@ -73,27 +78,27 @@ export class CellularAutomationLevel extends DefaultLevel {
                 if (map[x][y] > 0) {
                     if (nbs < this.deathLimit) {
                         // See if it should die
-                        newmap[x][y] = 0;
+                        newMap[x][y] = 0;
                     } else {
                         // Otherwise keep it solid
-                        newmap[x][y] = 1;
+                        newMap[x][y] = 1;
                     }
                 } else {
                     // If the tile is currently empty
                     // See if it should become solid
                     if (nbs > this.birthLimit) {
-                        newmap[x][y] = 1;
+                        newMap[x][y] = 1;
                     } else {
-                        newmap[x][y] = 0;
+                        newMap[x][y] = 0;
                     }
                 }
             }
         }
 
-        return newmap;
+        return newMap;
     }
 
-    countAliveNeighbours(map, x, y) {
+    countAliveNeighbours(map: Array<Array<number>>, x: number, y: number): number {
         var count = 0;
 
         for (var i = -1; i < 2; i++) {

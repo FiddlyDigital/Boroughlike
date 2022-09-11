@@ -1,19 +1,19 @@
 import { SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES } from "./constants";
 import Game from "./game";
 import { Mapper } from "./mapper";
-import { IMonster, Monster, Player } from "./monster";
+import { IActor, BaseActor, PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
 
 export interface ITile {
     x: number;
     y: number;
     dist(other: ITile): number;
-    getAdjacentNeighbors(): Array<Tile>;
+    getAdjacentNeighbors(): Array<Tile | null>;
     getAdjacentPassableNeighbors(): Array<Tile>;
     getNeighbor(dx: number, dy: number): Tile | null;
     getNeighborChain(direction: string): Array<Tile>;
     setEffect(effectSprite: Array<number>): void;
-    stepOn(monster: IMonster): void;
+    stepOn(monster: IActor): void;
 }
 
 export abstract class Tile implements ITile {
@@ -25,7 +25,7 @@ export abstract class Tile implements ITile {
     effectIndex: Array<number> | undefined;
     effectCounter: number = 0;
     isActive: boolean = false;
-    monster: Monster | undefined | null;
+    monster: BaseActor | undefined | null;
 
     public constructor(x: number, y: number, sprite: Array<number>, passable: boolean) {
         this.x = x;
@@ -42,15 +42,13 @@ export abstract class Tile implements ITile {
         return Mapper.getInstance().getTile(this.x + dx, this.y + dy)
     }
 
-    public getAdjacentNeighbors(): Array<Tile> {
-        let neighbours = [
+    public getAdjacentNeighbors(): Array<Tile | null> {
+        return [
             this.getNeighbor(0, -1),// Top
             this.getNeighbor(0, 1), // Bottom
             this.getNeighbor(-1, 0),// Left
             this.getNeighbor(1, 0)  // Right
         ];
-
-        return neighbours.filter(x => x != null) as Array<Tile>;
     }
 
     public getNeighborChain(direction: string): Array<Tile> {
@@ -84,24 +82,25 @@ export abstract class Tile implements ITile {
                 break;
         }
 
-        let chain : Array<Tile> = [];
+        let chain: Array<Tile> = [];
         let currentTile = Mapper.getInstance().getTile(this.x, this.y);
         while (currentTile != null) {
             if (currentTile) {
                 currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-                if (currentTile && !(currentTile instanceof Wall)) {
+                if (currentTile && !(currentTile instanceof WallTile)) {
                     chain.push(currentTile);
+                } else {
+                    currentTile = null;
                 }
             }
-
         }
 
         return chain;
     }
 
     public getAdjacentPassableNeighbors(): Array<Tile> {
-        return this.getAdjacentNeighbors().filter(t => t && t.passable);
+        return this.getAdjacentNeighbors().filter(t => t && t.passable) as Array<Tile>;
     }
 
     public setEffect(effectSprite: Array<number>): void {
@@ -109,38 +108,38 @@ export abstract class Tile implements ITile {
         this.effectCounter = 30;
     }
 
-    public abstract stepOn(monster: IMonster): void;
+    public abstract stepOn(monster: IActor): void;
 }
 
-export class Floor extends Tile {
+export class FloorTile extends Tile {
     constructor(x: number, y: number) {
         super(x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
-    stepOn(monster: IMonster) {
-        if (monster && monster instanceof Player && this.book) {
+    stepOn(monster: IActor) {
+        if (monster && monster instanceof PlayerActor && this.book) {
             Game.getInstance().incrementScore();
             this.book = false;
         }
     }
 }
 
-export class Wall extends Tile {
+export class WallTile extends Tile {
     constructor(x: number, y: number) {
         super(x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 
-    stepOn(monster: IMonster) { };
+    stepOn(monster: IActor) { };
 }
 
 // Brings Player to the next level
-export class StairDown extends Tile {
+export class StairDownTile extends Tile {
     constructor(x: number, y: number) {
         super(x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
 
-    stepOn(monster: IMonster) {
-        if (monster && monster instanceof Player) {
+    stepOn(monster: IActor) {
+        if (monster && monster instanceof PlayerActor) {
             Game.getInstance().nextLevel();
         }
     }
@@ -148,13 +147,13 @@ export class StairDown extends Tile {
 
 // When stepped on deals damage
 // Affects monsters, so can be used tactically
-export class SpikePit extends Tile {
+export class SpikePitTile extends Tile {
     constructor(x: number, y: number) {
         super(x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
 
-    stepOn(monster: IMonster) {
-        if (monster && monster instanceof Player) {
+    stepOn(monster: IActor) {
+        if (monster && monster instanceof PlayerActor) {
             Renderer.getInstance().setShakeAmount(5);
         }
         monster.hit(1);
@@ -163,14 +162,14 @@ export class SpikePit extends Tile {
 
 // When stepped on brings Player back to full-health.
 // Can only be used once, and Monsters can't use them.
-export class Fountain extends Tile {
+export class FountainTile extends Tile {
     constructor(x: number, y: number) {
         super(x, y, TILE_SPRITE_INDICES.FountainActive, true);
         this.isActive = true;
     };
 
-    stepOn(monster: IMonster) {
-        if (this.isActive && monster && monster instanceof Player) {
+    stepOn(monster: IActor) {
+        if (this.isActive && monster && monster instanceof PlayerActor) {
             this.isActive = false;
             this.sprite = TILE_SPRITE_INDICES.FountainInactive;
             monster.heal(10);
