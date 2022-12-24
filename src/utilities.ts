@@ -45,7 +45,7 @@ export interface Dictionary<T> {
 
 //https://www.delftstack.com/howto/typescript/typescript-cloning-an-object/
 export function deepCopy<T>(instance: T): T {
-    if (instance == null) {
+    if (!instance) {
         return instance;
     }
 

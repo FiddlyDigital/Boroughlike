@@ -8,7 +8,7 @@ delete baseConfig.output.dir;               // we use file instead, so no longer
 delete baseConfig.preserveEntrySignatures;  // Unused. Removed do to warning on build
 
 export default merge(baseConfig, {
-  input: './out-tsc/src/game.js',
+  input: './out-tsc/src/app.js',
   output: {
       file: `./dist/boroughlike_${version}.min.js`
   }

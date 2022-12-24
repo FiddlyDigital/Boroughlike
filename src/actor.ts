@@ -1,6 +1,6 @@
 import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
 import { AudioPlayer } from "./audioPlayer";
-import Game from './game';
+import { Game } from './game';
 import { Mapper } from "./mapper";
 import { Renderer } from "./renderer";
 import { ISpell, Spells as ALLSPELLS } from "./spell";

@@ -1,5 +1,5 @@
 import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants';
-import Game from './game';
+import { Game } from './game';
 import { ISpell } from './spell';
 import { Tile } from './tile';
 import { Dictionary } from './utilities';

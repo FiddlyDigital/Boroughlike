@@ -1,5 +1,5 @@
 import { SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES } from "./constants";
-import Game from "./game";
+import { Game } from "./game";
 import { Mapper } from "./mapper";
 import { IActor, BaseActor, PlayerActor } from "./actor";
 import { Renderer } from "./renderer";

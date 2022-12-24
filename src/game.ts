@@ -8,7 +8,7 @@ import { StairDownTile } from "./tile";
 import { Dictionary } from "./utilities";
 //import { version } from '../package.json';
 
-export default class Game {
+export class Game {
     private static instance: Game;
     props: any;
     FSM: FiniteStateMachine;
