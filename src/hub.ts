@@ -19,7 +19,7 @@ export class Hub {
         return Hub.instance;
     }
 
-    public subcribe(eventName: string, callback: Function) {
+    public subscribe(eventName: string, callback: Function) {
         if (!this.subscriptions[eventName]) {
             this.subscriptions[eventName] = [];
         }
@@ -50,3 +50,4 @@ export class Hub {
         }
     }
 }
+

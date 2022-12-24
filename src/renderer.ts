@@ -2,6 +2,7 @@ import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, til
 import Game from './game';
 import { ISpell } from './spell';
 import { Tile } from './tile';
+import { Dictionary } from './utilities';
 
 export class Renderer {
     private static instance: Renderer;
@@ -241,7 +242,7 @@ export class Renderer {
         }
     }
 
-    public updateSidebar(level: number, score: number, spells: Array<ISpell>) {
+    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell>) {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
@@ -254,7 +255,7 @@ export class Renderer {
             }
 
             let docFrag = document.createDocumentFragment();
-            for (let i = 0; i < spells.length; i++) {
+            for (let i = 0; i < Object.keys(spells).length; i++) {
                 let btn = document.createElement('button');
                 btn.className = "spellButton";
                 btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
