@@ -156,7 +156,7 @@ export class Renderer {
         }
     }
 
-    private drawSprite(spriteType: string, spriteIdx: Array<number> | undefined, x: number, y: number, effectCounter: number = 0) {
+    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / 30;
         }

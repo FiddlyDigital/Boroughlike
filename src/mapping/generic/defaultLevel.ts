@@ -77,9 +77,9 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
-    private randomPassableTile(): Tile | undefined {
+    private randomPassableTile(): Tile | null {
         let self = this;
-        let tile;
+        let tile = null;
 
         tryTo('Get random passable tile', function () {
             let x = randomRange(0, self.width - 1);

@@ -7,8 +7,8 @@ export class Leaf {
     leafWidth: number;
     leafHeight: number;
 
-    childLeafLeft: Leaf | undefined | null;
-    childLeafRight: Leaf | undefined | null;
+    childLeafLeft: Leaf | null;
+    childLeafRight: Leaf | null;
     room: Room;
     room1: Room;
     room2: Room;

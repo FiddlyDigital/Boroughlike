@@ -109,9 +109,9 @@ export class Mapper implements IMapper {
         }
     }
 
-    randomPassableTile(): Tile | undefined {
+    randomPassableTile(): Tile | null {
         let self = this;
-        let tile;
+        let tile = null;
 
         tryTo('get random passable tile', function () {
             let x = randomRange(0, self.props.width - 1);

@@ -8,7 +8,7 @@ export class Room {
     centerX: number = 0;
     centerY: number = 0;
 
-    constructor(x: number | undefined, y: number | undefined, width: number | undefined, height: number | undefined) {
+    constructor(x: number | null, y: number | null, width: number | null, height: number | null) {
         this.x = (x || 0);
         this.y = (y || 0);
         this.width = (width || 0);

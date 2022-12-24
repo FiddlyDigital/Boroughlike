@@ -22,16 +22,18 @@ export abstract class Tile implements ITile {
     sprite: Array<number>;
     passable: boolean;
     book: boolean = false;
-    effectIndex: Array<number> | undefined;
+    effectIndex: Array<number> | null;
     effectCounter: number = 0;
     isActive: boolean = false;
-    monster: BaseActor | undefined | null;
+    monster: BaseActor |  null;
 
     public constructor(x: number, y: number, sprite: Array<number>, passable: boolean) {
         this.x = x;
         this.y = y;
         this.sprite = sprite;
         this.passable = passable;
+        this.effectIndex = null;
+        this.monster = null;
     }
 
     public dist(other: ITile): number {

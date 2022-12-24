@@ -10,7 +10,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     minLeafSize: number = 3;
     roomMaxSize: number = 10;
     roomMinSize: number = 3;
-    leaves: Array<Leaf | undefined> = [];
+    leaves: Array<Leaf | null> = [];
 
     generate() {
         this.generateTiles();
