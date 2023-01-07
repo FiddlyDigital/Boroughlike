@@ -16,7 +16,7 @@ Bump into enemies to weaken them and turn them back into book form. Beware thoug
 * Press 1-9 for firing Spells
 
 ## Notes
-* Vanilla JS with no dependencies. Doesn't use a framework or library.
+* originally VanillaJS, then spun out into Typescript
 * Started out as https://nluqo.github.io/broughlike-tutorial/ and grew from there.
 * Sprites were hand-drawn in GIMP and inspired by Gameboy-Color RPGs
 * Color Palette used: https://lospec.com/palette-list/sheltzy32
