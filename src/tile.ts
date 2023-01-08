@@ -1,22 +1,30 @@
-import { SPRITETYPES, TILE_SPRITE_INDICES, ITEM_SPRITE_INDICES } from "./constants";
+import { TILE_SPRITE_INDICES } from "./constants";
 import { Game } from "./game";
-import { Mapper } from "./mapper";
 import { IActor, BaseActor, PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
+import { IMap } from "./map";
 
 export interface ITile {
+    map: IMap;
     x: number;
     y: number;
+    book: boolean;
+    passable: boolean;
+    monster: BaseActor | null;
+    sprite: Array<number>;
+    effectIndex: Array<number> | null;
+    effectCounter: number;
     dist(other: ITile): number;
-    getAdjacentNeighbors(): Array<Tile | null>;
-    getAdjacentPassableNeighbors(): Array<Tile>;
-    getNeighbor(dx: number, dy: number): Tile | null;
-    getNeighborChain(direction: string): Array<Tile>;
+    getAdjacentNeighbors(): Array<ITile | null>;
+    getAdjacentPassableNeighbors(): Array<ITile>;
+    getNeighbor(dx: number, dy: number): ITile | null;
+    getNeighborChain(direction: string): Array<ITile>;
     setEffect(effectSprite: Array<number>): void;
     stepOn(monster: IActor): void;
 }
 
 export abstract class Tile implements ITile {
+    map: IMap;
     x: number;
     y: number;
     sprite: Array<number>;
@@ -25,9 +33,18 @@ export abstract class Tile implements ITile {
     effectIndex: Array<number> | null;
     effectCounter: number = 0;
     isActive: boolean = false;
-    monster: BaseActor |  null;
+    monster: BaseActor | null;
 
-    public constructor(x: number, y: number, sprite: Array<number>, passable: boolean) {
+    /**
+     * 
+     * @param map - Reference to the Map that contains it
+     * @param x - X Coordinate on map
+     * @param y - Y Coordinate on map
+     * @param sprite - index of sprite image
+     * @param passable - can an actor walk through it?
+     */
+    public constructor(map: IMap, x: number, y: number, sprite: Array<number>, passable: boolean) {
+        this.map = map;
         this.x = x;
         this.y = y;
         this.sprite = sprite;
@@ -40,11 +57,11 @@ export abstract class Tile implements ITile {
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
     }
 
-    public getNeighbor(dx: number, dy: number): Tile | null {
-        return Mapper.getInstance().getTile(this.x + dx, this.y + dy)
+    public getNeighbor(dx: number, dy: number): ITile | null {
+        return this.map.getTile(this.x + dx, this.y + dy)
     }
 
-    public getAdjacentNeighbors(): Array<Tile | null> {
+    public getAdjacentNeighbors(): Array<ITile | null> {
         return [
             this.getNeighbor(0, -1),// Top
             this.getNeighbor(0, 1), // Bottom
@@ -53,7 +70,7 @@ export abstract class Tile implements ITile {
         ];
     }
 
-    public getNeighborChain(direction: string): Array<Tile> {
+    public getNeighborChain(direction: string): Array<ITile> {
         let xy = [0, 0];
         switch (direction) {
             case "N":
@@ -84,8 +101,8 @@ export abstract class Tile implements ITile {
                 break;
         }
 
-        let chain: Array<Tile> = [];
-        let currentTile = Mapper.getInstance().getTile(this.x, this.y);
+        let chain: Array<ITile> = [];
+        let currentTile = this.map.getTile(this.x, this.y);
         while (currentTile != null) {
             if (currentTile) {
                 currentTile = currentTile.getNeighbor(xy[0], xy[1]);
@@ -101,8 +118,8 @@ export abstract class Tile implements ITile {
         return chain;
     }
 
-    public getAdjacentPassableNeighbors(): Array<Tile> {
-        return this.getAdjacentNeighbors().filter(t => t && t.passable) as Array<Tile>;
+    public getAdjacentPassableNeighbors(): Array<ITile> {
+        return this.getAdjacentNeighbors().filter(t => t && t.passable) as Array<ITile>;
     }
 
     public setEffect(effectSprite: Array<number>): void {
@@ -114,8 +131,8 @@ export abstract class Tile implements ITile {
 }
 
 export class FloorTile extends Tile {
-    constructor(x: number, y: number) {
-        super(x, y, TILE_SPRITE_INDICES.Floor, true);
+    constructor(map:IMap, x: number, y: number) {
+        super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
     stepOn(monster: IActor) {
@@ -127,8 +144,8 @@ export class FloorTile extends Tile {
 }
 
 export class WallTile extends Tile {
-    constructor(x: number, y: number) {
-        super(x, y, TILE_SPRITE_INDICES.Wall, false);
+    constructor(map: IMap, x: number, y: number) {
+        super(map, x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 
     stepOn(monster: IActor) { };
@@ -136,8 +153,8 @@ export class WallTile extends Tile {
 
 // Brings Player to the next level
 export class StairDownTile extends Tile {
-    constructor(x: number, y: number) {
-        super(x, y, TILE_SPRITE_INDICES.StairDown, true);
+    constructor(map: IMap, x: number, y: number) {
+        super(map, x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
 
     stepOn(monster: IActor) {
@@ -150,8 +167,8 @@ export class StairDownTile extends Tile {
 // When stepped on deals damage
 // Affects monsters, so can be used tactically
 export class SpikePitTile extends Tile {
-    constructor(x: number, y: number) {
-        super(x, y, TILE_SPRITE_INDICES.SpikePit, true);
+    constructor(map: IMap, x: number, y: number) {
+        super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
 
     stepOn(monster: IActor) {
@@ -165,8 +182,8 @@ export class SpikePitTile extends Tile {
 // When stepped on brings Player back to full-health.
 // Can only be used once, and Monsters can't use them.
 export class FountainTile extends Tile {
-    constructor(x: number, y: number) {
-        super(x, y, TILE_SPRITE_INDICES.FountainActive, true);
+    constructor(map: IMap, x: number, y: number) {
+        super(map, x, y, TILE_SPRITE_INDICES.FountainActive, true);
         this.isActive = true;
     };
 

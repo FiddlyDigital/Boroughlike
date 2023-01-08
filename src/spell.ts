@@ -48,7 +48,7 @@ export class WOOP extends BaseSpell {
     }
 
     cast(): void {
-        let newTile = Mapper.getInstance().randomPassableTile();
+        let newTile = Mapper.getInstance().getCurrentLevel().randomPassableTile();
         if (newTile) {
             this.caster.move(newTile);
         }
@@ -63,7 +63,7 @@ export class Quake extends BaseSpell {
     cast(): void {
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = Mapper.getInstance().getTile(i, j);
+                let tile = Mapper.getInstance().getCurrentLevel().getTile(i, j);
 
                 if (tile && tile.monster && tile.monster != this.caster) {
                     let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
@@ -82,11 +82,11 @@ export class Tornado extends BaseSpell {
     }
 
     cast(): void {
-        let monsters = Mapper.getInstance().getMonsters();
+        let monsters = Mapper.getInstance().getCurrentLevel().getMonsters();
         for (let i = 0; i < monsters.length; i++) {
             let monster = monsters[i];
             if (monster) {
-                let randomTile = Mapper.getInstance().randomPassableTile();
+                let randomTile = Mapper.getInstance().getCurrentLevel().randomPassableTile();
                 if (randomTile) {
                     monster.move(randomTile);
                     monster.teleportCounter = 2;
@@ -153,9 +153,9 @@ export class FLATTEN extends BaseSpell {
     cast(): void {
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
-                let tile = Mapper.getInstance().getTile(i, j);
+                let tile = Mapper.getInstance().getCurrentLevel().getTile(i, j);
                 if (tile && !tile.passable) {
-                    Mapper.getInstance().replaceTile(i, j, FloorTile);
+                    Mapper.getInstance().getCurrentLevel().replaceTile(i, j, FloorTile);
                 }
             }
         }
@@ -172,9 +172,9 @@ export class ALCHEMY extends BaseSpell {
 
     cast(): void {
         this.caster.tile.getAdjacentNeighbors().forEach(function (t) {
-            if (t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y)) {
-                Mapper.getInstance().replaceTile(t.x, t.y, FloorTile);
-                let tile = Mapper.getInstance().getTile(t.x, t.y);
+            if (t && !t.passable && Mapper.getInstance().getCurrentLevel().inBounds(t.x, t.y)) {
+                Mapper.getInstance().getCurrentLevel().replaceTile(t.x, t.y, FloorTile);
+                let tile = Mapper.getInstance().getCurrentLevel().getTile(t.x, t.y);
                 if (tile) {
                     tile.book = true;
                 }
@@ -200,7 +200,7 @@ export class PROTECT extends BaseSpell {
 
     cast(): void {
         this.caster.shield = 2;
-        let monsters = Mapper.getInstance().getMonsters();
+        let monsters = Mapper.getInstance().getCurrentLevel().getMonsters();
 
         for (let i = 0; i < monsters.length; i++) {
             monsters[i].stunned = true;

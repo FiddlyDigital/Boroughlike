@@ -4,7 +4,7 @@ import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Mapper } from "./mapper";
 import { PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
-import { StairDownTile } from "./tile";
+import { FloorTile, StairDownTile } from "./tile";
 import { Dictionary } from "./utilities";
 //import { version } from '../package.json';
 
@@ -128,7 +128,7 @@ export class Game {
             // This will handle drawing the tiles, and the monsters/items on them.
             for (let i = 0; i < numTiles; i++) {
                 for (let j = 0; j < numTiles; j++) {
-                    let t = Mapper.getInstance().getTile(i, j);
+                    let t = Mapper.getInstance().getCurrentLevel().getTile(i, j);
                     if (t) {
                         Renderer.getInstance().drawTile(t);
                     }
@@ -144,11 +144,12 @@ export class Game {
 
     private tick(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
-            for (let k = Mapper.getInstance().getMonsters().length - 1; k >= 0; k--) {
-                if (!Mapper.getInstance().getMonsters()[k].dead) {
-                    Mapper.getInstance().getMonsters()[k].update();
+            let currentLevelMonsters = Mapper.getInstance().getCurrentLevel().getMonsters();
+            for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
+                if (!currentLevelMonsters[k].dead) {
+                    currentLevelMonsters[k].update();
                 } else {
-                    Mapper.getInstance().getMonsters().splice(k, 1);
+                    currentLevelMonsters.splice(k, 1);
                 }
             }
 
@@ -162,7 +163,7 @@ export class Game {
 
             this.props.spawnCounter--;
             if (this.props.spawnCounter <= 0) {
-                Mapper.getInstance().spawnMonster();
+                Mapper.getInstance().getCurrentLevel().spawnMonster();
                 this.props.spawnCounter = this.props.spawnRate;
                 this.props.spawnRate--;
             }
@@ -201,10 +202,12 @@ export class Game {
         this.props.spawnCounter = this.props.spawnRate;
 
         Mapper.getInstance().generateLevel(this.props.level);
-        let freeTile = Mapper.getInstance().randomPassableTile();
-        if (freeTile) {
+        let freeTile = Mapper.getInstance().getCurrentLevel().randomPassableTile();
+
+        if (freeTile && freeTile instanceof FloorTile) {
             this.props.player = new PlayerActor(freeTile);
         }
+
         this.props.player.hp = playerHp;
 
         // PG: Future bi-directional travel
@@ -214,9 +217,9 @@ export class Game {
             this.props.player.spells = playerSpells;
         }
 
-        let levelExit = Mapper.getInstance().randomPassableTile();
+        let levelExit = Mapper.getInstance().getCurrentLevel().randomPassableTile();
         if (levelExit) {
-            Mapper.getInstance().replaceTile(levelExit.x, levelExit.y, StairDownTile);
+            Mapper.getInstance().getCurrentLevel().replaceTile(levelExit.x, levelExit.y, StairDownTile);
         }
 
         this.props.sidebarNeedsUpdate = true;
@@ -270,7 +273,7 @@ export class Game {
             this.props.player.addSpell();
         }
 
-        Mapper.getInstance().spawnMonster();
+        Mapper.getInstance().getCurrentLevel().spawnMonster();
         this.props.sidebarNeedsUpdate = true;
     }
 }

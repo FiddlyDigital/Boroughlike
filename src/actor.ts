@@ -4,18 +4,18 @@ import { Game } from './game';
 import { Mapper } from "./mapper";
 import { Renderer } from "./renderer";
 import { ISpell, Spells as ALLSPELLS } from "./spell";
-import { FloorTile, Tile } from "./tile";
+import { FloorTile, ITile, Tile } from "./tile";
 import { shuffle, randomRange, Dictionary } from "./utilities";
 
 export interface IActor {
-    dead:boolean;
-    stunned : boolean;
-    teleportCounter : number;
+    dead: boolean;
+    stunned: boolean;
+    teleportCounter: number;
     getDisplayX(): number;
     getDisplayY(): number;
     heal(damage: number): void;
     hit(damage: number): void;
-    move(tile: FloorTile): void;
+    move(tile: ITile): void;
     tryMove(dx: number, dy: number): boolean;
     update(): void;
 }
@@ -28,14 +28,14 @@ export abstract class BaseActor implements IActor {
     offsetY: number;
     lastMove: Array<number>
     bonusAttack: number;
-    isPlayer: boolean;
-    stunned: boolean;
-    attackedThisTurn: boolean;
-    shield: number;
-    dead: boolean;
-    tile: Tile;
+    isPlayer: boolean = false;
+    stunned: boolean = false;
+    attackedThisTurn: boolean = false;
+    shield: number = 0;
+    dead: boolean = false;
+    tile: ITile;
 
-    public constructor(tile: Tile, sprite: Array<number>, hp: number) {
+    public constructor(tile: ITile, sprite: Array<number>, hp: number) {
         this.tile = tile;
         this.isPlayer = false;
         this.stunned = false;
@@ -147,7 +147,7 @@ export abstract class BaseActor implements IActor {
         }
     }
 
-    public move(tile: Tile): void {
+    public move(tile: ITile): void {
         if (this.tile) {
             this.tile.monster = null;
             this.offsetX = this.tile.x - tile.x;
@@ -240,11 +240,11 @@ export class EaterActor extends BaseActor {
     }
 
     doStuff(): void {
-        let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && Mapper.getInstance().inBounds(t.x, t.y));
+        let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && Mapper.getInstance().getCurrentLevel().inBounds(t.x, t.y));
         if (neighbors.length) {
             let tileToEat = neighbors[0];
-            if(tileToEat){
-                Mapper.getInstance().replaceTile(tileToEat.x, tileToEat.y, FloorTile);
+            if (tileToEat) {
+                Mapper.getInstance().getCurrentLevel().replaceTile(tileToEat.x, tileToEat.y, FloorTile);
                 this.heal(0.5);
             }
         } else {

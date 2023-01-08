@@ -14,6 +14,7 @@ export class CellularAutomationLevel extends DefaultLevel {
         this.deathLimit = 3;
         this.birthLimit = 4;
         this.numberOfSteps = 8; // TODO: Randomise between 2 and 4
+        this.generate();
     }
 
     generate(): void {
@@ -30,26 +31,26 @@ export class CellularAutomationLevel extends DefaultLevel {
         }
 
         // at this stage we want to convert our "wall-or-not" map into a feature map.
-        for (var x = 0; x < this.width; x++) {
-            for (var y = 0; y < this.height; y++) {
-                if (x == 0 || x == (this.width - 1) || y == 0 || y == (this.width - 1)) {
+        for (var x = 0; x < this.map.width; x++) {
+            for (var y = 0; y < this.map.height; y++) {
+                if (x == 0 || x == (this.map.width - 1) || y == 0 || y == (this.map.width - 1)) {
                     // All edges need to be a special type of wall
-                    this.tiles[x][y] = new WallTile(x, y);
+                    this.map.tiles[x][y] = new WallTile(this.map, x, y);
                 } else if (maptiles[x][y] === 1) {
                     // every other 'alive' cell - becomes a normal wall.
-                    this.tiles[x][y] = new WallTile(x, y);
+                    this.map.tiles[x][y] = new WallTile(this.map, x, y);
                 } else {
-                    this.tiles[x][y] = new FloorTile(x, y);
+                    this.map.tiles[x][y] = new FloorTile(this.map, x, y);
                 }
             }
         }
     }
 
     initialiseMap(map: Array<Array<number>>): Array<Array<number>> {
-        for (var x = 0; x < this.width; x++) {
+        for (var x = 0; x < this.map.width; x++) {
             map[x] = [];
 
-            for (var y = 0; y < this.height; y++) {
+            for (var y = 0; y < this.map.height; y++) {
                 if (Math.random() < this.chanceToStartAlive) {
                     // We're using numbers, not booleans, to decide if something is solid here. 0 = not solid
                     map[x][y] = 1;

@@ -1,7 +1,7 @@
 import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants';
 import { Game } from './game';
 import { ISpell } from './spell';
-import { Tile } from './tile';
+import { ITile, Tile } from './tile';
 import { Dictionary } from './utilities';
 
 export class Renderer {
@@ -120,7 +120,7 @@ export class Renderer {
         }
     }
 
-    public drawTile(tile: Tile) {
+    public drawTile(tile: ITile) {
         if (tile) {
             this.drawSprite(SPRITETYPES.TILE, tile.sprite, tile.x, tile.y);
 

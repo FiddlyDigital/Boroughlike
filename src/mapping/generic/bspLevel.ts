@@ -2,6 +2,7 @@ import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
 import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../tile";
 import { DefaultLevel } from './defaultLevel';
+import { IMap, Map } from "../../map";
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs
 // Originally from in WulfenStil
@@ -12,6 +13,11 @@ export class BSPTreemapLevel extends DefaultLevel {
     roomMinSize: number = 3;
     leaves: Array<Leaf | null> = [];
 
+    constructor(levelNum: number) {
+        super(levelNum);
+        this.generate();
+    }
+
     generate() {
         this.generateTiles();
         super.generateMonsters();
@@ -21,7 +27,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     generateTiles() {
         this.initialiseMap();
 
-        let rootLeaf = new Leaf(0, 0, this.width, this.height);
+        let rootLeaf = new Leaf(0, 0, this.map.width, this.map.height);
         this.leaves.push(rootLeaf);
 
         let successfulSplit = true;
@@ -52,19 +58,15 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
 
         rootLeaf.createRooms(this, this.maxLeafSize, this.roomMaxSize, this.roomMinSize);
-
-        return this.tiles;
     }
 
     // We this one we start totally blocked in, then carve out
     initialiseMap() {
-        this.tiles = [[]];
+        for (var x = 0; x < this.map.width; x++) {
+            this.map.tiles[x] = [];
 
-        for (var x = 0; x < this.width; x++) {
-            this.tiles[x] = [];
-
-            for (var y = 0; y < this.height; y++) {
-                this.tiles[x][y] = new WallTile(x, y);
+            for (var y = 0; y < this.map.height; y++) {
+                this.map.tiles[x][y] = new WallTile(this.map, x, y);
             }
         }
     }
@@ -74,11 +76,11 @@ export class BSPTreemapLevel extends DefaultLevel {
             for (let y = (room.y + 1); y < room.maxY; y++) {
                 let ran = Math.random();
                 if (ran < 0.02) {
-                    this.tiles[x][y] = new SpikePitTile(x, y);
+                    this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
                 } else if (ran < 0.005) {
-                    this.tiles[x][y] = new FountainTile(x, y);
+                    this.map.tiles[x][y] = new FountainTile(this.map, x, y);
                 } else {
-                    this.tiles[x][y] = new FloorTile(x, y);
+                    this.map.tiles[x][y] = new FloorTile(this.map, x, y);
                 }
             }
         }
@@ -102,13 +104,13 @@ export class BSPTreemapLevel extends DefaultLevel {
         let min = Math.min(xStart, xEnd);
         let max = Math.max(xStart, xEnd)
         for (let x = min; x <= max; x++) {
-            this.tiles[x][yPosition] = new FloorTile(x, yPosition);
+            this.map.tiles[x][yPosition] = new FloorTile(this.map, x, yPosition);
         }
     }
 
     makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number) {
         for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
-            this.tiles[xPosition][y] = new FloorTile(xPosition, y);
+            this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
         }
     }
 }
