@@ -122,6 +122,10 @@ export class Game {
 
     private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
+
+            // Future - remove below and replace with something like:
+            // Renderer.getInstance().update(gameState)
+
             Renderer.getInstance().clearCanvas();
             Renderer.getInstance().screenshake();
 
@@ -215,12 +219,7 @@ export class Game {
 
         if (playerSpells) {
             this.props.player.spells = playerSpells;
-        }
-
-        let levelExit = Mapper.getInstance().getCurrentLevel().randomPassableTile();
-        if (levelExit) {
-            Mapper.getInstance().getCurrentLevel().replaceTile(levelExit.x, levelExit.y, StairDownTile);
-        }
+        }        
 
         this.props.sidebarNeedsUpdate = true;
     }

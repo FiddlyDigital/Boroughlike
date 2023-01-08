@@ -1,5 +1,5 @@
 import { numTiles, TILE_SPRITE_INDICES } from "./constants";
-import { ITile, WallTile } from "./tile";
+import { ITile, StairDownTile, WallTile } from "./tile";
 import { LevelGenerator, Branches } from './mapping/levelGenerator'
 import { IMap } from "./map";
 
@@ -42,6 +42,12 @@ export class Mapper implements IMapper {
     generateLevel(newLevelNum: number): any {
         let level = this.levelGenerator.generateLevel(this.currentFloorIdx, this.currentBranch);
         this.overrideSprites(level);
+
+        let levelExit = level.randomPassableTile();
+        if (levelExit) {
+            level.replaceTile(levelExit.x, levelExit.y, StairDownTile);
+        }
+
         this.floors[newLevelNum] = level;
         this.currentFloorIdx = newLevelNum;
         return level;
