@@ -1,6 +1,6 @@
-import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../tile";
+import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile, ITile } from "../../tile";
 import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
-import { numTiles } from "../../constants";
+import { numTiles, TILE_SPRITE_INDICES } from "../../constants";
 import { tryTo, randomRange, shuffle } from "../../utilities";
 import { IMap, Map } from '../../map';
 
@@ -45,16 +45,17 @@ export class DefaultLevel implements ILevelGenerator {
                     }
                     else {
                         this.map.tiles[x][y] = new FloorTile(this.map, x, y);
-                    }                    
+                    }
                 }
             }
         }
     }
 
-    protected populateMap(){
+    protected populateMap() {
         this.generateMonsters();
         this.placeBooks();
         this.placeStaircase();
+        this.overrideWallSpritesOnEdges();
     }
 
     private generateMonsters() {
@@ -80,12 +81,48 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
-    private placeStaircase()
-    {
+    private placeStaircase() {
         let newStaircaseTile = this.randomPassableTile();
         if (newStaircaseTile) {
             newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
         }
+    }
+
+    private overrideWallSpritesOnEdges(): void {
+        // Repass over the map, changing map sprites depending on neighbours (if required)
+        for (let y = 0; y < this.map.height; y++) {
+            for (let x = 0; x < this.map.width; x++) {
+                let tile = this.map.getTile(x, y);
+                if (tile instanceof WallTile) {
+                    let neighbours = tile.getAdjacentNeighbors();
+                    if (neighbours && neighbours.length > 0) {
+                        let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, WallTile);
+                        if (newSpriteName) {
+                            tile.sprite = TILE_SPRITE_INDICES["Wall_" + newSpriteName];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private getSpriteVariationSuffixForTile(neighbours: Array<ITile | null>, tileClass: any): string {
+        let suffix = "";
+
+        if (neighbours[2] && (neighbours[2] instanceof tileClass)) {
+            suffix += "L";
+        }
+        if (neighbours[3] && (neighbours[3] instanceof tileClass)) {
+            suffix += "R";
+        }
+        if (neighbours[0] && (neighbours[0] instanceof tileClass)) {
+            suffix += "T";
+        }
+        if (neighbours[1] && (neighbours[1] instanceof tileClass)) {
+            suffix += "B";
+        }
+
+        return suffix;
     }
 
     private randomPassableTile(): Tile | null {

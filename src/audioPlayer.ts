@@ -1,11 +1,15 @@
 import { SOUNDFX } from './constants';
+import { Hub } from './hub';
 
 export class AudioPlayer {
     private static instance: AudioPlayer;
-    sounds: any;
+    sounds: any = {};
 
     private constructor() {
-        this.sounds = {};
+        this.initSounds()
+        Hub.getInstance().subscribe("PLAYSOUND", (soundName : string) => { 
+            AudioPlayer.getInstance().playSound(soundName);
+        });
     }
 
     public static getInstance(): AudioPlayer {

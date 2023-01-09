@@ -1,8 +1,9 @@
-import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth } from './constants';
+import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth, refreshRate } from './constants';
 import { Game } from './game';
 import { ISpell } from './spell';
 import { ITile, Tile } from './tile';
 import { Dictionary } from './utilities';
+import { Hub } from './hub';
 
 export class Renderer {
     private static instance: Renderer;
@@ -61,6 +62,9 @@ export class Renderer {
         } else {
             throw "Canvas can't load";
         }
+        this.setupCanvas();
+
+        Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount);
     }
 
     public static getInstance(): Renderer {
@@ -158,7 +162,7 @@ export class Renderer {
 
     private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
-            this.ctx.globalAlpha = effectCounter / 30;
+            this.ctx.globalAlpha = effectCounter / refreshRate;
         }
 
         if (spriteIdx) {

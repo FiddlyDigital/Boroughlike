@@ -1,6 +1,6 @@
 import { BirdActor, EaterActor, IActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
-import { Branches } from "./mapping/levelGenerator";
-import { Game } from './game';
+import { Branches } from "./constants";
+import { Hub } from "./hub";
 import { ITile } from "./tile";
 import { randomRange, shuffle, tryTo } from "./utilities";
 
@@ -47,7 +47,7 @@ export class Map implements IMap {
     }
 
     nextLevel(): void {
-        Game.getInstance().nextLevel();
+        Hub.getInstance().publish("NEXTLEVEL", null);
     }
 
     randomPassableTile(): ITile | null {

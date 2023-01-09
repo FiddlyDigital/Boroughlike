@@ -106,3 +106,10 @@ export const TILE_SPRITE_INDICES: Dictionary<Array<number>> = {
     Floor_RTB: [2, 9],
     Floor_LRTB: [3, 9]
 };
+
+export const Branches: Dictionary<string> = {
+    LIBRARY: "Library",     // Standard Dungeon - Hub for other areas
+    ADVENTURE: "Adventure", // Pirates? boat required
+    HORROR: "Horror",       // Nightime / limited LOS. Lamp or Torch reqd.
+    SCIFI: "SciFi"          // Radiation Shield reqd.
+}

@@ -1,7 +1,7 @@
 import { TILE_SPRITE_INDICES } from "./constants";
-import { IActor, BaseActor, PlayerActor } from "./actor";
-import { Renderer } from "./renderer";
+import { IActor, PlayerActor } from "./actor";
 import { IMap } from "./map";
+import { Hub } from "./hub";
 
 export interface ITile {
     map: IMap;
@@ -9,7 +9,7 @@ export interface ITile {
     y: number;
     book: boolean;
     passable: boolean;
-    monster: BaseActor | null;
+    monster: IActor | null;
     sprite: Array<number>;
     effectIndex: Array<number> | null;
     effectCounter: number;
@@ -32,7 +32,7 @@ export abstract class Tile implements ITile {
     effectIndex: Array<number> | null;
     effectCounter: number = 0;
     isActive: boolean = false;
-    monster: BaseActor | null;
+    monster: IActor | null;
 
     /**
      * 
@@ -128,7 +128,7 @@ export abstract class Tile implements ITile {
 }
 
 export class FloorTile extends Tile {
-    constructor(map:IMap, x: number, y: number) {
+    constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
@@ -169,10 +169,13 @@ export class SpikePitTile extends Tile {
     };
 
     stepOn(monster: IActor) {
-        if (monster && monster instanceof PlayerActor) {
-            Renderer.getInstance().setShakeAmount(5);
+        if (monster) {
+            monster.hit(1);
+
+            if (monster instanceof PlayerActor) {
+                Hub.getInstance().publish("SETSHAKE", 5);
+            }
         }
-        monster.hit(1);
     }
 }
 

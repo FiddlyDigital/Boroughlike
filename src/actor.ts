@@ -1,14 +1,18 @@
 import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
-import { AudioPlayer } from "./audioPlayer";
-import { Renderer } from "./renderer";
 import { ISpell, Spells as ALLSPELLS } from "./spell";
 import { FloorTile, ITile } from "./tile";
 import { shuffle, randomRange } from "./utilities";
+import { Hub } from "./hub.js";
 
 export interface IActor {
     dead: boolean;
     stunned: boolean;
+    isPlayer: boolean;
     teleportCounter: number;
+    sprite: Array<number>
+    hp: number;
+    offsetX: number;
+    offsetY: number;
     getDisplayX(): number;
     getDisplayY(): number;
     heal(damage: number): void;
@@ -55,6 +59,7 @@ export abstract class BaseActor implements IActor {
 
     public heal(damage: number): void {
         this.hp = Math.min(maxHp, this.hp + damage);
+        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.PLAYERHEAL);
     }
 
     public update(): void {
@@ -98,7 +103,7 @@ export abstract class BaseActor implements IActor {
                     newTile.monster.hit(1 + this.bonusAttack);
                     this.bonusAttack = 0;
 
-                    Renderer.getInstance().setShakeAmount(5)
+                    Hub.getInstance().publish("SETSHAKE", 5);
 
                     this.offsetX = (newTile.x - this.tile.x) / 2;
                     this.offsetY = (newTile.y - this.tile.y) / 2;
@@ -126,9 +131,9 @@ export abstract class BaseActor implements IActor {
         }
 
         if (this instanceof PlayerActor) {
-            AudioPlayer.getInstance().playSound(SOUNDFX.PLAYERHIT);
+            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.PLAYERHIT);
         } else {
-            AudioPlayer.getInstance().playSound(SOUNDFX.MONSTERHIT);
+            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.MONSTERHIT);
         }
     }
 
@@ -161,21 +166,16 @@ export class PlayerActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Player, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = shuffle(ALLSPELLS).splice(0, 1); // Get starting spell
+        this.spells = shuffle(ALLSPELLS)[0]; // Get starting spell
     }
 
     update(): void {
         this.shield--;
     };
 
-    heal(damage: number): void {
-        super.heal(damage);
-        AudioPlayer.getInstance().playSound(SOUNDFX.PLAYERHEAL);
-    }
-
     addSpell(): void {
         let spellType = shuffle(ALLSPELLS)[0];
-        if(spellType){
+        if (spellType) {
             let spell = new spellType(this);
             this.spells.push(spell);
         }
@@ -186,10 +186,10 @@ export class PlayerActor extends BaseActor {
         if (spell) {
             this.spells.splice(index, 1);
             spell.cast();
-            AudioPlayer.getInstance().playSound(SOUNDFX.SPELL);
         }
     };
-    incrementScore(){
+
+    incrementScore() {
         this.score++;
     }
 }
@@ -241,7 +241,7 @@ export class EaterActor extends BaseActor {
     act(): void {
         const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
-            let tileToEat : ITile = shuffle(neighbors)[0];
+            let tileToEat: ITile = shuffle(neighbors)[0];
             if (tileToEat) {
                 tileToEat.map.replaceTile(tileToEat.x, tileToEat.y, new FloorTile(tileToEat.map, tileToEat.x, tileToEat.y));
                 this.heal(0.5);
@@ -261,7 +261,7 @@ export class JesterActor extends BaseActor {
     act(): void {
         let neighbors = this.tile.getAdjacentPassableNeighbors();
         if (neighbors.length) {
-            let randomNeighbour = shuffle(neighbors)[0] 
+            let randomNeighbour = shuffle(neighbors)[0]
             this.tryMove(randomNeighbour.x - this.tile.x, randomNeighbour.y - this.tile.y);
         }
     }
@@ -292,8 +292,8 @@ export class TurretActor extends BaseActor {
 
         // if the player is in LOS
         if (targetTiles.some(t => {
-                return (t.monster && t.monster instanceof PlayerActor)
-            })
+            return (t.monster && t.monster instanceof PlayerActor)
+        })
         ) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {

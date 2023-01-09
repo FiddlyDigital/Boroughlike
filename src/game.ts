@@ -1,6 +1,7 @@
 import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES, maxHp, SOUNDFX, refreshRate } from "./constants";
 import { AudioPlayer } from "./audioPlayer";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
+import { Hub } from "./hub";
 import { Mapper } from "./mapper";
 import { PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
@@ -48,13 +49,13 @@ export class Game {
     }
 
     init() {
-        Renderer.getInstance().setupCanvas();
+        Renderer.getInstance(); // Forces creation of singleton. Can replace when DI works.
         this.addEventHandlers();
         requestAnimationFrame(this.draw.bind(this));
     }
 
     loadAssets() {
-        AudioPlayer.getInstance().initSounds();
+        AudioPlayer.getInstance(); // Forces creation of singleton. Can replace when DI works.
         Renderer.getInstance().initSpriteSheet(function () {
             Game.getInstance().FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
@@ -68,6 +69,8 @@ export class Game {
 
         window.addEventListener('touchstart', function () { Game.getInstance().handleInteraction(null); });
         window.addEventListener('mousedown', function () { Game.getInstance().handleInteraction(null); });
+
+        Hub.getInstance().subscribe("NEXTLEVEL", () => { Game.getInstance().nextLevel(); })
     }
 
     handleInteraction(e: any) {
@@ -263,7 +266,7 @@ export class Game {
         if (this.props.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
-            AudioPlayer.getInstance().playSound(SOUNDFX.NEWLEVEL);
+            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.NEWLEVEL);
             this.props.level++;
             this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
             this.props.sidebarNeedsUpdate = true;
@@ -271,8 +274,8 @@ export class Game {
     }
 
     incrementScore() {
-        AudioPlayer.getInstance().playSound(SOUNDFX.BOOK);
-
+        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.BOOK);
+        
         this.props.score++;
 
         if (this.props.score % 3 == 0 && this.props.numSpells < 9) {

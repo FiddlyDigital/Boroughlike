@@ -1,7 +1,7 @@
-import { EFFECT_SPRITE_INDICES, numTiles } from "./constants";
+import { EFFECT_SPRITE_INDICES, numTiles, SOUNDFX } from "./constants";
 import { BaseActor, IActor } from "./actor";
-import { Renderer } from "./renderer";
 import { FloorTile } from "./tile";
+import { Hub } from "./hub";
 
 export interface ISpell {
     name: string;
@@ -18,7 +18,9 @@ export abstract class BaseSpell {
         this.name = name;
     }
 
-    public abstract cast(): void;
+    public cast(): void {
+        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.SPELL);
+    };
 
     protected boltTravel(caster: BaseActor, direction: Array<number>, effect: any, damage: number): void {
         let newTile = caster.tile;
@@ -45,6 +47,7 @@ export class WOOP extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         let newTile = this.caster.tile.map.randomPassableTile();
         if (newTile) {
             this.caster.move(newTile);
@@ -58,6 +61,7 @@ export class Quake extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
                 let tile = this.caster.tile.map.getTile(i, j);
@@ -69,7 +73,7 @@ export class Quake extends BaseSpell {
             }
         }
 
-        Renderer.getInstance().setShakeAmount(20);
+        Hub.getInstance().publish("SETSHAKE", 20);
     }
 }
 
@@ -79,6 +83,7 @@ export class Tornado extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         let monsters = this.caster.tile.map.getMonsters();
         for (let i = 0; i < monsters.length; i++) {
             let monster = monsters[i];
@@ -89,7 +94,6 @@ export class Tornado extends BaseSpell {
                     monster.teleportCounter = 2;
                 }
             }
-
         }
     }
 }
@@ -100,6 +104,7 @@ export class AURA extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         this.caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (t) {
                 t.setEffect(EFFECT_SPRITE_INDICES.Heal);
@@ -120,6 +125,7 @@ export class DASH extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         let newTile = this.caster.tile;
 
         while (true) {
@@ -150,6 +156,7 @@ export class FLATTEN extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
                 let tile = this.caster.tile.map.getTile(i, j);
@@ -170,6 +177,7 @@ export class ALCHEMY extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         this.caster.tile.getAdjacentNeighbors().forEach(function (tile) {
             if (tile && !tile.passable) {
                 tile.map.replaceTile(tile.x, tile.y, new FloorTile(tile.map, tile.x, tile.y));
@@ -184,6 +192,7 @@ export class POWERATTACK extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         this.caster.bonusAttack = 5;
     }
 }
@@ -194,6 +203,7 @@ export class PROTECT extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         this.caster.shield = 2;
         let monsters = this.caster.tile.map.getMonsters();
 
@@ -209,43 +219,48 @@ export class BOLT extends BaseSpell {
     }
 
     cast(): void {
+        super.cast();
         super.boltTravel(this.caster, this.caster.lastMove, 15 + Math.abs(this.caster.lastMove[1]), 4);
     }
 }
 
 export class CROSS extends BaseSpell {
+    directions = [
+        [0, -1],
+        [0, 1],
+        [-1, 0],
+        [1, 0]
+    ];
+
     public constructor(caster: BaseActor) {
         super(caster, "CROSS");
     }
 
     cast(): void {
-        let directions = [
-            [0, -1],
-            [0, 1],
-            [-1, 0],
-            [1, 0]
-        ];
-        for (let k = 0; k < directions.length; k++) {
-            let dirSprite = Math.abs(directions[k][1]) == 0 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal : EFFECT_SPRITE_INDICES.Bolt_Vertical;
-            super.boltTravel(this.caster, directions[k], dirSprite, 2);
+        super.cast();
+        for (let k = 0; k < this.directions.length; k++) {
+            let dirSprite = Math.abs(this.directions[k][1]) == 0 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal : EFFECT_SPRITE_INDICES.Bolt_Vertical;
+            super.boltTravel(this.caster, this.directions[k], dirSprite, 2);
         }
     }
 }
 
 export class EX extends BaseSpell {
+    directions = [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1]
+    ];
+
     public constructor(caster: BaseActor) {
         super(caster, "EX");
     }
 
     cast(): void {
-        let directions = [
-            [-1, -1],
-            [-1, 1],
-            [1, -1],
-            [1, 1]
-        ];
-        for (let k = 0; k < directions.length; k++) {
-            super.boltTravel(this.caster, directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
+        super.cast();
+        for (let k = 0; k < this.directions.length; k++) {
+            super.boltTravel(this.caster, this.directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
         }
     }
 }
