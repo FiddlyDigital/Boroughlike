@@ -1,9 +1,8 @@
 import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
 import { AudioPlayer } from "./audioPlayer";
-import { Game } from './game';
 import { Renderer } from "./renderer";
 import { ISpell, Spells as ALLSPELLS } from "./spell";
-import { FloorTile, ITile, Tile } from "./tile";
+import { FloorTile, ITile } from "./tile";
 import { shuffle, randomRange } from "./utilities";
 
 export interface IActor {
@@ -161,7 +160,7 @@ export class PlayerActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Player, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
-        this.spells = shuffle(ALLSPELLS).splice(0, Game.getInstance().props.numSpells);
+        this.spells = shuffle(ALLSPELLS).splice(0, 1); // Get starting spell
     }
 
     update(): void {
