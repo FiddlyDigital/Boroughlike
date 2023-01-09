@@ -154,6 +154,7 @@ export abstract class BaseActor implements IActor {
 }
 
 export class PlayerActor extends BaseActor {
+    score: number = 0;
     spells: Array<ISpell>;
 
     constructor(tile: FloorTile) {
@@ -188,6 +189,9 @@ export class PlayerActor extends BaseActor {
             AudioPlayer.getInstance().playSound(SOUNDFX.SPELL);
         }
     };
+    incrementScore(){
+        this.score++;
+    }
 }
 
 // Basic monster with no special behavior

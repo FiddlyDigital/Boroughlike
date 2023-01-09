@@ -1,5 +1,6 @@
 import { BirdActor, EaterActor, IActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
 import { Branches } from "./mapping/levelGenerator";
+import { Game } from './game';
 import { ITile } from "./tile";
 import { randomRange, shuffle, tryTo } from "./utilities";
 
@@ -9,6 +10,7 @@ export interface IMap {
     getMonsters(): Array<IActor>;
     getTile(x: number, y: number): ITile | null;
     inBounds(x: number, y: number): boolean;
+    nextLevel() : void;
     randomPassableTile(): ITile | null;
     replaceTile(x: number, y: number, newTile: ITile): void;
     spawnMonster(): void;
@@ -42,6 +44,10 @@ export class Map implements IMap {
 
     inBounds(x: number, y: number): boolean {
         return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height);
+    }
+
+    nextLevel(): void {
+        Game.getInstance().nextLevel();
     }
 
     randomPassableTile(): ITile | null {

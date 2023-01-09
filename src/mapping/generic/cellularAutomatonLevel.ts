@@ -19,8 +19,7 @@ export class CellularAutomationLevel extends DefaultLevel {
 
     generate(): void {
         this.generateTiles();
-        super.generateMonsters();
-        super.placeBooks();
+        super.populateMap();
     }
 
     generateTiles(): void {

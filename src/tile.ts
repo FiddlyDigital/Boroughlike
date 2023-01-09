@@ -1,5 +1,4 @@
 import { TILE_SPRITE_INDICES } from "./constants";
-import { Game } from "./game";
 import { IActor, BaseActor, PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
 import { IMap } from "./map";
@@ -135,7 +134,7 @@ export class FloorTile extends Tile {
 
     stepOn(monster: IActor) {
         if (monster && monster instanceof PlayerActor && this.book) {
-            Game.getInstance().incrementScore();
+            (monster as PlayerActor).incrementScore()
             this.book = false;
         }
     }
@@ -157,7 +156,7 @@ export class StairDownTile extends Tile {
 
     stepOn(monster: IActor) {
         if (monster && monster instanceof PlayerActor) {
-            Game.getInstance().nextLevel();
+            this.map.nextLevel();
         }
     }
 }

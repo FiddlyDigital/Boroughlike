@@ -1,5 +1,5 @@
-import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile } from "../../tile";
-import { IActor, BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
+import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../tile";
+import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
 import { numTiles } from "../../constants";
 import { tryTo, randomRange, shuffle } from "../../utilities";
 import { IMap, Map } from '../../map';
@@ -20,8 +20,7 @@ export class DefaultLevel implements ILevelGenerator {
 
     public generate(): void {
         this.generateTiles();
-        this.generateMonsters();
-        this.placeBooks();
+        this.populateMap();
     }
 
     public generateTiles(): void {
@@ -35,26 +34,30 @@ export class DefaultLevel implements ILevelGenerator {
                 else {
                     let ran = Math.random();
 
-                    if (ran < 0.3) {
+                    if (ran < 0.005) {
+                        this.map.tiles[x][y] = new FountainTile(this.map, x, y);
+                    }
+                    else if (ran < 0.02) {
+                        this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
+                    }
+                    else if (ran < 0.3) {
                         this.map.tiles[x][y] = new WallTile(this.map, x, y);
                     }
                     else {
-                        if (ran < 0.005) {
-                            this.map.tiles[x][y] = new FountainTile(this.map, x, y);
-                        }
-                        else if (ran < 0.02) {
-                            this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
-                        }
-                        else {
-                            this.map.tiles[x][y] = new FloorTile(this.map, x, y);
-                        }
-                    }
+                        this.map.tiles[x][y] = new FloorTile(this.map, x, y);
+                    }                    
                 }
             }
         }
     }
 
-    protected generateMonsters() {
+    protected populateMap(){
+        this.generateMonsters();
+        this.placeBooks();
+        this.placeStaircase();
+    }
+
+    private generateMonsters() {
         let numMonsters = Math.ceil(this.levelNum / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             this.map.monsters.push(this.spawnMonster());
@@ -66,7 +69,7 @@ export class DefaultLevel implements ILevelGenerator {
         return new monsterType(this.randomPassableTile());
     }
 
-    protected placeBooks() {
+    private placeBooks() {
         var booksPlaced = 0
         while (booksPlaced < 3) {
             let t = this.randomPassableTile()
@@ -74,6 +77,14 @@ export class DefaultLevel implements ILevelGenerator {
                 booksPlaced++;
                 t.book = true;
             }
+        }
+    }
+
+    private placeStaircase()
+    {
+        let newStaircaseTile = this.randomPassableTile();
+        if (newStaircaseTile) {
+            newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
         }
     }
 

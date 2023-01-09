@@ -4,7 +4,7 @@ import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Mapper } from "./mapper";
 import { PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
-import { FloorTile, StairDownTile } from "./tile";
+import { FloorTile } from "./tile";
 import { Dictionary } from "./utilities";
 //import { version } from '../package.json';
 

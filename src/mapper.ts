@@ -43,11 +43,6 @@ export class Mapper implements IMapper {
         let level = this.levelGenerator.generateLevel(this.currentFloorIdx, this.currentBranch);
         this.overrideSprites(level);
 
-        let levelExit = level.randomPassableTile();
-        if (levelExit) {
-            level.replaceTile(levelExit.x, levelExit.y, new StairDownTile(level, levelExit.x, levelExit.y));
-        }
-
         this.floors[newLevelNum] = level;
         this.currentFloorIdx = newLevelNum;
         return level;

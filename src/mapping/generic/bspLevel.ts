@@ -2,7 +2,6 @@ import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
 import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../tile";
 import { DefaultLevel } from './defaultLevel';
-import { IMap, Map } from "../../map";
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs
 // Originally from in WulfenStil
@@ -20,8 +19,7 @@ export class BSPTreemapLevel extends DefaultLevel {
 
     generate() {
         this.generateTiles();
-        super.generateMonsters();
-        super.placeBooks();
+        super.populateMap();
     }
 
     generateTiles() {
@@ -75,10 +73,12 @@ export class BSPTreemapLevel extends DefaultLevel {
         for (let x = (room.x + 1); x < room.maxX; x++) {
             for (let y = (room.y + 1); y < room.maxY; y++) {
                 let ran = Math.random();
-                if (ran < 0.02) {
-                    this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
-                } else if (ran < 0.005) {
+
+                if (ran < 0.005) {
                     this.map.tiles[x][y] = new FountainTile(this.map, x, y);
+                }
+                else if (ran < 0.02) {
+                    this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
                 } else {
                     this.map.tiles[x][y] = new FloorTile(this.map, x, y);
                 }
