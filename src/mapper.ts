@@ -45,7 +45,7 @@ export class Mapper implements IMapper {
 
         let levelExit = level.randomPassableTile();
         if (levelExit) {
-            level.replaceTile(levelExit.x, levelExit.y, StairDownTile);
+            level.replaceTile(levelExit.x, levelExit.y, new StairDownTile(level, levelExit.x, levelExit.y));
         }
 
         this.floors[newLevelNum] = level;

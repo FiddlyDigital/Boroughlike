@@ -10,7 +10,7 @@ export interface IMap {
     getTile(x: number, y: number): ITile | null;
     inBounds(x: number, y: number): boolean;
     randomPassableTile(): ITile | null;
-    replaceTile(x: number, y: number, newTileType: any): void;
+    replaceTile(x: number, y: number, newTile: ITile): void;
     spawnMonster(): void;
 }
 
@@ -58,9 +58,8 @@ export class Map implements IMap {
         return tile;
     }
 
-    replaceTile(x: number, y: number, newTileType: any) {
-        this.tiles[x][y] = new newTileType(this, x, y)
-        return this.tiles[x][y]
+    replaceTile(x: number, y: number, newTile: ITile) : void {
+        this.tiles[x][y] = newTile;
     }
 
     spawnMonster(): void {

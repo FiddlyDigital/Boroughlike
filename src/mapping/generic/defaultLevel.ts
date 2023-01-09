@@ -14,7 +14,7 @@ export class DefaultLevel implements ILevelGenerator {
     map: Map;
 
     public constructor(levelNum: number) {
-        this.levelNum = levelNum;        
+        this.levelNum = levelNum;
         this.map = new Map(numTiles, numTiles); // TODO: width/height = + Math.floor((numTiles / 100) * levelNum);
     }
 
@@ -31,16 +31,21 @@ export class DefaultLevel implements ILevelGenerator {
             for (let y = 0; y < this.map.height; y++) {
                 if (x == 0 || y == 0 || x == (this.map.width - 1) || y == (this.map.height - 1)) {
                     this.map.tiles[x][y] = new WallTile(this.map, x, y);
-                } else {
+                }
+                else {
                     let ran = Math.random();
+
                     if (ran < 0.3) {
                         this.map.tiles[x][y] = new WallTile(this.map, x, y);
-                    } else {
-                        if (ran < 0.02) {
-                            this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
-                        } else if (ran < 0.005) {
+                    }
+                    else {
+                        if (ran < 0.005) {
                             this.map.tiles[x][y] = new FountainTile(this.map, x, y);
-                        } else {
+                        }
+                        else if (ran < 0.02) {
+                            this.map.tiles[x][y] = new SpikePitTile(this.map, x, y);
+                        }
+                        else {
                             this.map.tiles[x][y] = new FloorTile(this.map, x, y);
                         }
                     }

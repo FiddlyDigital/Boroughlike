@@ -1,4 +1,4 @@
-import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES, maxHp, SOUNDFX } from "./constants";
+import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES, maxHp, SOUNDFX, refreshRate } from "./constants";
 import { AudioPlayer } from "./audioPlayer";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Mapper } from "./mapper";
@@ -13,6 +13,7 @@ export class Game {
     props: any;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
+    lastAnimateUpdate: number;
 
     private constructor() {
         this.localStorage = {};
@@ -35,6 +36,7 @@ export class Game {
         };
 
         this.FSM = new FiniteStateMachine(stateMatrix, GAME_STATES.LOADING);
+        this.lastAnimateUpdate = new Date().getTime();
     }
 
     public static getInstance(): Game {
@@ -48,7 +50,7 @@ export class Game {
     init() {
         Renderer.getInstance().setupCanvas();
         this.addEventHandlers();
-        setInterval(this.draw.bind(this), 15); // ever 15ms, or 60 fps
+        requestAnimationFrame(this.draw.bind(this));
     }
 
     loadAssets() {
@@ -122,57 +124,61 @@ export class Game {
 
     private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
+            let nowMs = new Date().getTime();
+            if (nowMs >= this.lastAnimateUpdate + refreshRate) {
+                this.lastAnimateUpdate = nowMs;
 
-            // Future - remove below and replace with something like:
-            // Renderer.getInstance().update(gameState)
+                // console.log(`Updating at ${this.lastAnimateUpdate}`);
 
-            Renderer.getInstance().clearCanvas();
-            Renderer.getInstance().screenshake();
+                // Future - remove below and replace with something like:
+                // Renderer.getInstance().update(gameState)
 
-            // This will handle drawing the tiles, and the monsters/items on them.
-            for (let i = 0; i < numTiles; i++) {
-                for (let j = 0; j < numTiles; j++) {
-                    let t = Mapper.getInstance().getCurrentLevel().getTile(i, j);
-                    if (t) {
-                        Renderer.getInstance().drawTile(t);
+                Renderer.getInstance().clearCanvas();
+                Renderer.getInstance().screenshake();
+
+                // This will handle drawing the tiles, and the monsters/items on them.
+                for (let i = 0; i < numTiles; i++) {
+                    for (let j = 0; j < numTiles; j++) {
+                        let t = Mapper.getInstance().getCurrentLevel().getTile(i, j);
+                        if (t) {
+                            Renderer.getInstance().drawTile(t);
+                        }
                     }
+                }
+
+                if (this.props.sidebarNeedsUpdate) {
+                    this.props.sidebarNeedsUpdate = false;
+                    Renderer.getInstance().updateSidebar(this.props.level, this.props.score, this.props.player.spells);
                 }
             }
 
-            if (this.props.sidebarNeedsUpdate) {
-                this.props.sidebarNeedsUpdate = false;
-                Renderer.getInstance().updateSidebar(this.props.level, this.props.score, this.props.player.spells);
-            }
+            requestAnimationFrame(this.draw.bind(this));
         }
     }
 
     private tick(): void {
-        if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
-            let currentLevelMonsters = Mapper.getInstance().getCurrentLevel().getMonsters();
-            for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
-                if (!currentLevelMonsters[k].dead) {
-                    currentLevelMonsters[k].update();
-                } else {
-                    currentLevelMonsters.splice(k, 1);
-                }
+        let currentLevelMonsters = Mapper.getInstance().getCurrentLevel().getMonsters();
+        for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
+            if (!currentLevelMonsters[k].dead) {
+                currentLevelMonsters[k].update();
+            } else {
+                currentLevelMonsters.splice(k, 1);
             }
+        }
 
-            this.props.player.update();
+        this.props.player.update();
 
-            if (this.props.player.dead) {
-                this.addScore(this.props.score, false);
-                this.props.sidebarNeedsUpdate = true;
-                this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
-            }
+        if (this.props.player.dead) {
+            this.addScore(this.props.score, false);
+            this.props.sidebarNeedsUpdate = true;
+            this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
+        }
 
-            this.props.spawnCounter--;
-            if (this.props.spawnCounter <= 0) {
-                Mapper.getInstance().getCurrentLevel().spawnMonster();
-                this.props.spawnCounter = this.props.spawnRate;
-                this.props.spawnRate--;
-            }
-
-            this.draw();
+        this.props.spawnCounter--;
+        if (this.props.spawnCounter <= 0) {
+            Mapper.getInstance().getCurrentLevel().spawnMonster();
+            this.props.spawnCounter = this.props.spawnRate;
+            this.props.spawnRate--;
         }
     }
 
@@ -199,6 +205,8 @@ export class Game {
         this.props.numSpells = 1;
         this.startLevel(startingHp, []);
         this.props.sidebarNeedsUpdate = true;
+        this.tick();
+        this.draw();
     }
 
     private startLevel(playerHp: number, playerSpells: any) {
@@ -219,7 +227,7 @@ export class Game {
 
         if (playerSpells) {
             this.props.player.spells = playerSpells;
-        }        
+        }
 
         this.props.sidebarNeedsUpdate = true;
     }

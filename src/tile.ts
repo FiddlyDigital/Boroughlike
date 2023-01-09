@@ -104,14 +104,12 @@ export abstract class Tile implements ITile {
         let chain: Array<ITile> = [];
         let currentTile = this.map.getTile(this.x, this.y);
         while (currentTile != null) {
-            if (currentTile) {
-                currentTile = currentTile.getNeighbor(xy[0], xy[1]);
+            currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-                if (currentTile && !(currentTile instanceof WallTile)) {
-                    chain.push(currentTile);
-                } else {
-                    currentTile = null;
-                }
+            if (currentTile && !(currentTile instanceof WallTile)) {
+                chain.push(currentTile);
+            } else {
+                currentTile = null;
             }
         }
 

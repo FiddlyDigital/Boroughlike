@@ -1,11 +1,10 @@
 import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
 import { AudioPlayer } from "./audioPlayer";
 import { Game } from './game';
-import { Mapper } from "./mapper";
 import { Renderer } from "./renderer";
 import { ISpell, Spells as ALLSPELLS } from "./spell";
 import { FloorTile, ITile, Tile } from "./tile";
-import { shuffle, randomRange, Dictionary } from "./utilities";
+import { shuffle, randomRange } from "./utilities";
 
 export interface IActor {
     dead: boolean;
@@ -66,20 +65,15 @@ export abstract class BaseActor implements IActor {
             return;
         }
 
-        this.doStuff();
+        this.act();
     }
 
-    protected doStuff(): void {
-        let neighbors = this.tile.getAdjacentPassableNeighbors();
-
-        neighbors = neighbors.filter(t => t && (!t.monster || t.monster.isPlayer));
-
-        let playerTile = this.tile; //Game.getInstance().getPlayerTile();
-
+    protected act(): void {
+        let neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => t && (!t.monster || t.monster.isPlayer));
         if (neighbors.length) {
-            neighbors.sort((a, b) => a.dist(playerTile) - b.dist(playerTile));
-            let newTile = neighbors[0];
-            this.tryMove(newTile.x - this.tile.x, newTile.y - this.tile.y);
+            // get the closest tile to the player
+            neighbors.sort((a, b) => a.dist(this.tile) - b.dist(this.tile));
+            this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
         }
     }
 
@@ -152,11 +146,11 @@ export abstract class BaseActor implements IActor {
             this.tile.monster = null;
             this.offsetX = this.tile.x - tile.x;
             this.offsetY = this.tile.y - tile.y;
-        }
 
-        this.tile = tile;
-        tile.monster = this;
-        tile.stepOn(this);
+            this.tile = tile;
+            tile.monster = this;
+            tile.stepOn(this);
+        }
     }
 }
 
@@ -181,8 +175,10 @@ export class PlayerActor extends BaseActor {
 
     addSpell(): void {
         let spellType = shuffle(ALLSPELLS)[0];
-        let spell = new spellType(this);
-        this.spells.push(spell);
+        if(spellType){
+            let spell = new spellType(this);
+            this.spells.push(spell);
+        }
     };
 
     castSpell(index: number): void {
@@ -208,12 +204,12 @@ export class SnakeActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Snake, 1);
     }
 
-    doStuff(): void {
+    act(): void {
         this.attackedThisTurn = false;
-        super.doStuff();
+        super.act();
 
         if (!this.attackedThisTurn) {
-            super.doStuff();
+            super.act();
         }
     }
 }
@@ -239,16 +235,16 @@ export class EaterActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
-    doStuff(): void {
-        let neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable && Mapper.getInstance().getCurrentLevel().inBounds(t.x, t.y));
+    act(): void {
+        const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
-            let tileToEat = neighbors[0];
+            let tileToEat : ITile = shuffle(neighbors)[0];
             if (tileToEat) {
-                Mapper.getInstance().getCurrentLevel().replaceTile(tileToEat.x, tileToEat.y, FloorTile);
+                tileToEat.map.replaceTile(tileToEat.x, tileToEat.y, new FloorTile(tileToEat.map, tileToEat.x, tileToEat.y));
                 this.heal(0.5);
             }
         } else {
-            super.doStuff();
+            super.act();
         }
     }
 }
@@ -259,10 +255,11 @@ export class JesterActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
 
-    doStuff(): void {
-        let neighbors = shuffle(this.tile.getAdjacentPassableNeighbors());
+    act(): void {
+        let neighbors = this.tile.getAdjacentPassableNeighbors();
         if (neighbors.length) {
-            this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
+            let randomNeighbour = shuffle(neighbors)[0] 
+            this.tryMove(randomNeighbour.x - this.tile.x, randomNeighbour.y - this.tile.y);
         }
     }
 }
@@ -279,7 +276,7 @@ export class TurretActor extends BaseActor {
         this.currentDirection = randomRange(0, 3);
     }
 
-    doStuff(): void {
+    act(): void {
         // Rotate 90 degrees
         this.currentDirection += 1;
         if (this.currentDirection == 4) {
@@ -290,27 +287,26 @@ export class TurretActor extends BaseActor {
         this.sprite = MONSTER_SPRITE_INDICES["Turret_" + cardinalDirection];
         var targetTiles = this.tile.getNeighborChain(cardinalDirection);
 
-        console.log(targetTiles);
-
         // if the player is in LOS
-        if (targetTiles.some(t => { return (t.monster && t.monster instanceof PlayerActor) })) {
+        if (targetTiles.some(t => {
+                return (t.monster && t.monster instanceof PlayerActor)
+            })
+        ) {
             // Shoot lighting at everything in that direction
             targetTiles.forEach(t => {
-                if (t) {
-                    if (t.monster) {
-                        t.monster.hit(1);
-                    }
+                if (t.monster) {
+                    t.monster.hit(1);
+                }
 
-                    switch (cardinalDirection) {
-                        case "N":
-                        case "S":
-                            t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
-                            break;
-                        case "E":
-                        case "W":
-                            t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
-                            break;
-                    }
+                switch (cardinalDirection) {
+                    case "N":
+                    case "S":
+                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
+                        break;
+                    case "E":
+                    case "W":
+                        t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
+                        break;
                 }
             })
         }
