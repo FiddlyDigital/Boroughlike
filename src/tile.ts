@@ -1,5 +1,4 @@
 import { TILE_SPRITE_INDICES } from "./constants";
-import { PlayerActor } from "./actor";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
 import { ITile } from "./interfaces/ITile";
@@ -116,8 +115,8 @@ export class FloorTile extends Tile {
     };
 
     stepOn(monster: IActor) {
-        if (monster && monster instanceof PlayerActor && this.book) {
-            (monster as PlayerActor).incrementScore()
+        if (monster && monster.isPlayer && this.book) {
+        // (monster as PlayerActor).incrementScore()
             this.book = false;
         }
     }
@@ -138,7 +137,7 @@ export class StairDownTile extends Tile {
     }
 
     stepOn(monster: IActor) {
-        if (monster && monster instanceof PlayerActor) {
+        if (monster && monster.isPlayer) {
             this.map.nextLevel();
         }
     }
@@ -155,7 +154,7 @@ export class SpikePitTile extends Tile {
         if (monster) {
             monster.hit(1);
 
-            if (monster instanceof PlayerActor) {
+            if (monster.isPlayer) {
                 Hub.getInstance().publish("SETSHAKE", 5);
             }
         }
@@ -171,7 +170,7 @@ export class FountainTile extends Tile {
     };
 
     stepOn(monster: IActor) {
-        if (this.isActive && monster && monster instanceof PlayerActor) {
+        if (this.isActive && monster && monster.isPlayer) {
             this.isActive = false;
             this.sprite = TILE_SPRITE_INDICES.FountainInactive;
             monster.heal(10);
