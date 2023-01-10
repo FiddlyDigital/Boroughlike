@@ -1,13 +1,7 @@
 import { EFFECT_SPRITE_INDICES, numTiles, SOUNDFX } from "./constants";
-import { BaseActor, IActor } from "./actor";
+import { BaseActor } from "./actor";
 import { FloorTile } from "./tile";
 import { Hub } from "./hub";
-
-export interface ISpell {
-    name: string;
-    caster: IActor;
-    cast(): void;
-}
 
 export abstract class BaseSpell {
     public caster: BaseActor;

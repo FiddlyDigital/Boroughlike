@@ -1,13 +1,12 @@
 import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth, refreshRate } from './constants';
-import { Game } from './game';
-import { ISpell } from './spell';
-import { ITile, Tile } from './tile';
 import { Dictionary } from './utilities';
 import { Hub } from './hub';
+import { singleton } from 'tsyringe';
+import { ITile } from './interfaces/ITile';
+import { ISpell } from './interfaces/ISpell';
 
+@singleton()
 export class Renderer {
-    private static instance: Renderer;
-
     shake: any;
     monsterSpriteSheet: HTMLImageElement;
     tileSpriteSheet: HTMLImageElement;
@@ -17,9 +16,9 @@ export class Renderer {
     playerLocationElem: HTMLElement;
     playerBooksElem: HTMLElement;
     canvas: HTMLCanvasElement;
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D;
 
-    private constructor() {
+    constructor() {
         this.monsterSpriteSheet = new Image();
         this.tileSpriteSheet = new Image();
         this.effectSpriteSheet = new Image();
@@ -67,14 +66,6 @@ export class Renderer {
         Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount);
     }
 
-    public static getInstance(): Renderer {
-        if (!Renderer.instance) {
-            Renderer.instance = new Renderer();
-        }
-
-        return Renderer.instance;
-    }
-
     public initSpriteSheet(callback: Function) {
         this.callback.onLoadCompleted = callback; // store for later
 
@@ -98,7 +89,7 @@ export class Renderer {
         }
     }
 
-    public setupCanvas() {
+    private setupCanvas() {
         if (this.canvas && this.ctx) {
             this.canvas.width = tileSize * (numTiles + uiWidth);
             this.canvas.height = tileSize * numTiles;
@@ -263,9 +254,9 @@ export class Renderer {
                 let btn = document.createElement('button');
                 btn.className = "spellButton";
                 btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
-                btn.addEventListener("click", function () {
-                    Game.getInstance().handleInteraction({ key: "" + (i + 1) });
-                });
+                // btn.addEventListener("click", () => {
+                //     this.game.handleInteraction({ key: "" + (i + 1) });
+                // });
                 docFrag.append(btn);
             }
             spellList.appendChild(docFrag)

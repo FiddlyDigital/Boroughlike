@@ -7,16 +7,26 @@ import { PlayerActor } from "./actor";
 import { Renderer } from "./renderer";
 import { FloorTile } from "./tile";
 import { Dictionary } from "./utilities";
+import { singleton } from "tsyringe";
 //import { version } from '../package.json';
 
+@singleton()
 export class Game {
     private static instance: Game;
     props: any;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
     lastAnimateUpdate: number;
+    
+    audioPlayer: AudioPlayer;
+    renderer: Renderer;
+    mapper: Mapper
 
-    private constructor() {
+    constructor(audioPlayer : AudioPlayer, renderer: Renderer, mapper: Mapper) {
+        this.audioPlayer = audioPlayer;
+        this.renderer = renderer;
+        this.mapper = mapper;
+
         this.localStorage = {};
         //this.version = version;          
         this.props = {
@@ -29,7 +39,7 @@ export class Game {
         };
 
         const stateMatrix: Dictionary<State> = {
-            "Loading": new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets, null),
+            "Loading": new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets.bind(this), null),
             "Title": new State(GAME_STATES.TITLE, { "KeyPress": GAME_STATES.RUNNING }, this.showTitle.bind(this), null),
             "Running": new State(GAME_STATES.RUNNING, { "PlayerLose": GAME_STATES.GAMEOVER, "PlayerWin": GAME_STATES.GAMEWIN }, this.startGame.bind(this), null),
             "GameOver": new State(GAME_STATES.GAMEOVER, { "KeyPress": GAME_STATES.TITLE, }, this.showGameLose.bind(this), null),
@@ -40,50 +50,40 @@ export class Game {
         this.lastAnimateUpdate = new Date().getTime();
     }
 
-    public static getInstance(): Game {
-        if (!Game.instance) {
-            Game.instance = new Game();
-        }
-
-        return Game.instance;
-    }
-
     init() {
-        Renderer.getInstance(); // Forces creation of singleton. Can replace when DI works.
         this.addEventHandlers();
         requestAnimationFrame(this.draw.bind(this));
     }
 
     loadAssets() {
-        AudioPlayer.getInstance(); // Forces creation of singleton. Can replace when DI works.
-        Renderer.getInstance().initSpriteSheet(function () {
-            Game.getInstance().FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
+        this.renderer.initSpriteSheet( () => {
+            this.FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
     }
 
     addEventHandlers() {
         let htmlElem = document.querySelector("html");
         if (htmlElem) {
-            htmlElem.onkeydown = Game.getInstance().handleInteraction;
+            htmlElem.onkeydown = this.handleInteraction;
         }
 
-        window.addEventListener('touchstart', function () { Game.getInstance().handleInteraction(null); });
-        window.addEventListener('mousedown', function () { Game.getInstance().handleInteraction(null); });
+        window.addEventListener('touchstart', () => { this.handleInteraction(null); });
+        window.addEventListener('mousedown', () => { this.handleInteraction(null); });
 
-        Hub.getInstance().subscribe("NEXTLEVEL", () => { Game.getInstance().nextLevel(); })
+        Hub.getInstance().subscribe("NEXTLEVEL", () => { this.nextLevel(); })
     }
 
     handleInteraction(e: any) {
-        switch (Game.getInstance().FSM.currentState.name) {
+        switch (this.FSM.currentState.name) {
             case GAME_STATES.LOADING:
                 break; // do nothing                
             case GAME_STATES.RUNNING:
                 if (e) {
-                    Game.getInstance().handleKeypress(e);
+                    this.handleKeypress(e);
                 }
                 break;
             default:
-                Game.getInstance().FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
+                this.FSM.triggerEvent(GAME_EVENTS.KEYPRESS);
                 break;
         }
     }
@@ -134,24 +134,24 @@ export class Game {
                 // console.log(`Updating at ${this.lastAnimateUpdate}`);
 
                 // Future - remove below and replace with something like:
-                // Renderer.getInstance().update(gameState)
+                // this.renderer.update(gameState)
 
-                Renderer.getInstance().clearCanvas();
-                Renderer.getInstance().screenshake();
+                this.renderer.clearCanvas();
+                this.renderer.screenshake();
 
                 // This will handle drawing the tiles, and the monsters/items on them.
                 for (let i = 0; i < numTiles; i++) {
                     for (let j = 0; j < numTiles; j++) {
-                        let t = Mapper.getInstance().getCurrentLevel().getTile(i, j);
+                        let t = this.mapper.getCurrentLevel().getTile(i, j);
                         if (t) {
-                            Renderer.getInstance().drawTile(t);
+                            this.renderer.drawTile(t);
                         }
                     }
                 }
 
                 if (this.props.sidebarNeedsUpdate) {
                     this.props.sidebarNeedsUpdate = false;
-                    Renderer.getInstance().updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+                    this.renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
                 }
             }
 
@@ -160,7 +160,7 @@ export class Game {
     }
 
     private tick(): void {
-        let currentLevelMonsters = Mapper.getInstance().getCurrentLevel().getMonsters();
+        let currentLevelMonsters = this.mapper.getCurrentLevel().getMonsters();
         for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
             if (!currentLevelMonsters[k].dead) {
                 currentLevelMonsters[k].update();
@@ -179,30 +179,30 @@ export class Game {
 
         this.props.spawnCounter--;
         if (this.props.spawnCounter <= 0) {
-            Mapper.getInstance().getCurrentLevel().spawnMonster();
+            this.mapper.getCurrentLevel().spawnMonster();
             this.props.spawnCounter = this.props.spawnRate;
             this.props.spawnRate--;
         }
     }
 
     private showTitle(): void {
-        Renderer.getInstance().showTitle(this.getScores());
+        this.renderer.showTitle(this.getScores());
     }
 
     private showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
         this.addScore(this.props.score, true);
-        Renderer.getInstance().showGameWin(this.props.scores);
+        this.renderer.showGameWin(this.props.scores);
     }
 
     private showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
         this.addScore(this.props.score, true);
-        Renderer.getInstance().showGameLose(this.props.scores);
+        this.renderer.showGameLose(this.props.scores);
     }
 
     private startGame() {
-        Renderer.getInstance().hideOverlays();
+        this.renderer.hideOverlays();
         this.props.level = 1;
         this.props.score = 0;
         this.props.numSpells = 1;
@@ -216,8 +216,8 @@ export class Game {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
-        Mapper.getInstance().generateLevel(this.props.level);
-        let freeTile = Mapper.getInstance().getCurrentLevel().randomPassableTile();
+        this.mapper.generateNewLevel(this.props.level);
+        let freeTile = this.mapper.getCurrentLevel().randomPassableTile();
 
         if (freeTile && freeTile instanceof FloorTile) {
             this.props.player = new PlayerActor(freeTile);
@@ -248,10 +248,10 @@ export class Game {
                 scores.push(lastScore);
             }
         }
+
         scores.push(scoreObject);
 
         this.localStorage["scores"] = JSON.stringify(scores);
-
     }
 
     private getScores() {
@@ -283,7 +283,7 @@ export class Game {
             this.props.player.addSpell();
         }
 
-        Mapper.getInstance().getCurrentLevel().spawnMonster();
+        this.mapper.getCurrentLevel().spawnMonster();
         this.props.sidebarNeedsUpdate = true;
     }
 }

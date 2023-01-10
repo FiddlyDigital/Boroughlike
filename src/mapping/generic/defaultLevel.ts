@@ -1,8 +1,9 @@
-import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile, ITile } from "../../tile";
+import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../tile";
 import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
 import { numTiles, TILE_SPRITE_INDICES } from "../../constants";
 import { tryTo, randomRange, shuffle } from "../../utilities";
-import { IMap, Map } from '../../map';
+import { Map } from '../../map';
+import { ITile } from "../../interfaces/ITile";
 
 export interface ILevelGenerator {
     generate(): void;

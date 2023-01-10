@@ -2,8 +2,8 @@
 import { DefaultLevel } from './generic/defaultLevel';
 import { CellularAutomationLevel } from './generic/cellularAutomatonLevel';
 import { BSPTreemapLevel } from './generic/bspLevel';
-import { IMap } from '../map';
 import { Branches } from '../constants';
+import { IMap } from '../interfaces/IMap';
 
 export class LevelGenerator {
     generateLevel(levelNum: number, branch: string): IMap | null {

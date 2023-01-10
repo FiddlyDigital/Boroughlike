@@ -1,20 +1,10 @@
-import { BirdActor, EaterActor, IActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
+import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
 import { Branches } from "./constants";
 import { Hub } from "./hub";
-import { ITile } from "./tile";
+import { IActor } from "./interfaces/IActor";
+import { IMap } from "./interfaces/IMap";
+import { ITile } from "./interfaces/ITile";
 import { randomRange, shuffle, tryTo } from "./utilities";
-
-export interface IMap {
-    height: number;
-    width: number;
-    getMonsters(): Array<IActor>;
-    getTile(x: number, y: number): ITile | null;
-    inBounds(x: number, y: number): boolean;
-    nextLevel() : void;
-    randomPassableTile(): ITile | null;
-    replaceTile(x: number, y: number, newTile: ITile): void;
-    spawnMonster(): void;
-}
 
 export class Map implements IMap {
     monsters: Array<IActor>;

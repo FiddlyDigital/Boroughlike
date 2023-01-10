@@ -1,26 +1,9 @@
 import { TILE_SPRITE_INDICES } from "./constants";
-import { IActor, PlayerActor } from "./actor";
-import { IMap } from "./map";
+import { PlayerActor } from "./actor";
 import { Hub } from "./hub";
-
-export interface ITile {
-    map: IMap;
-    x: number;
-    y: number;
-    book: boolean;
-    passable: boolean;
-    monster: IActor | null;
-    sprite: Array<number>;
-    effectIndex: Array<number> | null;
-    effectCounter: number;
-    dist(other: ITile): number;
-    getAdjacentNeighbors(): Array<ITile | null>;
-    getAdjacentPassableNeighbors(): Array<ITile>;
-    getNeighbor(dx: number, dy: number): ITile | null;
-    getNeighborChain(direction: string): Array<ITile>;
-    setEffect(effectSprite: Array<number>): void;
-    stepOn(monster: IActor): void;
-}
+import { IActor } from "./interfaces/IActor";
+import { ITile } from "./interfaces/ITile";
+import { IMap } from "./interfaces/IMap";
 
 export abstract class Tile implements ITile {
     map: IMap;

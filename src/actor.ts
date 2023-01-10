@@ -1,26 +1,11 @@
 import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
-import { ISpell, Spells as ALLSPELLS } from "./spell";
-import { FloorTile, ITile } from "./tile";
+import { Spells as ALLSPELLS } from "./spell";
+import { FloorTile } from "./tile";
 import { shuffle, randomRange } from "./utilities";
 import { Hub } from "./hub.js";
-
-export interface IActor {
-    dead: boolean;
-    stunned: boolean;
-    isPlayer: boolean;
-    teleportCounter: number;
-    sprite: Array<number>
-    hp: number;
-    offsetX: number;
-    offsetY: number;
-    getDisplayX(): number;
-    getDisplayY(): number;
-    heal(damage: number): void;
-    hit(damage: number): void;
-    move(tile: ITile): void;
-    tryMove(dx: number, dy: number): boolean;
-    update(): void;
-}
+import { IActor } from "./interfaces/IActor.js";
+import { ITile } from "./interfaces/ITile.js";
+import { ISpell } from "./interfaces/ISpell.js";
 
 export abstract class BaseActor implements IActor {
     sprite: Array<number>
