@@ -1,9 +1,10 @@
 import { singleton } from "tsyringe";
 import { SOUNDFX } from './constants';
 import { Hub } from './hub';
+import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 
 @singleton()
-export class AudioPlayer {
+export class AudioPlayer implements IAudioPlayer {
     sounds: any = {};
 
     constructor() {

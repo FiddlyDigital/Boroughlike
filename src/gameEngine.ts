@@ -1,28 +1,27 @@
-import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, SPRITETYPES, maxHp, SOUNDFX, refreshRate } from "./constants";
-import { AudioPlayer } from "./audioPlayer";
+import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX, refreshRate } from "./constants";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
-import { Mapper } from "./mapper";
 import { PlayerActor } from "./actor";
-import { Renderer } from "./renderer";
 import { FloorTile } from "./tile";
 import { Dictionary } from "./utilities";
-import { singleton } from "tsyringe";
+import { inject, singleton } from "tsyringe";
+import { IMapper } from "./interfaces/IMapper";
+import { IAudioPlayer } from "./interfaces/IAudioPlayer";
+import { IRenderer } from "./interfaces/IRenderer";
 //import { version } from '../package.json';
 
 @singleton()
-export class Game {
-    private static instance: Game;
+export class GameEngine {
     props: any;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
-    lastAnimateUpdate: number;
-    
-    audioPlayer: AudioPlayer;
-    renderer: Renderer;
-    mapper: Mapper
+    lastAnimateUpdate: number;        
 
-    constructor(audioPlayer : AudioPlayer, renderer: Renderer, mapper: Mapper) {
+    constructor(        
+        @inject("IAudioPlayer") private audioPlayer: IAudioPlayer,
+        @inject("IMapper") private mapper: IMapper,
+        @inject("IRenderer") private renderer: IRenderer
+    ) {
         this.audioPlayer = audioPlayer;
         this.renderer = renderer;
         this.mapper = mapper;
@@ -62,15 +61,17 @@ export class Game {
     }
 
     addEventHandlers() {
+        var self = this;
+
         let htmlElem = document.querySelector("html");
         if (htmlElem) {
-            htmlElem.onkeydown = this.handleInteraction;
+            htmlElem.onkeydown = self.handleInteraction.bind(this);
         }
 
-        window.addEventListener('touchstart', () => { this.handleInteraction(null); });
-        window.addEventListener('mousedown', () => { this.handleInteraction(null); });
+        window.addEventListener('touchstart', self.handleInteraction.bind(this));
+        window.addEventListener('mousedown', self.handleInteraction.bind(this));
 
-        Hub.getInstance().subscribe("NEXTLEVEL", () => { this.nextLevel(); })
+        Hub.getInstance().subscribe("NEXTLEVEL", self.nextLevel.bind(this));
     }
 
     handleInteraction(e: any) {

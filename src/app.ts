@@ -1,13 +1,22 @@
 import "reflect-metadata";
 import { container, injectable } from 'tsyringe';
-import { Game } from './game';
+import { AudioPlayer } from "./audioPlayer";
+import { GameEngine } from './gameEngine';
+import { Mapper } from "./mapper";
+import { Renderer } from "./renderer";
 
 @injectable()
 export default class App {
-    game: Game;
+    game: GameEngine;
 
     constructor() { 
-        this.game = container.resolve(Game);
+        // DI Registry
+        container.register("IAudioPlayer", { useClass: AudioPlayer });        
+        container.register("IMapper", { useClass: Mapper });
+        container.register("IRenderer", { useClass: Renderer });
+
+        // Service-locator pattern
+        this.game = container.resolve(GameEngine);
     }
 
     init() {

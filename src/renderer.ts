@@ -4,9 +4,10 @@ import { Hub } from './hub';
 import { singleton } from 'tsyringe';
 import { ITile } from './interfaces/ITile';
 import { ISpell } from './interfaces/ISpell';
+import { IRenderer } from './interfaces/IRenderer';
 
 @singleton()
-export class Renderer {
+export class Renderer implements IRenderer {
     shake: any;
     monsterSpriteSheet: HTMLImageElement;
     tileSpriteSheet: HTMLImageElement;
@@ -63,7 +64,7 @@ export class Renderer {
         }
         this.setupCanvas();
 
-        Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount);
+        Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount.bind(this));
     }
 
     public initSpriteSheet(callback: Function) {
@@ -80,7 +81,7 @@ export class Renderer {
         this.itemSpriteSheet.src = "assets/images/items.png";
     }
 
-    public checkAllSpriteSheetsLoaded() {
+    public checkAllSpriteSheetsLoaded() : void {
         if (this.monsterSpriteSheet.complete
             && this.tileSpriteSheet.complete
             && this.effectSpriteSheet.complete
@@ -115,7 +116,7 @@ export class Renderer {
         }
     }
 
-    public drawTile(tile: ITile) {
+    public drawTile(tile: ITile) : void {
         if (tile) {
             this.drawSprite(SPRITETYPES.TILE, tile.sprite, tile.x, tile.y);
 
@@ -175,11 +176,11 @@ export class Renderer {
         }
     }
 
-    public clearCanvas() {
+    public clearCanvas() : void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public screenshake() {
+    public screenshake() : void {
         if (this.shake.amount) {
             this.shake.amount--;
         }
@@ -189,13 +190,13 @@ export class Renderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    public drawDarkBackground() {
+    public drawDarkBackground() : void {
         this.clearCanvas();
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public hideOverlays() {
+    public hideOverlays() : void {
         let overlays = document.getElementsByClassName("overlay");
         if (overlays) {
             for (let i = 0; i < overlays.length; i++) {
@@ -237,7 +238,7 @@ export class Renderer {
         }
     }
 
-    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell>) {
+    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell>) : void {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
@@ -263,7 +264,7 @@ export class Renderer {
         }
     }
 
-    public drawScores(scores: Array<any>) {
+    public drawScores(scores: Array<any>) : void {
         let newestScore = scores.pop();
         scores.sort(function (a, b) {
             return b.totalScore - a.totalScore;
@@ -299,7 +300,7 @@ export class Renderer {
         }
     }
 
-    public setShakeAmount(amt: number) {
+    public setShakeAmount(amt: number) : void {
         this.shake.amount = amt;
     }
 }

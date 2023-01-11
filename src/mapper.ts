@@ -1,14 +1,9 @@
 import { numTiles } from "./constants";
 import { LevelGenerator } from './mapping/levelGenerator'
 import { Branches } from "./constants";
-import { singleton } from "tsyringe";
 import { IMap } from "./interfaces/IMap";
-
-export interface IMapper {
-    currentFloorIdx: number;
-    getCurrentLevel(): IMap;
-    generateNewLevel(newLevelNum: number): IMap;
-}
+import { IMapper } from "./interfaces/IMapper";
+import { singleton } from "tsyringe";
 
 @singleton()
 export class Mapper implements IMapper {
