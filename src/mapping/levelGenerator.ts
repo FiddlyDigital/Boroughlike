@@ -1,11 +1,9 @@
-// In progress!
-import { DefaultLevel } from './generic/defaultLevel';
-import { CellularAutomationLevel } from './generic/cellularAutomatonLevel';
 import { BSPTreemapLevel } from './generic/bspLevel';
 import { Branches } from '../constants';
 import { IMap } from '../interfaces/IMap';
+import { ILevelGenerator } from '../interfaces/ILevelGenerator';
 
-export class LevelGenerator {
+export class LevelGenerator implements ILevelGenerator {
     generateLevel(levelNum: number, branch: string): IMap | null {
         switch (branch) {
             case Branches.LIBRARY:
@@ -15,7 +13,7 @@ export class LevelGenerator {
         }
     }
 
-    generateLibraryLevel(levelNum: number): IMap {
+    private generateLibraryLevel(levelNum: number): IMap {
         switch (levelNum) {
             // case 1:
             //     level = new LibraryEntranceLevel();   // Consider Usage
@@ -24,28 +22,7 @@ export class LevelGenerator {
             // case 16:
             //     level = new LibraryTopFloorLevel();   // Boss Encounter?
             default:
-                //return new CellularAutomationLevel(levelNum);
-                //return new DefaultLevel(levelNum);
                 return new BSPTreemapLevel(levelNum).map;
         }
     }
-
-    // generateAdventureLevel() {
-    //     switch (levelNum) {
-    //         default:
-    //         return new DefaultLevel(levelNum);
-    //     }
-    // }
-    // generateHorrorLevel() {
-    //     switch (levelNum) {
-    //         default:
-    //         return new DefaultLevel(levelNum);
-    //     }
-    // }
-    // generateSciFiLevel() {
-    //     switch (levelNum) {
-    //         default:
-    //         return new DefaultLevel(levelNum);
-    //     }
-    // }
 }

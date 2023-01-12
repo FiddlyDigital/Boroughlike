@@ -1,36 +1,33 @@
-import { numTiles } from "./constants";
-import { LevelGenerator } from './mapping/levelGenerator'
+import { inject, singleton } from "tsyringe";
 import { Branches } from "./constants";
+import { ILevelGenerator } from "./interfaces/ILevelGenerator";
 import { IMap } from "./interfaces/IMap";
 import { IMapper } from "./interfaces/IMapper";
-import { singleton } from "tsyringe";
 
 @singleton()
 export class Mapper implements IMapper {
-    props: any;
     floors: Array<IMap>;
     currentFloorIdx: number = 0;
-    currentBranch: string = Branches.LIBRARY;
-    levelGenerator: any;
 
-    constructor() {
-        this.levelGenerator = new LevelGenerator();
+    constructor(
+        @inject("ILevelGenerator") private levelGenerator: ILevelGenerator
+
+    ) {
         this.floors = new Array<IMap>();
-        this.props = {
-            monsters: [],
-            tiles: [],
-            floors: [],
-            levelNum: 1,
-            height: numTiles,
-            width: numTiles,
-            branch: Branches.LIBRARY
-        };
     }
 
-    generateNewLevel(newLevelNum: number): any {
-        let level = this.levelGenerator.generateLevel(this.currentFloorIdx, this.currentBranch);
-        this.floors[newLevelNum] = level;
-        this.currentFloorIdx = newLevelNum;
+    getOrCreateLevel(levelNumber: number): any {
+        let level: IMap | null = this.floors[levelNumber];
+        if (level) {
+            this.currentFloorIdx = levelNumber;
+            return level;
+        }
+
+        level = this.levelGenerator.generateLevel(this.currentFloorIdx, Branches.LIBRARY);
+        if (level) {
+            this.currentFloorIdx = levelNumber;
+            this.floors[levelNumber] = level;
+        }
         return level;
     }
 

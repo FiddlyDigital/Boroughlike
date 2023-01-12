@@ -22,10 +22,6 @@ export class GameEngine {
         @inject("IMapper") private mapper: IMapper,
         @inject("IRenderer") private renderer: IRenderer
     ) {
-        this.audioPlayer = audioPlayer;
-        this.renderer = renderer;
-        this.mapper = mapper;
-
         this.localStorage = {};
         //this.version = version;          
         this.props = {
@@ -191,7 +187,7 @@ export class GameEngine {
     }
 
     private showGameWin() {
-        // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);
+        // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);    
         this.addScore(this.props.score, true);
         this.renderer.showGameWin(this.props.scores);
     }
@@ -217,17 +213,14 @@ export class GameEngine {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
-        this.mapper.generateNewLevel(this.props.level);
+        this.mapper.getOrCreateLevel(this.props.level);
+        
         let freeTile = this.mapper.getCurrentLevel().randomPassableTile();
-
         if (freeTile && freeTile instanceof FloorTile) {
             this.props.player = new PlayerActor(freeTile);
         }
 
         this.props.player.hp = playerHp;
-
-        // PG: Future bi-directional travel
-        //map.replaceTile(player.tile.x, player.tile.y, StairDown); 
 
         if (playerSpells) {
             this.props.player.spells = playerSpells;
@@ -251,7 +244,6 @@ export class GameEngine {
         }
 
         scores.push(scoreObject);
-
         this.localStorage["scores"] = JSON.stringify(scores);
     }
 
@@ -267,7 +259,7 @@ export class GameEngine {
         if (this.props.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
-            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.NEWLEVEL);
+            this.audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             this.props.level++;
             this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
             this.props.sidebarNeedsUpdate = true;
@@ -275,8 +267,7 @@ export class GameEngine {
     }
 
     incrementScore() {
-        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.BOOK);
-        
+        this.audioPlayer.playSound(SOUNDFX.BOOK);
         this.props.score++;
 
         if (this.props.score % 3 == 0 && this.props.numSpells < 9) {
