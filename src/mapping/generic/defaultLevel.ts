@@ -1,6 +1,7 @@
 import { Tile, WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../tile";
 import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../actor"
-import { numTiles, TILE_SPRITE_INDICES } from "../../constants";
+import { numTiles } from "../../constants/values";
+import { TILE_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { tryTo, randomRange, shuffle } from "../../utilities";
 import { Map } from '../../map';
 import { ITile } from "../../interfaces/ITile";

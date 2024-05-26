@@ -1,4 +1,6 @@
-import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES, DIRECTION } from "./constants.js";
+import { maxHp,  } from "./constants/values.js";
+import { SOUNDFX, DIRECTION} from "./constants/enums.js";
+import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants/spriteIndices.js";
 import { Spells as ALLSPELLS } from "./spell";
 import { FloorTile } from "./tile";
 import { shuffle, randomRange } from "./utilities";

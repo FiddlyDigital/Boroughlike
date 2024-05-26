@@ -1,4 +1,6 @@
-import { SPRITETYPES, ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, numTiles, tileSize, uiWidth, refreshRate } from './constants';
+import { SPRITETYPES } from './constants/enums';
+import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from './constants/spriteIndices';
+import { numTiles, tileSize, uiWidth, refreshRate } from './constants/values';
 import { Dictionary } from './utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';

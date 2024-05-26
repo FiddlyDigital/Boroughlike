@@ -1,5 +1,5 @@
 import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
-import { Branches } from "./constants";
+import { Branches } from "./constants/enums";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
 import { IMap } from "./interfaces/IMap";

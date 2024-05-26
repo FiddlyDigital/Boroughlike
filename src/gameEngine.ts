@@ -1,4 +1,5 @@
-import { GAME_STATES, GAME_EVENTS, numTiles, numLevels, startingHp, maxHp, SOUNDFX, refreshRate } from "./constants";
+import { numLevels, startingHp, maxHp, refreshRate } from "./constants/values";
+import { GAME_STATES, GAME_EVENTS, SOUNDFX } from "./constants/enums";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
 import { PlayerActor } from "./actor";

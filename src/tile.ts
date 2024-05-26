@@ -1,4 +1,5 @@
-import { DIRECTION, TILE_SPRITE_INDICES } from "./constants";
+import { DIRECTION } from "./constants/enums";
+import { TILE_SPRITE_INDICES } from "./constants/spriteIndices";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
 import { ITile } from "./interfaces/ITile";
@@ -103,8 +104,7 @@ export class FloorTile extends Tile {
     };
 
     stepOn(monster: IActor) {
-        if (monster && monster.isPlayer && this.book) {
-        // (monster as PlayerActor).incrementScore()
+        if (this.book && monster && monster.isPlayer) {
             this.book = false;
         }
     }

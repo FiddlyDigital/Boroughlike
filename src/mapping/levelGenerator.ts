@@ -1,5 +1,5 @@
 import { BSPTreemapLevel } from './generic/bspLevel';
-import { Branches } from '../constants';
+import { Branches } from '../constants/enums';
 import { IMap } from '../interfaces/IMap';
 import { ILevelGenerator } from '../interfaces/ILevelGenerator';
 

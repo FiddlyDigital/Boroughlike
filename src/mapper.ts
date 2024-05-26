@@ -1,5 +1,5 @@
 import { inject, singleton } from "tsyringe";
-import { Branches } from "./constants";
+import { Branches } from "./constants/enums";
 import { ILevelGenerator } from "./interfaces/ILevelGenerator";
 import { IMap } from "./interfaces/IMap";
 import { IMapper } from "./interfaces/IMapper";

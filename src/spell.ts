@@ -1,4 +1,6 @@
-import { EFFECT_SPRITE_INDICES, numTiles, SOUNDFX } from "./constants";
+import { SOUNDFX } from "./constants/enums";
+import { EFFECT_SPRITE_INDICES} from "./constants/spriteIndices";
+import { numTiles } from "./constants/values";
 import { BaseActor } from "./actor";
 import { FloorTile } from "./tile";
 import { Hub } from "./hub";
