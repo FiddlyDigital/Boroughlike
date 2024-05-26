@@ -1,5 +1,5 @@
 import { numLevels, startingHp, maxHp, refreshRate } from "./constants/values";
-import { GAME_STATES, GAME_EVENTS, SOUNDFX } from "./constants/enums";
+import { GAME_STATES, GAME_EVENTS, SOUNDFX, HUBEVENTS } from "./constants/enums";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
 import { PlayerActor } from "./actor";
@@ -68,7 +68,7 @@ export class GameEngine {
         window.addEventListener('touchstart', self.handleInteraction.bind(this));
         window.addEventListener('mousedown', self.handleInteraction.bind(this));
 
-        Hub.getInstance().subscribe("NEXTLEVEL", self.nextLevel.bind(this));
+        Hub.getInstance().subscribe(HUBEVENTS.NEXTLEVEL, self.nextLevel.bind(this));
     }
 
     handleInteraction(e: any) {

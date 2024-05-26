@@ -1,5 +1,5 @@
 import { singleton } from "tsyringe";
-import { SOUNDFX } from './constants/enums';
+import { HUBEVENTS, SOUNDFX } from './constants/enums';
 import { Hub } from './hub';
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 import { sfxAssetPath } from "./constants/values";
@@ -10,7 +10,7 @@ export class AudioPlayer implements IAudioPlayer {
 
     constructor() {
         this.initSounds()
-        Hub.getInstance().subscribe("PLAYSOUND", this.playSound.bind(this));
+        Hub.getInstance().subscribe(HUBEVENTS.PLAYSOUND, this.playSound.bind(this));
     }
 
     private initSounds() {

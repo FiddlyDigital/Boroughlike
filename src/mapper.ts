@@ -24,10 +24,9 @@ export class Mapper implements IMapper {
         }
 
         level = this.levelGenerator.generateLevel(this.currentFloorIdx, Branches.LIBRARY);
-        if (level) {
-            this.currentFloorIdx = levelNumber;
-            this.floors[levelNumber] = level;
-        }
+        this.currentFloorIdx = levelNumber;
+        this.floors[levelNumber] = level;
+
         return level;
     }
 

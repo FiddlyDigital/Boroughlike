@@ -1,6 +1,6 @@
-import { SPRITETYPES } from './constants/enums';
+import { HUBEVENTS, SPRITETYPES } from './constants/enums';
 import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from './constants/spriteIndices';
-import { numTiles, tileSize, refreshRate, imgAssetPath } from './constants/values';
+import { numTiles, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from './constants/values';
 import { Dictionary } from './utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
@@ -22,8 +22,12 @@ export class Renderer implements IRenderer {
     playerBooksElem: HTMLElement;
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+    lastAlternateSpriteTimeMS: number;
+    showAlternateSprites: boolean = false;
 
     public constructor() {
+        this.lastAlternateSpriteTimeMS = Date.now();
+        
         this.monsterSpriteSheet = new Image();
         this.tileSpriteSheet = new Image();
         this.effectSpriteSheet = new Image();
@@ -68,7 +72,7 @@ export class Renderer implements IRenderer {
         }
         this.setupCanvas();
 
-        Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount.bind(this));
+        Hub.getInstance().subscribe(HUBEVENTS.SETSHAKE, this.setShakeAmount.bind(this));
     }
 
     public initSpriteSheet(callback: Function) {
@@ -79,7 +83,7 @@ export class Renderer implements IRenderer {
         this.effectSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
         this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
 
-        this.monsterSpriteSheet.src = imgAssetPath + "monsters.png";
+        this.monsterSpriteSheet.src = imgAssetPath + "monsters2.png";
         this.tileSpriteSheet.src = imgAssetPath + "library_new.png";
         this.effectSpriteSheet.src = imgAssetPath + "effects.png";
         this.itemSpriteSheet.src = imgAssetPath + "items.png";
@@ -96,8 +100,8 @@ export class Renderer implements IRenderer {
 
     private setupCanvas() {
         if (this.canvas && this.ctx) {
-            this.canvas.width = tileSize * numTiles;
-            this.canvas.height = tileSize * numTiles;
+            this.canvas.width = tileRenderSizePX * numTiles;
+            this.canvas.height = tileRenderSizePX * numTiles;
             this.canvas.style.width = this.canvas.width + 'px';
             this.canvas.style.height = this.canvas.height + 'px';
             this.ctx.imageSmoothingEnabled = false;
@@ -124,6 +128,13 @@ export class Renderer implements IRenderer {
         this.clearCanvas();
         this.screenshake();
 
+        let newRenderingSecond = Date.now();
+
+        if ((newRenderingSecond - this.lastAlternateSpriteTimeMS) > alternateSpriteTimeMS) {
+            this.showAlternateSprites = !this.showAlternateSprites;
+            this.lastAlternateSpriteTimeMS = newRenderingSecond;
+        }
+
         let monsters: IActor[] = [];
 
         for (let i = 0; i < numTiles; i++) {
@@ -143,6 +154,7 @@ export class Renderer implements IRenderer {
         for (let m = 0; m < monsters.length; m++) {
             this.drawMonster(monsters[m]);
         }
+
     }
 
     private drawTile(tile: ITile): void {
@@ -193,16 +205,25 @@ export class Renderer implements IRenderer {
         }
 
         if (spriteIdx) {
+
+            let spriteXIdx = spriteIdx[0]
+            let spriteYIdx = spriteIdx[1];
+
+            // if it's a monster and we should alternate, use the secondary sprite
+            if (spriteType === SPRITETYPES.MONSTER && (this.showAlternateSprites)) {
+                spriteYIdx= 1;
+            } 
+
             this.ctx.drawImage(
                 this.getSpriteSheet(spriteType),
-                spriteIdx[0] * 16,
-                spriteIdx[1] * 16,
+                spriteXIdx * 16,
+                spriteYIdx * 16,
                 16,
                 16,
-                x * tileSize + this.shake.x,
-                y * tileSize + this.shake.y,
-                tileSize,
-                tileSize
+                x * tileRenderSizePX + this.shake.x,
+                y * tileRenderSizePX + this.shake.y,
+                tileRenderSizePX,
+                tileRenderSizePX
             );
 
             if (spriteType === SPRITETYPES.EFFECTS && (!effectCounter || effectCounter <= 0)) {
