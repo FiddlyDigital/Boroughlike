@@ -23,7 +23,7 @@ export abstract class BaseActor implements IActor {
     shield: number = 0;
     dead: boolean = false;
     tile: ITile;
-    hitSFX: string;
+    protected hitSFX: string;
 
     public constructor(tile: ITile, sprite: Array<number>, hp: number) {
         this.tile = tile;

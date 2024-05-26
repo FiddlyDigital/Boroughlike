@@ -1,6 +1,6 @@
 import { SPRITETYPES } from './constants/enums';
 import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from './constants/spriteIndices';
-import { numTiles, tileSize, uiWidth, refreshRate } from './constants/values';
+import { numTiles, tileSize, refreshRate, imgAssetPath } from './constants/values';
 import { Dictionary } from './utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
@@ -23,7 +23,7 @@ export class Renderer implements IRenderer {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-    constructor() {
+    public constructor() {
         this.monsterSpriteSheet = new Image();
         this.tileSpriteSheet = new Image();
         this.effectSpriteSheet = new Image();
@@ -79,13 +79,13 @@ export class Renderer implements IRenderer {
         this.effectSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
         this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
 
-        this.monsterSpriteSheet.src = "assets/images/monsters.png";
-        this.tileSpriteSheet.src = "assets/images/library_new.png";
-        this.effectSpriteSheet.src = "assets/images/effects.png";
-        this.itemSpriteSheet.src = "assets/images/items.png";
+        this.monsterSpriteSheet.src = imgAssetPath + "monsters.png";
+        this.tileSpriteSheet.src = imgAssetPath + "library_new.png";
+        this.effectSpriteSheet.src = imgAssetPath + "effects.png";
+        this.itemSpriteSheet.src = imgAssetPath + "items.png";
     }
 
-    public checkAllSpriteSheetsLoaded(): void {
+    private checkAllSpriteSheetsLoaded(): void {
         if (this.monsterSpriteSheet.complete
             && this.tileSpriteSheet.complete
             && this.effectSpriteSheet.complete
@@ -96,7 +96,7 @@ export class Renderer implements IRenderer {
 
     private setupCanvas() {
         if (this.canvas && this.ctx) {
-            this.canvas.width = tileSize * (numTiles + uiWidth);
+            this.canvas.width = tileSize * numTiles;
             this.canvas.height = tileSize * numTiles;
             this.canvas.style.width = this.canvas.width + 'px';
             this.canvas.style.height = this.canvas.height + 'px';
@@ -105,7 +105,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public getSpriteSheet(spriteType: string): HTMLImageElement {
+    private getSpriteSheet(spriteType: string): HTMLImageElement {
         switch (spriteType) {
             case SPRITETYPES.MONSTER:
                 return this.monsterSpriteSheet;
@@ -225,12 +225,6 @@ export class Renderer implements IRenderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    public drawDarkBackground(): void {
-        this.clearCanvas();
-        this.ctx.fillStyle = 'rgba(0,0,0,.75)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-
     public hideOverlays(): void {
         let overlays = document.getElementsByClassName("overlay");
         if (overlays) {
@@ -299,7 +293,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public drawScores(scores: Array<any>): void {
+    private drawScores(scores: Array<any>): void {
         let newestScore = scores.pop();
         scores.sort(function (a, b) {
             return b.totalScore - a.totalScore;

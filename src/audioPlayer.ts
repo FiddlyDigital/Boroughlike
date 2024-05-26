@@ -2,6 +2,7 @@ import { singleton } from "tsyringe";
 import { SOUNDFX } from './constants/enums';
 import { Hub } from './hub';
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
+import { sfxAssetPath } from "./constants/values";
 
 @singleton()
 export class AudioPlayer implements IAudioPlayer {
@@ -15,7 +16,7 @@ export class AudioPlayer implements IAudioPlayer {
     private initSounds() {
         // Load each sound
         for (let [_, value] of Object.entries(SOUNDFX)) {
-            this.sounds[value] = new Audio(`assets/sounds/${value}`);
+            this.sounds[value] = new Audio(`${sfxAssetPath}${value}`);
         }
     }
 

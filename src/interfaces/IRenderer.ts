@@ -3,10 +3,6 @@ import { IMap } from "./IMap";
 import { ISpell } from "./ISpell";
 
 export interface IRenderer {
-    checkAllSpriteSheetsLoaded(): void;
-    drawDarkBackground(): void;
-    drawScores(scores: Array<any>): void;
-    getSpriteSheet(spriteType: string): HTMLImageElement;
     hideOverlays(): void;
     initSpriteSheet(callback: Function): void;
     showTitle(scores: Array<any>): void;

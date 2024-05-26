@@ -9,7 +9,7 @@ export class LevelGenerator implements ILevelGenerator {
             case Branches.LIBRARY:
                 return this.generateLibraryLevel(levelNum);
             default:
-                return null;
+                throw "branch not supported";
         }
     }
 

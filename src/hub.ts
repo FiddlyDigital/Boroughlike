@@ -19,19 +19,12 @@ export class Hub {
         return Hub.instance;
     }
 
-    public subscribe(eventName: string, callback: Function) {
+    public subscribe(eventName: string, callback: Function) : void {
         if (!this.subscriptions[eventName]) {
             this.subscriptions[eventName] = [];
         }
 
         this.subscriptions[eventName].push(callback);
-        let callbackIdx = this.subscriptions[eventName].length - 1;
-
-        return {
-            unsubscribe() {
-                Hub.getInstance().subscriptions[eventName].splice(callbackIdx, 1);
-            }
-        }
     }
 
     /**
@@ -39,10 +32,10 @@ export class Hub {
      * @param {string} eventName - Name of the event to trigger
      * @param {*} eventData - any even related data
      */
-    public publish(eventName: string, eventData: any) {
+    public publish(eventName: string, eventData: any) : void {
         if (this.subscriptions[eventName]) {
             this.subscriptions[eventName]
-                .forEach((callback: (arg0: any) => void) => {
+                .forEach((callback: (arg: any) => void) => {
                     if (callback) {
                         callback(eventData);
                     }
