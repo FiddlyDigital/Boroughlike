@@ -1,4 +1,4 @@
-import { TILE_SPRITE_INDICES } from "./constants";
+import { DIRECTION, TILE_SPRITE_INDICES } from "./constants";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
 import { ITile } from "./interfaces/ITile";
@@ -54,33 +54,18 @@ export abstract class Tile implements ITile {
     public getNeighborChain(direction: string): Array<ITile> {
         let xy = [0, 0];
         switch (direction) {
-            case "N":
+            case DIRECTION.N:
                 xy = [0, -1];
                 break;
-            case "NE":
-                xy = [1, -1];
-                break;
-            case "NW":
-                xy = [-1, -1];
-                break;
-
-            case "S":
+            case DIRECTION.S:
                 xy = [0, 1];
                 break;
-            case "SE":
-                xy = [1, 1];
-                break;
-            case "SW":
-                xy = [-1, 1];
-                break;
-            case "E":
+            case DIRECTION.E:
                 xy = [1, 0];
                 break;
-
-            case "W":
+            case DIRECTION.W:
                 xy = [-1, 0];
                 break;
-
             default:
                 throw "Direction didn't have a valid value.";
         }

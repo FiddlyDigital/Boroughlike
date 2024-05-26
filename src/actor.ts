@@ -1,4 +1,4 @@
-import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants.js";
+import { maxHp, SOUNDFX, EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES, DIRECTION } from "./constants.js";
 import { Spells as ALLSPELLS } from "./spell";
 import { FloorTile } from "./tile";
 import { shuffle, randomRange } from "./utilities";
@@ -260,7 +260,7 @@ export class TurretActor extends BaseActor {
 
     constructor(tile: FloorTile) {
         super(tile, MONSTER_SPRITE_INDICES.Turret, 1);
-        this.directions = ["N", "E", "S", "W"];
+        this.directions = [DIRECTION.N, DIRECTION.E, DIRECTION.S, DIRECTION.W];
         this.currentDirection = randomRange(0, 3);
     }
 
@@ -287,12 +287,12 @@ export class TurretActor extends BaseActor {
                 }
 
                 switch (cardinalDirection) {
-                    case "N":
-                    case "S":
+                    case DIRECTION.N:
+                    case DIRECTION.S:
                         t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Vertical);
                         break;
-                    case "E":
-                    case "W":
+                    case DIRECTION.E:
+                    case DIRECTION.W:
                         t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
                         break;
                     default:

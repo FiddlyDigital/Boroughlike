@@ -113,3 +113,14 @@ export const Branches: Dictionary<string> = {
     HORROR: "Horror",       // Nightime / limited LOS. Lamp or Torch reqd.
     SCIFI: "SciFi"          // Radiation Shield reqd.
 }
+
+export const DIRECTION: Dictionary<string> = {
+    N: "N",
+    NE: "NE",
+    E: "E",
+    SE: "SE",
+    S: "S",
+    SW: "SW",
+    W: "W",
+    NW: "NW"
+}
