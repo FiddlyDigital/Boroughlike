@@ -48,3 +48,9 @@ export const DIRECTION: Dictionary<string> = {
     W: "W",
     NW: "NW"
 }
+
+export const HUBEVENTS: Dictionary<string> = {
+    NEXTLEVEL : "NEXTLEVEL",
+    PLAYSOUND: "PLAYSOUND",
+    SETSHAKE : "SETSHAKE"
+}

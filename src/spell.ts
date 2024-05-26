@@ -1,4 +1,4 @@
-import { SOUNDFX } from "./constants/enums";
+import { HUBEVENTS, SOUNDFX } from "./constants/enums";
 import { EFFECT_SPRITE_INDICES} from "./constants/spriteIndices";
 import { numTiles } from "./constants/values";
 import { BaseActor } from "./actor";
@@ -15,7 +15,7 @@ export abstract class BaseSpell {
     }
 
     public cast(): void {
-        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.SPELL);
+        Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.SPELL);
     };
 
     protected boltTravel(caster: BaseActor, direction: Array<number>, effect: any, damage: number): void {
@@ -69,7 +69,7 @@ export class Quake extends BaseSpell {
             }
         }
 
-        Hub.getInstance().publish("SETSHAKE", 20);
+        Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 20);
     }
 }
 

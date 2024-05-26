@@ -1,5 +1,5 @@
 import { maxHp,  } from "./constants/values.js";
-import { SOUNDFX, DIRECTION} from "./constants/enums.js";
+import { SOUNDFX, DIRECTION, HUBEVENTS} from "./constants/enums.js";
 import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "./constants/spriteIndices.js";
 import { Spells as ALLSPELLS } from "./spell";
 import { FloorTile } from "./tile";
@@ -49,7 +49,7 @@ export abstract class BaseActor implements IActor {
 
     public heal(damage: number): void {
         this.hp = Math.min(maxHp, this.hp + damage);
-        Hub.getInstance().publish("PLAYSOUND", SOUNDFX.PLAYERHEAL);
+        Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.PLAYERHEAL);
     }
 
     public update(): void {
@@ -93,7 +93,7 @@ export abstract class BaseActor implements IActor {
                     newTile.monster.hit(1 + this.bonusAttack);
                     this.bonusAttack = 0;
 
-                    Hub.getInstance().publish("SETSHAKE", 5);
+                    Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 5);
 
                     this.offsetX = (newTile.x - this.tile.x) / 2;
                     this.offsetY = (newTile.y - this.tile.y) / 2;
@@ -107,7 +107,7 @@ export abstract class BaseActor implements IActor {
     }
 
     public hit(damage: number): void {
-        Hub.getInstance().publish("PLAYSOUND", this.hitSFX);
+        Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, this.hitSFX);
 
         if (this.shield > 0) {
             return;

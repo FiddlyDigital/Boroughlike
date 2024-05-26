@@ -1,4 +1,4 @@
-import { DIRECTION } from "./constants/enums";
+import { DIRECTION, HUBEVENTS } from "./constants/enums";
 import { TILE_SPRITE_INDICES } from "./constants/spriteIndices";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
@@ -143,7 +143,7 @@ export class SpikePitTile extends Tile {
             monster.hit(1);
 
             if (monster.isPlayer) {
-                Hub.getInstance().publish("SETSHAKE", 5);
+                Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 5);
             }
         }
     }

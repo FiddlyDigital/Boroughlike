@@ -1,5 +1,5 @@
 import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
-import { Branches } from "./constants/enums";
+import { Branches, HUBEVENTS } from "./constants/enums";
 import { Hub } from "./hub";
 import { IActor } from "./interfaces/IActor";
 import { IMap } from "./interfaces/IMap";
@@ -37,7 +37,7 @@ export class Map implements IMap {
     }
 
     nextLevel(): void {
-        Hub.getInstance().publish("NEXTLEVEL", null);
+        Hub.getInstance().publish(HUBEVENTS.NEXTLEVEL, null);
     }
 
     randomPassableTile(): ITile | null {
