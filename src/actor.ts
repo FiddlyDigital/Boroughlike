@@ -21,6 +21,7 @@ export abstract class BaseActor implements IActor {
     shield: number = 0;
     dead: boolean = false;
     tile: ITile;
+    hitSFX: string;
 
     public constructor(tile: ITile, sprite: Array<number>, hp: number) {
         this.tile = tile;
@@ -39,6 +40,8 @@ export abstract class BaseActor implements IActor {
         this.offsetY = 0;
         this.lastMove = [-1, 0];
         this.bonusAttack = 0;
+
+        this.hitSFX = SOUNDFX.MONSTERHIT;
 
     }
 
@@ -102,6 +105,8 @@ export abstract class BaseActor implements IActor {
     }
 
     public hit(damage: number): void {
+        Hub.getInstance().publish("PLAYSOUND", this.hitSFX);
+
         if (this.shield > 0) {
             return;
         }
@@ -113,12 +118,6 @@ export abstract class BaseActor implements IActor {
             if (this.tile instanceof FloorTile) {
                 this.tile.book = true;
             }
-        }
-
-        if (this instanceof PlayerActor) {
-            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.PLAYERHIT);
-        } else {
-            Hub.getInstance().publish("PLAYSOUND", SOUNDFX.MONSTERHIT);
         }
     }
 
@@ -152,6 +151,7 @@ export class PlayerActor extends BaseActor {
         this.isPlayer = true;
         this.teleportCounter = 0;
         this.spells = shuffle(ALLSPELLS)[0]; // Get starting spell
+        this.hitSFX = SOUNDFX.PLAYERHIT;
     }
 
     update(): void {
@@ -295,6 +295,8 @@ export class TurretActor extends BaseActor {
                     case "W":
                         t.setEffect(EFFECT_SPRITE_INDICES.Bolt_Horizontal);
                         break;
+                    default:
+                        throw "CardinalDirection didn't have a valid value.";
                 }
             })
         }

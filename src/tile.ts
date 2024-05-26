@@ -80,6 +80,9 @@ export abstract class Tile implements ITile {
             case "W":
                 xy = [-1, 0];
                 break;
+
+            default:
+                throw "Direction didn't have a valid value.";
         }
 
         let chain: Array<ITile> = [];

@@ -128,24 +128,8 @@ export class GameEngine {
             if (nowMs >= this.lastAnimateUpdate + refreshRate) {
                 this.lastAnimateUpdate = nowMs;
 
-                // console.log(`Updating at ${this.lastAnimateUpdate}`);
-
-                // Future - remove below and replace with something like:
-                // this.renderer.update(gameState)
-
-                this.renderer.clearCanvas();
-                this.renderer.screenshake();
-
-                // This will handle drawing the tiles, and the monsters/items on them.
-                for (let i = 0; i < numTiles; i++) {
-                    for (let j = 0; j < numTiles; j++) {
-                        let t = this.mapper.getCurrentLevel().getTile(i, j);
-                        if (t) {
-                            this.renderer.drawTile(t);
-                        }
-                    }
-                }
-
+                this.renderer.updateScreen(this.mapper.getCurrentLevel());
+                
                 if (this.props.sidebarNeedsUpdate) {
                     this.props.sidebarNeedsUpdate = false;
                     this.renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
