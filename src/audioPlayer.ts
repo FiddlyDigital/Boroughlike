@@ -1,24 +1,20 @@
-import { SOUNDFX } from './constants';
+import { singleton } from "tsyringe";
+import { SOUNDFX } from './constants/enums';
+import { Hub } from './hub';
+import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 
-export class AudioPlayer {
-    private static instance: AudioPlayer;
-    sounds: any;
+@singleton()
+export class AudioPlayer implements IAudioPlayer {
+    sounds: any = {};
 
-    private constructor() {
-        this.sounds = {};
+    constructor() {
+        this.initSounds()
+        Hub.getInstance().subscribe("PLAYSOUND", this.playSound.bind(this));
     }
 
-    public static getInstance(): AudioPlayer {
-        if (!AudioPlayer.instance) {
-            AudioPlayer.instance = new AudioPlayer();
-        }
-
-        return AudioPlayer.instance;
-    }
-
-    initSounds() {
+    private initSounds() {
         // Load each sound
-        for (let [key, value] of Object.entries(SOUNDFX)) {
+        for (let [_, value] of Object.entries(SOUNDFX)) {
             this.sounds[value] = new Audio(`assets/sounds/${value}`);
         }
     }

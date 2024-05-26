@@ -1,33 +1,10 @@
-import { Dictionary } from './utilities';
-
-export const maxHp = 6;
-export const numLevels = 10;
-export const numTiles = 16; //12;
-export const startingHp = 3;
-export const tileSize = 48; //64;
-export const uiWidth = 0; // Was 3 originally
+import { Dictionary } from "../utilities";
 
 export const EFFECT_SPRITE_INDICES: Dictionary<Array<number>> = {
     Heal: [0, 0],
     Flame: [1, 0],
     Bolt_Horizontal: [2, 0],
     Bolt_Vertical: [3, 0],
-};
-
-export const GAME_EVENTS: Dictionary<string> = {
-    ASSETSLOADED: "AssetsLoaded",
-    KEYPRESS: "KeyPress",
-    PLAYERLOSE: "PlayerLose",
-    PLAYERWIN: "PlayerWin"
-};
-
-export const GAME_STATES: Dictionary<string> = {
-    GAMEOVER: "GameOver",
-    GAMEWIN: "GameWin",
-    LOADING: "Loading",
-    RUNNING: "Running",
-    TITLE: "Title",
-    POPUP: "Popup"
 };
 
 export const ITEM_SPRITE_INDICES: Dictionary<Array<number>> = {
@@ -48,21 +25,6 @@ export const MONSTER_SPRITE_INDICES: Dictionary<Array<number>> = {
     Turret_E: [10, 0],
     Turret_S: [11, 0],
     Turret_W: [12, 0],
-};
-
-export const SOUNDFX: Dictionary<string> = {
-    BOOK: "book.wav",
-    MONSTERHIT: "hit2.wav",
-    NEWLEVEL: "newLevel.wav",
-    PLAYERHIT: "hit1.wav",
-    SPELL: "spell.wav"
-};
-
-export const SPRITETYPES: Dictionary<string> = {
-    EFFECTS: "effect",
-    ITEMS: "item",
-    MONSTER: "Monster",
-    TILE: "tile",
 };
 
 export const TILE_SPRITE_INDICES: Dictionary<Array<number>> = {

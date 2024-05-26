@@ -7,8 +7,8 @@ export class Leaf {
     leafWidth: number;
     leafHeight: number;
 
-    childLeafLeft: Leaf | undefined | null;
-    childLeafRight: Leaf | undefined | null;
+    childLeafLeft: Leaf | null;
+    childLeafRight: Leaf | null;
     room: Room;
     room1: Room;
     room2: Room;
@@ -26,7 +26,7 @@ export class Leaf {
         this.room2 = new Room(0, 0, 0, 0);
     }
 
-    createRooms(mapGenerator : any, maxLeafSize: number, roomMaxSize: number, roomMinSize: number) {
+    createRooms(mapGenerator: any, maxLeafSize: number, roomMaxSize: number, roomMinSize: number) {
 
         if (this.childLeafLeft !== null || this.childLeafRight !== null) {
             //# recursively search for children until you hit the end of the branch

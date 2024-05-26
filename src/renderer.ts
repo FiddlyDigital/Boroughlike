@@ -1,9 +1,17 @@
-import { SPRITETYPES, numTiles, tileSize, uiWidth } from './constants';
-import Game from './game';
+import { SPRITETYPES } from './constants/enums';
+import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from './constants/spriteIndices';
+import { numTiles, tileSize, uiWidth, refreshRate } from './constants/values';
+import { Dictionary } from './utilities';
+import { Hub } from './hub';
+import { singleton } from 'tsyringe';
+import { ITile } from './interfaces/ITile';
+import { ISpell } from './interfaces/ISpell';
+import { IRenderer } from './interfaces/IRenderer';
+import { IActor } from './interfaces/IActor';
+import { IMap } from './interfaces/IMap';
 
-export class Renderer {
-    private static instance: Renderer;
-
+@singleton()
+export class Renderer implements IRenderer {
     shake: any;
     monsterSpriteSheet: HTMLImageElement;
     tileSpriteSheet: HTMLImageElement;
@@ -13,9 +21,9 @@ export class Renderer {
     playerLocationElem: HTMLElement;
     playerBooksElem: HTMLElement;
     canvas: HTMLCanvasElement;
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D;
 
-    private constructor() {
+    constructor() {
         this.monsterSpriteSheet = new Image();
         this.tileSpriteSheet = new Image();
         this.effectSpriteSheet = new Image();
@@ -39,7 +47,6 @@ export class Renderer {
             throw "can't load Player Books elem";
         }
 
-
         this.shake = {
             amount: 0,
             x: 0,
@@ -59,14 +66,9 @@ export class Renderer {
         } else {
             throw "Canvas can't load";
         }
-    }
+        this.setupCanvas();
 
-    public static getInstance(): Renderer {
-        if (!Renderer.instance) {
-            Renderer.instance = new Renderer();
-        }
-
-        return Renderer.instance;
+        Hub.getInstance().subscribe("SETSHAKE", this.setShakeAmount.bind(this));
     }
 
     public initSpriteSheet(callback: Function) {
@@ -83,7 +85,7 @@ export class Renderer {
         this.itemSpriteSheet.src = "assets/images/items.png";
     }
 
-    public checkAllSpriteSheetsLoaded() {
+    public checkAllSpriteSheetsLoaded(): void {
         if (this.monsterSpriteSheet.complete
             && this.tileSpriteSheet.complete
             && this.effectSpriteSheet.complete
@@ -92,7 +94,7 @@ export class Renderer {
         }
     }
 
-    public setupCanvas() {
+    private setupCanvas() {
         if (this.canvas && this.ctx) {
             this.canvas.width = tileSize * (numTiles + uiWidth);
             this.canvas.height = tileSize * numTiles;
@@ -118,9 +120,76 @@ export class Renderer {
         }
     }
 
-    public drawSprite(spriteType: string, spriteIdx: Array<number> | undefined, x: number, y: number, effectCounter: number = 0) {
+    public updateScreen(mapperLevel: IMap): void {
+        this.clearCanvas();
+        this.screenshake();
+
+        let monsters: IActor[] = [];
+
+        for (let i = 0; i < numTiles; i++) {
+            for (let j = 0; j < numTiles; j++) {
+                let tile = mapperLevel.getTile(i, j);
+                if (!tile) {
+                    continue;
+                }
+
+                this.drawTile(tile);
+                if (tile.monster) {
+                    monsters.push(tile.monster);
+                }
+            }
+        }
+
+        for (let m = 0; m < monsters.length; m++) {
+            this.drawMonster(monsters[m]);
+        }
+    }
+
+    private drawTile(tile: ITile): void {
+        if (!tile) {
+            throw "tile cannot be null";
+        }
+
+        this.drawSprite(SPRITETYPES.TILE, tile.sprite, tile.x, tile.y);
+
+        if (tile.book) {
+            this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, tile.x, tile.y);
+        }
+
+        if (tile.effectCounter > 0) {
+            tile.effectCounter--;
+            this.drawSprite(SPRITETYPES.EFFECTS, tile.effectIndex, tile.x, tile.y, tile.effectCounter);
+        }
+    }
+
+    private drawMonster(monster: IActor): void {
+        if (!monster) {
+            throw "Monster cannot be null";
+        }
+
+        if (monster.teleportCounter > 0) {
+            this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, monster.getDisplayX(), monster.getDisplayY());
+        } else {
+            this.drawSprite(SPRITETYPES.MONSTER, monster.sprite, monster.getDisplayX(), monster.getDisplayY());
+
+            for (let i = 0; i < monster.hp; i++) {
+                this.drawSprite(
+                    SPRITETYPES.MONSTER,
+                    MONSTER_SPRITE_INDICES.HP,
+                    monster.getDisplayX() + (i % 3) * (5 / 16),
+                    monster.getDisplayY() - Math.floor(i / 3) * (5 / 16)
+                );
+
+            }
+        }
+
+        monster.offsetX -= Math.sign(monster.offsetX) * (1 / 8);
+        monster.offsetY -= Math.sign(monster.offsetY) * (1 / 8)
+    }
+
+    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
-            this.ctx.globalAlpha = effectCounter / 30;
+            this.ctx.globalAlpha = effectCounter / refreshRate;
         }
 
         if (spriteIdx) {
@@ -142,11 +211,11 @@ export class Renderer {
         }
     }
 
-    public clearCanvas() {
+    private clearCanvas(): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public screenshake() {
+    private screenshake(): void {
         if (this.shake.amount) {
             this.shake.amount--;
         }
@@ -156,18 +225,18 @@ export class Renderer {
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
-    public drawDarkBackground() {
+    public drawDarkBackground(): void {
         this.clearCanvas();
         this.ctx.fillStyle = 'rgba(0,0,0,.75)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public hideOverlays() {
+    public hideOverlays(): void {
         let overlays = document.getElementsByClassName("overlay");
         if (overlays) {
             for (let i = 0; i < overlays.length; i++) {
                 if (overlays[i]) {
-                    let overlay = overlays[i] as HTMLElement;                    
+                    let overlay = overlays[i] as HTMLElement;
                     overlay.style.display = "none";
                 }
             }
@@ -204,7 +273,7 @@ export class Renderer {
         }
     }
 
-    public updateSidebar(level: number, score: number, spells: Array<any>) {
+    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell>): void {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
@@ -217,20 +286,20 @@ export class Renderer {
             }
 
             let docFrag = document.createDocumentFragment();
-            for (let i = 0; i < spells.length; i++) {
+            for (let i = 0; i < Object.keys(spells).length; i++) {
                 let btn = document.createElement('button');
                 btn.className = "spellButton";
-                btn.innerText = "(" + (i + 1) + ") " + (spells[i] || "");
-                btn.addEventListener("click", function () {
-                    Game.getInstance().handleInteraction({ key: "" + (i + 1) });
-                });
+                btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
+                // btn.addEventListener("click", () => {
+                //     this.game.handleInteraction({ key: "" + (i + 1) });
+                // });
                 docFrag.append(btn);
             }
             spellList.appendChild(docFrag)
         }
     }
 
-    public drawScores(scores: Array<any>) {
+    public drawScores(scores: Array<any>): void {
         let newestScore = scores.pop();
         scores.sort(function (a, b) {
             return b.totalScore - a.totalScore;
@@ -266,7 +335,7 @@ export class Renderer {
         }
     }
 
-    public setShakeAmount(amt: number) {
+    private setShakeAmount(amt: number): void {
         this.shake.amount = amt;
     }
 }

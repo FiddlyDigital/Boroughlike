@@ -24,8 +24,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="msapplication-starturl" content="/">
 
-    <link rel="stylesheet" type="text/css" href="src/index.css">    
-    <!-- <link rel="stylesheet" type="text/css" href="dist/index.css">    -->
+    <link rel="stylesheet" type="text/css" href="src/style/index.css">    
+    <!-- <link rel="stylesheet" type="text/css" href="dist/style/index.css">    -->
 </head>
 
 <body>
@@ -131,10 +131,10 @@
         </div>
     </div>
 
-    <script type="module">
-        //import game from './src/game.js';
-        import Game from './dist/boroughlike_0.1.2.min.js';
-        Game.getInstance().init();
+    <script type="module">        
+        import App from './dist/boroughlike_0.1.2.min.js';
+        var app = new App();
+        app.init();
     </script>
 </body>
 

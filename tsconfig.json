@@ -1,17 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "es2018",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmitOnError": true,
+  "compilerOptions": {   
+    "emitDecoratorMetadata": true, 
+    "esModuleInterop": false,
+    "experimentalDecorators": true,            
     "lib": [
       "DOM"
     ],
-    "strict": true,
-    "esModuleInterop": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
     "outDir": "out-tsc",
-    "rootDir": "./",
-    "skipLibCheck": true
+    "rootDir": "./",                
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2018",
   },
   "include": [
     "./src/**/*.ts"

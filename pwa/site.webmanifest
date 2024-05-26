@@ -1,6 +1,6 @@
 {
 	"background_color" : "transparent",
-	"description" : "Book themed Roguelike/Roguelite",
+	"description" : "Boroughlike - Roguelike Game",
 	"dir" : "ltr",
     "display" : "standalone",
     "icons": [
@@ -20,9 +20,7 @@
     "orientation" : "landscape",    
 	"prefer_related_applications" : false,
 	"related_applications" : [],
-	"scope" : "/Boroughlike/",
 	"short_name" : "Boroughlike",
-	"start_url" : "https://fiddlydigital.github.io/apps/boroughlike/index.html",
 	"theme_color" : "transparent",
     "url" : "https://fiddlydigital.github.io/apps/Boroughlike/index.html"
 }
