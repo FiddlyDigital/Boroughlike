@@ -5,6 +5,7 @@ import { GameEngine } from './gameEngine';
 import { LevelGenerator } from "./mapping/levelGenerator";
 import { Mapper } from "./mapper";
 import { Renderer } from "./renderer";
+//import './style/index.css';
 
 @injectable()
 export default class App {
