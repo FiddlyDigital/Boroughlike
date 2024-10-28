@@ -103,7 +103,7 @@ export class FloorTile extends Tile {
         super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
-    stepOn(monster: IActor) {
+    stepOn(monster: IActor): void {
         if (this.book && monster && monster.isPlayer) {
             this.book = false;
         }
@@ -115,7 +115,7 @@ export class WallTile extends Tile {
         super(map, x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 
-    stepOn(monster: IActor) { };
+    stepOn(monster: IActor): void { };
 }
 
 // Brings Player to the next level
@@ -124,7 +124,7 @@ export class StairDownTile extends Tile {
         super(map, x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
 
-    stepOn(monster: IActor) {
+    stepOn(monster: IActor): void {
         if (monster && monster.isPlayer) {
             this.map.nextLevel();
         }
@@ -138,7 +138,7 @@ export class SpikePitTile extends Tile {
         super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
 
-    stepOn(monster: IActor) {
+    stepOn(monster: IActor): void {
         if (monster) {
             monster.hit(1);
 
@@ -157,7 +157,7 @@ export class FountainTile extends Tile {
         this.isActive = true;
     };
 
-    stepOn(monster: IActor) {
+    stepOn(monster: IActor): void {
         if (this.isActive && monster && monster.isPlayer) {
             this.isActive = false;
             this.sprite = TILE_SPRITE_INDICES.FountainInactive;

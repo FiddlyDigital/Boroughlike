@@ -4,7 +4,7 @@ import { IMap } from '../interfaces/IMap';
 import { ILevelGenerator } from '../interfaces/ILevelGenerator';
 
 export class LevelGenerator implements ILevelGenerator {
-    generateLevel(levelNum: number, branch: string): IMap {
+    public generateLevel(levelNum: number, branch: string): IMap {
         switch (branch) {
             case Branches.LIBRARY:
                 return this.generateLibraryLevel(levelNum);

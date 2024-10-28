@@ -1,6 +1,5 @@
 import { IMap } from "./IMap";
 
-export interface ILevelGenerator
-{
+export interface ILevelGenerator {
     generateLevel(levelNum: number, branch: string): IMap;
 }

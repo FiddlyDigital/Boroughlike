@@ -46,18 +46,18 @@ export class GameEngine {
         this.lastAnimateUpdate = new Date().getTime();
     }
 
-    init() {
+    public init() : void {
         this.addEventHandlers();
         requestAnimationFrame(this.draw.bind(this));
     }
 
-    loadAssets() {
+    private loadAssets(): void {
         this.renderer.initSpriteSheet( () => {
             this.FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
     }
 
-    addEventHandlers() {
+    private addEventHandlers(): void {
         var self = this;
 
         let htmlElem = document.querySelector("html");
@@ -71,7 +71,7 @@ export class GameEngine {
         Hub.getInstance().subscribe(HUBEVENTS.NEXTLEVEL, self.nextLevel.bind(this));
     }
 
-    handleInteraction(e: any) {
+    private handleInteraction(e: any): void {
         switch (this.FSM.currentState.name) {
             case GAME_STATES.LOADING:
                 break; // do nothing                
@@ -86,7 +86,7 @@ export class GameEngine {
         }
     }
 
-    handleKeypress(e: any) {
+    private handleKeypress(e: any): void {
         e = e || window.event;
         if (e.defaultPrevented) {
             return; // Do nothing if the event was already processed
@@ -198,7 +198,7 @@ export class GameEngine {
     private startLevel(playerHp: number, playerSpells: any) {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
-        
+
         this.mapper.getOrCreateLevel(this.props.level);
         
         let freeTile = this.mapper.getCurrentLevel().randomPassableTile();
@@ -241,7 +241,7 @@ export class GameEngine {
         }
     }
 
-    nextLevel() {
+    private nextLevel() {
         if (this.props.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
@@ -250,18 +250,5 @@ export class GameEngine {
             this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
             this.props.sidebarNeedsUpdate = true;
         }
-    }
-
-    incrementScore() {
-        this.audioPlayer.playSound(SOUNDFX.BOOK);
-        this.props.score++;
-
-        if (this.props.score % 3 == 0 && this.props.numSpells < 9) {
-            this.props.numSpells++;
-            this.props.player.addSpell();
-        }
-
-        this.mapper.getCurrentLevel().spawnMonster();
-        this.props.sidebarNeedsUpdate = true;
     }
 }

@@ -75,7 +75,7 @@ export class Renderer implements IRenderer {
         Hub.getInstance().subscribe(HUBEVENTS.SETSHAKE, this.setShakeAmount.bind(this));
     }
 
-    public initSpriteSheet(callback: Function) {
+    public initSpriteSheet(callback: Function): void {
         this.callback.onLoadCompleted = callback; // store for later
 
         this.monsterSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
@@ -98,7 +98,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    private setupCanvas() {
+    private setupCanvas(): void {
         if (this.canvas && this.ctx) {
             this.canvas.width = tileRenderSizePX * numTiles;
             this.canvas.height = tileRenderSizePX * numTiles;
@@ -199,7 +199,7 @@ export class Renderer implements IRenderer {
         monster.offsetY -= Math.sign(monster.offsetY) * (1 / 8)
     }
 
-    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) {
+    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) : void {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / refreshRate;
         }

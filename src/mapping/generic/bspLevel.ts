@@ -12,17 +12,17 @@ export class BSPTreemapLevel extends DefaultLevel {
     roomMinSize: number = 3;
     leaves: Array<Leaf | null> = [];
 
-    constructor(levelNum: number) {
+    public constructor(levelNum: number) {
         super(levelNum);
         this.generate();
     }
 
-    generate() {
+    public generate(): void {
         this.generateTiles();
         super.populateMap();
     }
 
-    generateTiles() {
+    public generateTiles(): void {
         this.initialiseMap();
 
         let rootLeaf = new Leaf(0, 0, this.map.width, this.map.height);
@@ -59,7 +59,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     }
 
     // We this one we start totally blocked in, then carve out
-    initialiseMap() {
+    private initialiseMap(): void {
         for (var x = 0; x < this.map.width; x++) {
             this.map.tiles[x] = [];
 
@@ -69,7 +69,7 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
     }
 
-    placeRoom(room: Room) {
+    public placeRoom(room: Room): void {
         for (let x = (room.x + 1); x < room.maxX; x++) {
             for (let y = (room.y + 1); y < room.maxY; y++) {
                 let ran = Math.random();
@@ -87,7 +87,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     }
 
     // connect two rooms by hallways
-    createHall(room1: Room, room2: Room) {
+    public createHall(room1: Room, room2: Room) {
         //# 50% chance that a tunnel will start horizontally
         let chance = (Math.random() >= 0.5);
         if (chance) {
@@ -100,7 +100,7 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
     }
 
-    makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number) {
+    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number) : void {
         let min = Math.min(xStart, xEnd);
         let max = Math.max(xStart, xEnd)
         for (let x = min; x <= max; x++) {
@@ -108,7 +108,7 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
     }
 
-    makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number) {
+    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number) : void {
         for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
             this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
         }
