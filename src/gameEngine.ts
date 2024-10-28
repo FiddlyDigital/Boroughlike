@@ -188,6 +188,7 @@ export class GameEngine {
         this.props.level = 1;
         this.props.score = 0;
         this.props.numSpells = 1;
+        this.mapper.reset();
         this.startLevel(startingHp, []);
         this.props.sidebarNeedsUpdate = true;
         this.tick();
@@ -197,7 +198,7 @@ export class GameEngine {
     private startLevel(playerHp: number, playerSpells: any) {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
-
+        
         this.mapper.getOrCreateLevel(this.props.level);
         
         let freeTile = this.mapper.getCurrentLevel().randomPassableTile();

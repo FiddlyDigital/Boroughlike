@@ -9,14 +9,14 @@ export class Mapper implements IMapper {
     floors: Array<IMap>;
     currentFloorIdx: number = 0;
 
-    constructor(
+    public constructor(
         @inject("ILevelGenerator") private levelGenerator: ILevelGenerator
 
     ) {
         this.floors = new Array<IMap>();
     }
 
-    getOrCreateLevel(levelNumber: number): any {
+    public getOrCreateLevel(levelNumber: number): any {
         let level: IMap | null = this.floors[levelNumber];
         if (level) {
             this.currentFloorIdx = levelNumber;
@@ -30,7 +30,11 @@ export class Mapper implements IMapper {
         return level;
     }
 
-    getCurrentLevel(): IMap {
+    public getCurrentLevel(): IMap {
         return this.floors[this.currentFloorIdx];
+    }
+
+    public reset(): void {
+        this.floors = new Array<IMap>();
     }
 }

@@ -13,18 +13,18 @@ export class Map implements IMap {
     width: number = 0;
     branch: string = Branches.LIBRARY;
 
-    constructor(width: number, height: number) {
+    public constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
         this.monsters = new Array<IActor>();
         this.tiles = new Array<Array<ITile>>();
     }
 
-    getMonsters(): Array<IActor> {
+    public getMonsters(): Array<IActor> {
         return this.monsters;
     }
 
-    getTile(x: number, y: number): ITile | null {
+    public getTile(x: number, y: number): ITile | null {
         if (this.inBounds(x, y)) {
             return this.tiles[x][y];
         } else {
@@ -32,15 +32,11 @@ export class Map implements IMap {
         }
     }
 
-    inBounds(x: number, y: number): boolean {
-        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height);
-    }
-
-    nextLevel(): void {
+    public nextLevel(): void {
         Hub.getInstance().publish(HUBEVENTS.NEXTLEVEL, null);
     }
 
-    randomPassableTile(): ITile | null {
+    public randomPassableTile(): ITile | null {
         let self = this;
         let tile = null;
 
@@ -54,13 +50,17 @@ export class Map implements IMap {
         return tile;
     }
 
-    replaceTile(x: number, y: number, newTile: ITile) : void {
+    public replaceTile(x: number, y: number, newTile: ITile) : void {
         this.tiles[x][y] = newTile;
     }
 
-    spawnMonster(): void {
+    public spawnMonster(): void {
         let monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
         let monster = new monsterType(this.randomPassableTile());
         this.monsters.push(monster);
+    }
+
+    private inBounds(x: number, y: number): boolean {
+        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height);
     }
 }
