@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { container, injectable } from 'tsyringe';
-import { AudioPlayer } from "./audioPlayer";
-import { GameEngine } from './gameEngine';
-import { LevelGenerator } from "./mapping/levelGenerator";
-import { Mapper } from "./mapper";
-import { Renderer } from "./renderer";
+import { AudioPlayer } from "./services/audioPlayer";
+import { GameEngine } from './services/gameEngine';
+import { LevelGenerator } from "./services/mapping/levelGenerator";
+import { Mapper } from "./services/mapper";
+import { Renderer } from "./services/renderer";
 //import './style/index.css';
 
 @injectable()

@@ -17,7 +17,7 @@
     ],
 	"lang" : "English",
 	"name" : "Boroughlike",
-    "orientation" : "landscape",    
+    "orientation" : "portrait",    
 	"prefer_related_applications" : false,
 	"related_applications" : [],
 	"short_name" : "Boroughlike",
