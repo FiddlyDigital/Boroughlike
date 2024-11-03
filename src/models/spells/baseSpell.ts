@@ -1,6 +1,6 @@
 import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
 import { Hub } from "../../services/hub";
-import { BaseActor } from "./baseActor";
+import { BaseActor } from "../actors/baseActor";
 
 export abstract class BaseSpell {
     public caster: BaseActor;

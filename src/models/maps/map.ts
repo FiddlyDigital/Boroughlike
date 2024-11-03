@@ -1,10 +1,10 @@
-import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "./actor";
-import { Branches, HUBEVENTS } from "../constants/enums";
-import { Hub } from "../services/hub";
-import { IActor } from "./interfaces/IActor";
-import { IMap } from "./interfaces/IMap";
-import { ITile } from "./interfaces/ITile";
-import { randomRange, shuffle, tryTo } from "../utilities";
+import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "../actors/actor";
+import { Branches, HUBEVENTS } from "../../constants/enums";
+import { Hub } from "../../services/hub";
+import { IActor } from "../actors/IActor";
+import { IMap } from "./IMap";
+import { ITile } from "../tiles/ITile";
+import { randomRange, shuffle, tryTo } from "../../utilities";
 
 export class Map implements IMap {
     monsters: Array<IActor>;

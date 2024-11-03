@@ -1,11 +1,10 @@
-import { WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../../models/tile";
-import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../../models/actor"
+import { WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../../models/tiles/tile";
+import { BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor } from "../../../models/actors/actor"
 import { numTiles } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { tryTo, randomRange, shuffle } from "../../../utilities";
-import { Map } from '../../../models/map';
-import { ITile } from "../../../models/interfaces/ITile";
-import { Tile } from "../../../models/base/baseTile";
+import { Map } from '../../../models/maps/map';
+import { ITile } from "../../../models/tiles/ITile";
 
 export interface ILevelGenerator {
     generate(): void;
@@ -128,7 +127,7 @@ export class DefaultLevel implements ILevelGenerator {
         return suffix;
     }
 
-    private randomPassableTile(): Tile | null {
+    private randomPassableTile(): ITile | null {
         let self = this;
         let tile = null;
 

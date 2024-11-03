@@ -1,5 +1,5 @@
-import { IActor } from "./IActor";
-import { ITile } from "./ITile";
+import { IActor } from "../actors/IActor";
+import { ITile } from "../tiles/ITile";
 
 export interface IMap {
     height: number;

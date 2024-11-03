@@ -4,11 +4,11 @@ import { numTiles, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteT
 import { Dictionary } from '../utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
-import { ITile } from '../models/interfaces/ITile';
-import { ISpell } from '../models/interfaces/ISpell';
+import { ITile } from '../models/tiles/ITile';
+import { ISpell } from '../models/spells/ISpell';
 import { IRenderer } from './interfaces/IRenderer';
-import { IActor } from '../models/interfaces/IActor';
-import { IMap } from '../models/interfaces/IMap';
+import { IActor } from '../models/actors/IActor';
+import { IMap } from '../models/maps/IMap';
 
 @singleton()
 export class Renderer implements IRenderer {

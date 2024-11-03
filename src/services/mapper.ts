@@ -1,7 +1,7 @@
 import { inject, singleton } from "tsyringe";
 import { Branches } from "../constants/enums";
 import { ILevelGenerator } from "./interfaces/ILevelGenerator";
-import { IMap } from "../models/interfaces/IMap";
+import { IMap } from "../models/maps/IMap";
 import { IMapper } from "./interfaces/IMapper";
 
 @singleton()

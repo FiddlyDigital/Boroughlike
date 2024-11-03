@@ -1,4 +1,4 @@
-import { IMap } from "../../models/interfaces/IMap";
+import { IMap } from "../../models/maps/IMap";
 
 export interface IMapper {
     currentFloorIdx: number;

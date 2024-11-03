@@ -2,10 +2,9 @@ import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { maxHp } from "../../constants/values";
 import { Hub } from "../../services/hub";
-import { PlayerActor } from "../actor";
-import { IActor } from "../interfaces/IActor";
-import { ITile } from "../interfaces/ITile";
-import { FloorTile } from "../tile";
+import { IActor } from "./IActor";
+import { ITile } from "../tiles/ITile";
+import { FloorTile } from "../tiles/tile";
 
 export abstract class BaseActor implements IActor {
     sprite: Array<number>
@@ -124,7 +123,7 @@ export abstract class BaseActor implements IActor {
     private die(): void {
         this.dead = true;
         this.tile.monster = null;
-        if (this instanceof PlayerActor) {
+        if (this.isPlayer) {
             this.sprite = MONSTER_SPRITE_INDICES.Player_Dead;
         }
     }

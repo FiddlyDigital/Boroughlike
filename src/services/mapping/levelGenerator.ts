@@ -1,6 +1,6 @@
 import { BSPTreemapLevel } from './generic/bspLevel';
 import { Branches } from '../../constants/enums';
-import { IMap } from '../../models/interfaces/IMap';
+import { IMap } from '../../models/maps/IMap';
 import { ILevelGenerator } from '../interfaces/ILevelGenerator';
 
 export class LevelGenerator implements ILevelGenerator {

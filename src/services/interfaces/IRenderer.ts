@@ -1,6 +1,6 @@
 import { Dictionary } from "../../utilities";
-import { IMap } from "../../models/interfaces/IMap";
-import { ISpell } from "../../models/interfaces/ISpell";
+import { IMap } from "../../models/maps/IMap";
+import { ISpell } from "../../models/spells/ISpell";
 
 export interface IRenderer {
     hideOverlays(): void;

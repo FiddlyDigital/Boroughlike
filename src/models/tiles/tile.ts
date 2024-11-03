@@ -1,11 +1,11 @@
-import { HUBEVENTS } from "../constants/enums";
-import { TILE_SPRITE_INDICES } from "../constants/spriteIndices";
-import { Hub } from "../services/hub";
-import { IActor } from "./interfaces/IActor";
-import { IMap } from "./interfaces/IMap";
-import { Tile } from "./base/baseTile";
+import { HUBEVENTS } from "../../constants/enums";
+import { TILE_SPRITE_INDICES } from "../../constants/spriteIndices";
+import { Hub } from "../../services/hub";
+import { IActor } from "../actors/IActor";
+import { IMap } from "../maps/IMap";
+import { BaseTile } from "./baseTile";
 
-export class FloorTile extends Tile {
+export class FloorTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
     };
@@ -17,7 +17,7 @@ export class FloorTile extends Tile {
     }
 }
 
-export class WallTile extends Tile {
+export class WallTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.Wall, false);
     }
@@ -26,7 +26,7 @@ export class WallTile extends Tile {
 }
 
 // Brings Player to the next level
-export class StairDownTile extends Tile {
+export class StairDownTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.StairDown, true);
     }
@@ -40,7 +40,7 @@ export class StairDownTile extends Tile {
 
 // When stepped on deals damage
 // Affects monsters, so can be used tactically
-export class SpikePitTile extends Tile {
+export class SpikePitTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
@@ -58,7 +58,7 @@ export class SpikePitTile extends Tile {
 
 // When stepped on brings Player back to full-health.
 // Can only be used once, and Monsters can't use them.
-export class FountainTile extends Tile {
+export class FountainTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
         super(map, x, y, TILE_SPRITE_INDICES.FountainActive, true);
         this.isActive = true;

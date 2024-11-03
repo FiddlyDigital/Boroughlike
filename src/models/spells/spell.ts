@@ -1,10 +1,10 @@
-import { HUBEVENTS, SOUNDFX } from "../constants/enums";
-import { EFFECT_SPRITE_INDICES} from "../constants/spriteIndices";
-import { numTiles } from "../constants/values";
-import { Hub } from "../services/hub";
-import { BaseActor } from "./base/baseActor";
-import { BaseSpell } from "./base/baseSpell";
-import { FloorTile } from "./tile";
+import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
+import { EFFECT_SPRITE_INDICES} from "../../constants/spriteIndices";
+import { numTiles } from "../../constants/values";
+import { Hub } from "../../services/hub";
+import { BaseActor } from "../actors/baseActor";
+import { BaseSpell } from "./baseSpell";
+import { FloorTile } from "../tiles/tile";
 
 export class WOOP extends BaseSpell {
     public constructor(caster: BaseActor) {

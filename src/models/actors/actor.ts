@@ -1,12 +1,12 @@
 
-import { SOUNDFX, DIRECTION} from "../constants/enums.js";
-import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "../constants/spriteIndices.js";
-import { Spells as ALLSPELLS } from "./spell.js";
-import { FloorTile } from "./tile.js";
-import { shuffle, randomRange } from "../utilities.js";
-import { ITile } from "./interfaces/ITile.js";
-import { ISpell } from "./interfaces/ISpell.js";
-import { BaseActor } from "./base/baseActor.js";
+import { SOUNDFX, DIRECTION} from "../../constants/enums.js";
+import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices.js";
+import { Spells as ALLSPELLS } from "../spells/spell.js";
+import { FloorTile } from "../tiles/tile.js";
+import { shuffle, randomRange } from "../../utilities.js";
+import { ITile } from "../tiles/ITile.js";
+import { ISpell } from "../spells/ISpell.js";
+import { BaseActor } from "./baseActor.js";
 
 export class PlayerActor extends BaseActor {
     score: number = 0;

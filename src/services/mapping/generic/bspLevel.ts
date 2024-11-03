@@ -1,6 +1,6 @@
 import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
-import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../../models/tile";
+import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../../models/tiles/tile";
 import { DefaultLevel } from './defaultLevel';
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs

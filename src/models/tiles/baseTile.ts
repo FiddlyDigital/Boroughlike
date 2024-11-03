@@ -1,10 +1,10 @@
 import { DIRECTION } from "../../constants/enums";
-import { IActor } from "../interfaces/IActor";
-import { IMap } from "../interfaces/IMap";
-import { ITile } from "../interfaces/ITile";
-import { WallTile } from "../tile";
+import { IActor } from "../actors/IActor";
+import { IMap } from "../maps/IMap";
+import { ITile } from "./ITile";
+import { WallTile } from "./tile";
 
-export abstract class Tile implements ITile {
+export abstract class BaseTile implements ITile {
     map: IMap;
     x: number;
     y: number;
