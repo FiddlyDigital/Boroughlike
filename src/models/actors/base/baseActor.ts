@@ -1,10 +1,10 @@
-import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
-import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
-import { maxHp } from "../../constants/values";
-import { Hub } from "../../services/hub";
+import { HUBEVENTS, SOUNDFX } from "../../../constants/enums";
+import { MONSTER_SPRITE_INDICES } from "../../../constants/spriteIndices";
+import { maxHp } from "../../../constants/values";
+import { Hub } from "../../../services/hub";
+import { ITile } from "../../tiles/ITile";
+import { FloorTile } from "../../tiles/tile";
 import { IActor } from "./IActor";
-import { ITile } from "../tiles/ITile";
-import { FloorTile } from "../tiles/tile";
 
 export abstract class BaseActor implements IActor {
     sprite: Array<number>
@@ -12,7 +12,7 @@ export abstract class BaseActor implements IActor {
     teleportCounter: number;
     offsetX: number;
     offsetY: number;
-    lastMove: Array<number>
+    lastMove: Array<number>;
     bonusAttack: number;
     isPlayer: boolean = false;
     stunned: boolean = false;

@@ -1,4 +1,4 @@
-import { IActor } from "../actors/IActor";
+import { IActor } from "../actors/base/IActor";
 
 export interface ISpell {
     name: string;

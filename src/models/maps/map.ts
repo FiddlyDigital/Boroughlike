@@ -1,10 +1,15 @@
-import { BirdActor, EaterActor, JesterActor, SnakeActor, TankActor, TurretActor } from "../actors/actor";
 import { Branches, HUBEVENTS } from "../../constants/enums";
 import { Hub } from "../../services/hub";
-import { IActor } from "../actors/IActor";
+import { IActor } from "../actors/base/IActor";
 import { IMap } from "./IMap";
 import { ITile } from "../tiles/ITile";
 import { randomRange, shuffle, tryTo } from "../../utilities";
+import { BirdActor } from "../actors/BirdActor";
+import { SnakeActor } from "../actors/SnakeActor";
+import { TankActor } from "../actors/TankActor";
+import { EaterActor } from "../actors/EaterActor";
+import { JesterActor } from "../actors/JestorActor";
+import { TurretActor } from "../actors/TurretActor";
 
 export class Map implements IMap {
     monsters: Array<IActor>;
@@ -27,9 +32,9 @@ export class Map implements IMap {
     public getTile(x: number, y: number): ITile | null {
         if (this.inBounds(x, y)) {
             return this.tiles[x][y];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public nextLevel(): void {
@@ -50,7 +55,11 @@ export class Map implements IMap {
         return tile;
     }
 
-    public replaceTile(x: number, y: number, newTile: ITile) : void {
+    public replaceTile(x: number, y: number, newTile: ITile): void {
+        if (!this.inBounds(x, y)) {
+            throw "attempting to replace a tile at non-existant location";
+        }
+
         this.tiles[x][y] = newTile;
     }
 
@@ -61,6 +70,11 @@ export class Map implements IMap {
     }
 
     private inBounds(x: number, y: number): boolean {
-        return (x >= 0) && (y >= 0) && (x < this.width) && (y < this.height);
+        return (
+            (x >= 0) &&
+            (y >= 0) &&
+            (x < this.width) &&
+            (y < this.height)
+        );
     }
 }

@@ -1,12 +1,13 @@
 import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
 import { Hub } from "../../services/hub";
-import { BaseActor } from "../actors/baseActor";
+import { IActor } from "../actors/base/IActor";
+import { ISpell } from "./ISpell";
 
-export abstract class BaseSpell {
-    public caster: BaseActor;
+export abstract class BaseSpell implements ISpell {
+    public caster: IActor;
     public name: string;
 
-    protected constructor(caster: BaseActor, name: string) {
+    protected constructor(caster: IActor, name: string) {
         this.caster = caster;
         this.name = name;
     }
@@ -15,7 +16,7 @@ export abstract class BaseSpell {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.SPELL);
     };
 
-    protected boltTravel(caster: BaseActor, direction: Array<number>, effect: any, damage: number): void {
+    protected boltTravel(caster: IActor, direction: Array<number>, effect: any, damage: number): void {
         let newTile = caster.tile;
         while (true) {
             let testTile = newTile.getNeighbor(direction[0], direction[1]);

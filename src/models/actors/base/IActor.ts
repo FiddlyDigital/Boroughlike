@@ -1,4 +1,4 @@
-import { ITile } from "../tiles/ITile";
+import { ITile } from "../../tiles/ITile";
 
 export interface IActor {
     dead: boolean;
@@ -9,6 +9,10 @@ export interface IActor {
     hp: number;
     offsetX: number;
     offsetY: number;
+    tile: ITile;
+    lastMove: Array<number>;
+    bonusAttack: number;
+    shield: number;
     getDisplayX(): number;
     getDisplayY(): number;
     heal(damage: number): void;

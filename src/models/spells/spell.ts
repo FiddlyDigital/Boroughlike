@@ -2,12 +2,12 @@ import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES} from "../../constants/spriteIndices";
 import { numTiles } from "../../constants/values";
 import { Hub } from "../../services/hub";
-import { BaseActor } from "../actors/baseActor";
 import { BaseSpell } from "./baseSpell";
 import { FloorTile } from "../tiles/tile";
+import { IActor } from "../actors/base/IActor";
 
 export class WOOP extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "WOOP");
     }
 
@@ -21,7 +21,7 @@ export class WOOP extends BaseSpell {
 }
 
 export class Quake extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "Quake");
     }
 
@@ -43,7 +43,7 @@ export class Quake extends BaseSpell {
 }
 
 export class Tornado extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "Tornado");
     }
 
@@ -64,7 +64,7 @@ export class Tornado extends BaseSpell {
 }
 
 export class AURA extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "AURA");
     }
 
@@ -85,7 +85,7 @@ export class AURA extends BaseSpell {
 }
 
 export class DASH extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "DASH");
     }
 
@@ -116,7 +116,7 @@ export class DASH extends BaseSpell {
 }
 
 export class FLATTEN extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "FLATTEN");
     }
 
@@ -137,7 +137,7 @@ export class FLATTEN extends BaseSpell {
 }
 
 export class ALCHEMY extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "ALCHEMY");
     }
 
@@ -152,7 +152,7 @@ export class ALCHEMY extends BaseSpell {
 }
 
 export class POWERATTACK extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "POWERATTACK");
     }
 
@@ -163,7 +163,7 @@ export class POWERATTACK extends BaseSpell {
 }
 
 export class PROTECT extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "PROTECT");
     }
 
@@ -179,7 +179,7 @@ export class PROTECT extends BaseSpell {
 }
 
 export class BOLT extends BaseSpell {
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "BOLT");
     }
 
@@ -197,14 +197,16 @@ export class CROSS extends BaseSpell {
         [1, 0]
     ];
 
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "CROSS");
     }
 
     cast(): void {
         super.cast();
         for (let k = 0; k < this.directions.length; k++) {
-            let dirSprite = Math.abs(this.directions[k][1]) == 0 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal : EFFECT_SPRITE_INDICES.Bolt_Vertical;
+            let dirSprite = Math.abs(this.directions[k][1]) == 0 
+                ? EFFECT_SPRITE_INDICES.Bolt_Horizontal 
+                : EFFECT_SPRITE_INDICES.Bolt_Vertical;
             super.boltTravel(this.caster, this.directions[k], dirSprite, 2);
         }
     }
@@ -218,7 +220,7 @@ export class EX extends BaseSpell {
         [1, 1]
     ];
 
-    public constructor(caster: BaseActor) {
+    public constructor(caster: IActor) {
         super(caster, "EX");
     }
 

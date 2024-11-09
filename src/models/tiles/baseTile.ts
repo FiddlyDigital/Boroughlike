@@ -1,5 +1,5 @@
 import { DIRECTION } from "../../constants/enums";
-import { IActor } from "../actors/IActor";
+import { IActor } from "../actors/base/IActor";
 import { IMap } from "../maps/IMap";
 import { ITile } from "./ITile";
 import { WallTile } from "./tile";

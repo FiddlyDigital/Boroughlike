@@ -1,4 +1,4 @@
-import { IActor } from "../actors/IActor";
+import { IActor } from "../actors/base/IActor";
 import { ITile } from "../tiles/ITile";
 
 export interface IMap {

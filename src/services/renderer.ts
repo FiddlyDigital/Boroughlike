@@ -7,7 +7,7 @@ import { singleton } from 'tsyringe';
 import { ITile } from '../models/tiles/ITile';
 import { ISpell } from '../models/spells/ISpell';
 import { IRenderer } from './interfaces/IRenderer';
-import { IActor } from '../models/actors/IActor';
+import { IActor } from '../models/actors/base/IActor';
 import { IMap } from '../models/maps/IMap';
 
 @singleton()
@@ -83,7 +83,7 @@ export class Renderer implements IRenderer {
         this.effectSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
         this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
 
-        this.monsterSpriteSheet.src = imgAssetPath + "monsters2.png";
+        this.monsterSpriteSheet.src = imgAssetPath + "monsters1.png"; // "monsters2.png"
         this.tileSpriteSheet.src = imgAssetPath + "library_new.png";
         this.effectSpriteSheet.src = imgAssetPath + "effects.png";
         this.itemSpriteSheet.src = imgAssetPath + "items.png";
