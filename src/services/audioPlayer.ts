@@ -15,7 +15,7 @@ export class AudioPlayer implements IAudioPlayer {
 
     private initSounds() {
         // Load each sound
-        for (let [_, value] of Object.entries(SOUNDFX)) {
+        for (const [_key, value] of Object.entries(SOUNDFX)) {
             this.sounds[value] = new Audio(`${sfxAssetPath}${value}`);
         }
     }

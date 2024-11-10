@@ -9,7 +9,7 @@ export class TankActor extends BaseActor {
     }
 
     update(): void {
-        let startedStunned = this.stunned;
+        const startedStunned = this.stunned;
         super.update();
         if (!startedStunned) {
             this.stunned = true;

@@ -24,9 +24,9 @@ export class TurretActor extends BaseActor {
             this.currentDirection = 0;
         }
 
-        let cardinalDirection = this.directions[this.currentDirection];
+        const cardinalDirection = this.directions[this.currentDirection];
         this.sprite = MONSTER_SPRITE_INDICES["Turret_" + cardinalDirection];
-        var targetTiles = this.tile.getNeighborChain(cardinalDirection);
+        const targetTiles = this.tile.getNeighborChain(cardinalDirection);
 
         // if the player is in LOS
         if (targetTiles.some(t => {

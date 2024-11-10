@@ -43,10 +43,10 @@ export class Leaf {
             }
         }
         else {
-            let w = this.getRandomIntBetweenMinAndMax(roomMinSize, Math.min(roomMaxSize, (this.leafWidth - 1)));
-            let h = this.getRandomIntBetweenMinAndMax(roomMinSize, Math.min(roomMaxSize, (this.leafHeight - 1)));
-            let x = this.getRandomIntBetweenMinAndMax(this.x, (this.x + (this.leafWidth - 1) - w));
-            let y = this.getRandomIntBetweenMinAndMax(this.y, (this.y + (this.leafHeight - 1) - h));
+            const w = this.getRandomIntBetweenMinAndMax(roomMinSize, Math.min(roomMaxSize, (this.leafWidth - 1)));
+            const h = this.getRandomIntBetweenMinAndMax(roomMinSize, Math.min(roomMaxSize, (this.leafHeight - 1)));
+            const x = this.getRandomIntBetweenMinAndMax(this.x, (this.x + (this.leafWidth - 1) - w));
+            const y = this.getRandomIntBetweenMinAndMax(this.y, (this.y + (this.leafHeight - 1) - h));
 
             this.room = new Room(x, y, w, h);
             mapGenerator.placeRoom(this.room);
@@ -72,8 +72,8 @@ export class Leaf {
         // 50% chance to split horizontally
         let splitHorizontally = (Math.random() >= 0.5);
 
-        let horizontalFactor = (this.leafWidth / this.leafHeight);
-        let verticalFactor = (this.leafHeight / this.leafWidth);
+        const horizontalFactor = (this.leafWidth / this.leafHeight);
+        const verticalFactor = (this.leafHeight / this.leafWidth);
 
         if (horizontalFactor >= 1.25) {
             splitHorizontally = false;
@@ -82,12 +82,12 @@ export class Leaf {
             splitHorizontally = true;
         }
 
-        let max = splitHorizontally ? (this.leafHeight - minLeafSize) : (this.leafWidth - minLeafSize)
+        const max = splitHorizontally ? (this.leafHeight - minLeafSize) : (this.leafWidth - minLeafSize)
         if (max <= minLeafSize) {
             return false;
         }
 
-        let split = this.getRandomIntBetweenMinAndMax(minLeafSize, max);
+        const split = this.getRandomIntBetweenMinAndMax(minLeafSize, max);
 
         if (splitHorizontally) {
             this.childLeafLeft = new Leaf(this.x, this.y, this.leafWidth, split);
@@ -125,7 +125,7 @@ export class Leaf {
             return this.room2;
         }
         else {
-            let chance = (Math.random() >= 0.5);
+            const chance = (Math.random() >= 0.5);
             return chance ? this.room1 : this.room2;
         }
     }

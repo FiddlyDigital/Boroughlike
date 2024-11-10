@@ -13,7 +13,7 @@ export class EaterActor extends BaseActor {
     act(): void {
         const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
-            let tileToEat: ITile = shuffle(neighbors)[0];
+            const tileToEat: ITile = shuffle(neighbors)[0];
             if (tileToEat) {
                 tileToEat.map.replaceTile(tileToEat.x, tileToEat.y, new FloorTile(tileToEat.map, tileToEat.x, tileToEat.y));
                 this.heal(0.5);

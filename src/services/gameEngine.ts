@@ -58,9 +58,9 @@ export class GameEngine {
     }
 
     private addEventHandlers(): void {
-        var self = this;
+        const self = this;
 
-        let htmlElem = document.querySelector("html");
+        const htmlElem = document.querySelector("html");
         if (htmlElem) {
             htmlElem.onkeydown = self.handleInteraction.bind(this);
         }
@@ -125,7 +125,7 @@ export class GameEngine {
 
     private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
-            let nowMs = new Date().getTime();
+            const nowMs = new Date().getTime();
             if (nowMs >= this.lastAnimateUpdate + refreshRate) {
                 this.lastAnimateUpdate = nowMs;
 
@@ -142,7 +142,7 @@ export class GameEngine {
     }
 
     private tick(): void {
-        let currentLevelMonsters = this.mapper.getCurrentLevel().getMonsters();
+        const currentLevelMonsters = this.mapper.getCurrentLevel().getMonsters();
         for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
             if (!currentLevelMonsters[k].dead) {
                 currentLevelMonsters[k].update();
@@ -201,7 +201,7 @@ export class GameEngine {
 
         this.mapper.getOrCreateLevel(this.props.level);
         
-        let freeTile = this.mapper.getCurrentLevel().randomPassableTile();
+        const freeTile = this.mapper.getCurrentLevel().randomPassableTile();
         if (freeTile && freeTile instanceof FloorTile) {
             this.props.player = new PlayerActor(freeTile);
         }
@@ -216,9 +216,9 @@ export class GameEngine {
     }
 
     private addScore(score: number, won: boolean) {
-        let scores = this.getScores();
-        let scoreObject = { score: score, run: 1, totalScore: score, active: won };
-        let lastScore = scores.pop();
+        const scores = this.getScores();
+        const scoreObject = { score: score, run: 1, totalScore: score, active: won };
+        const lastScore = scores.pop();
 
         if (lastScore) {
             if (lastScore.active) {

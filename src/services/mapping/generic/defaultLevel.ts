@@ -43,7 +43,7 @@ export class DefaultLevel implements ILevelGenerator {
                     this.map.tiles[x][y] = new WallTile(this.map, x, y);
                 }
                 else {
-                    let ran = Math.random();
+                    const ran = Math.random();
 
                     if (ran < 0.005) {
                         this.map.tiles[x][y] = new FountainTile(this.map, x, y);
@@ -70,21 +70,21 @@ export class DefaultLevel implements ILevelGenerator {
     }
 
     private generateMonsters() {
-        let numMonsters = Math.ceil(this.levelNum / 2) + 1;
+        const numMonsters = Math.ceil(this.levelNum / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             this.map.monsters.push(this.spawnMonster());
         }
     }
 
     private spawnMonster() {
-        let monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
+        const monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
         return new monsterType(this.randomPassableTile());
     }
 
     private placeBooks() {
-        var booksPlaced = 0
+        let booksPlaced = 0
         while (booksPlaced < 3) {
-            let t = this.randomPassableTile()
+            const t = this.randomPassableTile()
             if (t && t instanceof FloorTile) {
                 booksPlaced++;
                 t.book = true;
@@ -93,7 +93,7 @@ export class DefaultLevel implements ILevelGenerator {
     }
 
     private placeStaircase() {
-        let newStaircaseTile = this.randomPassableTile();
+        const newStaircaseTile = this.randomPassableTile();
         if (newStaircaseTile) {
             newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
         }
@@ -103,11 +103,11 @@ export class DefaultLevel implements ILevelGenerator {
         // Repass over the map, changing map sprites depending on neighbours (if required)
         for (let y = 0; y < this.map.height; y++) {
             for (let x = 0; x < this.map.width; x++) {
-                let tile = this.map.getTile(x, y);
+                const tile = this.map.getTile(x, y);
                 if (tile instanceof WallTile) {
-                    let neighbours = tile.getAdjacentNeighbors();
+                    const neighbours = tile.getAdjacentNeighbors();
                     if (neighbours && neighbours.length > 0) {
-                        let newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, WallTile);
+                        const newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, WallTile);
                         if (newSpriteName) {
                             tile.sprite = TILE_SPRITE_INDICES["Wall_" + newSpriteName];
                         }
@@ -137,12 +137,12 @@ export class DefaultLevel implements ILevelGenerator {
     }
 
     private randomPassableTile(): ITile | null {
-        let self = this;
+        const self = this;
         let tile = null;
 
         tryTo('Get random passable tile', function () {
-            let x = randomRange(0, self.map.width - 1);
-            let y = randomRange(0, self.map.height - 1);
+            const x = randomRange(0, self.map.width - 1);
+            const y = randomRange(0, self.map.height - 1);
             tile = self.map.tiles[x][y];
             return tile && tile.passable && !tile.monster;
         });

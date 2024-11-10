@@ -13,7 +13,7 @@ export class WOOP extends BaseSpell {
 
     cast(): void {
         super.cast();
-        let newTile = this.caster.tile.map.randomPassableTile();
+        const newTile = this.caster.tile.map.randomPassableTile();
         if (newTile) {
             this.caster.move(newTile);
         }
@@ -29,10 +29,10 @@ export class Quake extends BaseSpell {
         super.cast();
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = this.caster.tile.map.getTile(i, j);
+                const tile = this.caster.tile.map.getTile(i, j);
 
                 if (tile && tile.monster && tile.monster != this.caster) {
-                    let numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
+                    const numWalls = 4 - tile.getAdjacentPassableNeighbors().length;
                     tile.monster.hit(numWalls * 2);
                 }
             }
@@ -49,11 +49,11 @@ export class Tornado extends BaseSpell {
 
     cast(): void {
         super.cast();
-        let monsters = this.caster.tile.map.getMonsters();
+        const monsters = this.caster.tile.map.getMonsters();
         for (let i = 0; i < monsters.length; i++) {
-            let monster = monsters[i];
+            const monster = monsters[i];
             if (monster) {
-                let randomTile = this.caster.tile.map.randomPassableTile();
+                const randomTile = this.caster.tile.map.randomPassableTile();
                 if (randomTile) {
                     monster.move(randomTile);
                     monster.teleportCounter = 2;
@@ -94,7 +94,7 @@ export class DASH extends BaseSpell {
         let newTile = this.caster.tile;
 
         while (true) {
-            let testTile = newTile.getNeighbor(this.caster.lastMove[0], this.caster.lastMove[1]);
+            const testTile = newTile.getNeighbor(this.caster.lastMove[0], this.caster.lastMove[1]);
             if (testTile && testTile.passable && !testTile.monster) {
                 newTile = testTile;
             } else {
@@ -124,7 +124,7 @@ export class FLATTEN extends BaseSpell {
         super.cast();
         for (let i = 1; i < numTiles - 1; i++) {
             for (let j = 1; j < numTiles - 1; j++) {
-                let tile = this.caster.tile.map.getTile(i, j);
+                const tile = this.caster.tile.map.getTile(i, j);
                 if (tile && !tile.passable) {
                     tile.map.replaceTile(i, j, new FloorTile(tile.map, i, j));
                 }
@@ -170,7 +170,7 @@ export class PROTECT extends BaseSpell {
     cast(): void {
         super.cast();
         this.caster.shield = 2;
-        let monsters = this.caster.tile.map.getMonsters();
+        const monsters = this.caster.tile.map.getMonsters();
 
         for (let i = 0; i < monsters.length; i++) {
             monsters[i].stunned = true;
@@ -204,7 +204,7 @@ export class CROSS extends BaseSpell {
     cast(): void {
         super.cast();
         for (let k = 0; k < this.directions.length; k++) {
-            let dirSprite = Math.abs(this.directions[k][1]) == 0 
+            const dirSprite = Math.abs(this.directions[k][1]) == 0 
                 ? EFFECT_SPRITE_INDICES.Bolt_Horizontal 
                 : EFFECT_SPRITE_INDICES.Bolt_Vertical;
             super.boltTravel(this.caster, this.directions[k], dirSprite, 2);

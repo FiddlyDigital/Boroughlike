@@ -24,15 +24,15 @@ export class PlayerActor extends BaseActor {
     };
 
     addSpell(): void {
-        let spellType = shuffle(ALLSPELLS)[0];
+        const spellType = shuffle(ALLSPELLS)[0];
         if (spellType) {
-            let spell = new spellType(this);
+            const spell = new spellType(this);
             this.spells.push(spell);
         }
     };
 
     castSpell(index: number): void {
-        let spell: ISpell = this.spells[index];
+        const spell: ISpell = this.spells[index];
         if (spell) {
             this.spells.splice(index, 1);
             spell.cast();

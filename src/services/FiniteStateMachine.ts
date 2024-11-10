@@ -17,7 +17,7 @@ export class FiniteStateMachine {
     }
 
     public triggerEvent(eventName: string) : void {
-        let newStateName = this.currentState.getNewState(eventName);
+        const newStateName = this.currentState.getNewState(eventName);
         if (newStateName) {
             this.enterState(newStateName);
         }

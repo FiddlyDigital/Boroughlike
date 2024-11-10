@@ -37,14 +37,14 @@ export class Renderer implements IRenderer {
             onLoadCompleted: null
         };
 
-        let playerLocElemTemp = document.getElementById("playerLocation");
+        const playerLocElemTemp = document.getElementById("playerLocation");
         if (playerLocElemTemp) {
             this.playerLocationElem = playerLocElemTemp;
         } else {
             throw "can't load pleyer location elem";
         }
 
-        let playerBooksElemTemp = document.getElementById("playerBooks")
+        const playerBooksElemTemp = document.getElementById("playerBooks")
         if (playerBooksElemTemp) {
             this.playerBooksElem = playerBooksElemTemp;
         } else {
@@ -57,10 +57,10 @@ export class Renderer implements IRenderer {
             y: 0
         };
 
-        let canvasTemp = document.querySelector("canvas");
+        const canvasTemp = document.querySelector("canvas");
         if (canvasTemp) {
             this.canvas = canvasTemp;
-            let ctxtemp = this.canvas.getContext("2d");
+            const ctxtemp = this.canvas.getContext("2d");
             if (ctxtemp) {
                 this.ctx = ctxtemp;
             }
@@ -128,18 +128,18 @@ export class Renderer implements IRenderer {
         this.clearCanvas();
         this.screenshake();
 
-        let newRenderingSecond = Date.now();
+        const newRenderingSecond = Date.now();
 
         if ((newRenderingSecond - this.lastAlternateSpriteTimeMS) > alternateSpriteTimeMS) {
             this.showAlternateSprites = !this.showAlternateSprites;
             this.lastAlternateSpriteTimeMS = newRenderingSecond;
         }
 
-        let monsters: IActor[] = [];
+        const monsters: IActor[] = [];
 
         for (let i = 0; i < numTiles; i++) {
             for (let j = 0; j < numTiles; j++) {
-                let tile = mapperLevel.getTile(i, j);
+                const tile = mapperLevel.getTile(i, j);
                 if (!tile) {
                     continue;
                 }
@@ -206,7 +206,7 @@ export class Renderer implements IRenderer {
 
         if (spriteIdx) {
 
-            let spriteXIdx = spriteIdx[0]
+            const spriteXIdx = spriteIdx[0]
             let spriteYIdx = spriteIdx[1];
 
             // if it's a monster and we should alternate, use the secondary sprite
@@ -241,17 +241,17 @@ export class Renderer implements IRenderer {
             this.shake.amount--;
         }
 
-        let shakeAngle = Math.random() * Math.PI * 2;
+        const shakeAngle = Math.random() * Math.PI * 2;
         this.shake.x = Math.round(Math.cos(shakeAngle) * this.shake.amount);
         this.shake.y = Math.round(Math.sin(shakeAngle) * this.shake.amount);
     }
 
     public hideOverlays(): void {
-        let overlays = document.getElementsByClassName("overlay");
+        const overlays = document.getElementsByClassName("overlay");
         if (overlays) {
             for (let i = 0; i < overlays.length; i++) {
                 if (overlays[i]) {
-                    let overlay = overlays[i] as HTMLElement;
+                    const overlay = overlays[i] as HTMLElement;
                     overlay.style.display = "none";
                 }
             }
@@ -259,7 +259,7 @@ export class Renderer implements IRenderer {
     }
 
     public showTitle(scores: Array<any>) {
-        var titleOverlay = document.getElementById("TitleOverlay");
+        const titleOverlay = document.getElementById("TitleOverlay");
         if (titleOverlay) {
             if (scores && scores.length > 0) {
                 this.drawScores(scores);
@@ -269,7 +269,7 @@ export class Renderer implements IRenderer {
     }
 
     public showGameWin(scores: Array<any>) {
-        var gameWinOverlay = document.getElementById("GameWinOverlay");
+        const gameWinOverlay = document.getElementById("GameWinOverlay");
         if (gameWinOverlay) {
             if (scores && scores.length > 0) {
                 this.drawScores(scores);
@@ -279,7 +279,7 @@ export class Renderer implements IRenderer {
     }
 
     public showGameLose(scores: Array<any>) {
-        var gameLoseOverlay = document.getElementById("GameLoseOverlay");
+        const gameLoseOverlay = document.getElementById("GameLoseOverlay");
         if (gameLoseOverlay) {
             if (scores && scores.length > 0) {
                 this.drawScores(scores);
@@ -292,7 +292,7 @@ export class Renderer implements IRenderer {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
-        var spellList = document.getElementById("spells");
+        const spellList = document.getElementById("spells");
         if (spellList) {
             while (spellList.hasChildNodes()) {
                 if (spellList.firstChild) {
@@ -300,9 +300,9 @@ export class Renderer implements IRenderer {
                 }
             }
 
-            let docFrag = document.createDocumentFragment();
+            const docFrag = document.createDocumentFragment();
             for (let i = 0; i < Object.keys(spells).length; i++) {
-                let btn = document.createElement('button');
+                const btn = document.createElement('button');
                 btn.className = "spellButton";
                 btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
                 // btn.addEventListener("click", () => {
@@ -315,15 +315,15 @@ export class Renderer implements IRenderer {
     }
 
     private drawScores(scores: Array<any>): void {
-        let newestScore = scores.pop();
+        const newestScore = scores.pop();
         scores.sort(function (a, b) {
             return b.totalScore - a.totalScore;
         });
         scores.unshift(newestScore);
 
-        var scoreBoards = document.getElementsByClassName("scores");
+        const scoreBoards = document.getElementsByClassName("scores");
         for (let i = 0; i < scoreBoards.length; i++) {
-            let existingTbodyRows = scoreBoards[i].children[1];
+            const existingTbodyRows = scoreBoards[i].children[1];
             if (existingTbodyRows) {
                 while (existingTbodyRows.hasChildNodes()) {
                     if (existingTbodyRows.firstChild) {
@@ -332,12 +332,12 @@ export class Renderer implements IRenderer {
                 }
             }
 
-            let docFrag = new DocumentFragment();
+            const docFrag = new DocumentFragment();
             for (let i = 0; i < Math.min(10, scores.length); i++) {
-                let tr = document.createElement('tr');
-                let td1 = document.createElement('td');
-                let td2 = document.createElement('td');
-                let td3 = document.createElement('td');
+                const tr = document.createElement('tr');
+                const td1 = document.createElement('td');
+                const td2 = document.createElement('td');
+                const td3 = document.createElement('td');
                 td1.innerHTML = scores[i].run;
                 td2.innerHTML = scores[i].score;
                 td3.innerHTML = scores[i].totalScore;

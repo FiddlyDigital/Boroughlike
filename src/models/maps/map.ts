@@ -42,12 +42,12 @@ export class Map implements IMap {
     }
 
     public randomPassableTile(): ITile | null {
-        let self = this;
+        const self = this;
         let tile = null;
 
         tryTo('get random passable tile', function () {
-            let x = randomRange(0, self.width - 1);
-            let y = randomRange(0, self.height - 1);
+            const x = randomRange(0, self.width - 1);
+            const y = randomRange(0, self.height - 1);
             tile = self.getTile(x, y);
             return tile && tile.passable && !tile.monster;
         });
@@ -64,8 +64,8 @@ export class Map implements IMap {
     }
 
     public spawnMonster(): void {
-        let monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
-        let monster = new monsterType(this.randomPassableTile());
+        const monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
+        const monster = new monsterType(this.randomPassableTile());
         this.monsters.push(monster);
     }
 

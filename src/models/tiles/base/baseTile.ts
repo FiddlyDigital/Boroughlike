@@ -2,7 +2,6 @@ import { DIRECTION } from "../../../constants/enums";
 import { IActor } from "../../actors/base/IActor";
 import { IMap } from "../../maps/IMap";
 import { ITile } from "./ITile";
-import { WallTile } from "../WallTile";
 
 export abstract class BaseTile implements ITile {
     map: IMap;
@@ -69,7 +68,7 @@ export abstract class BaseTile implements ITile {
                 throw "Direction didn't have a valid value.";
         }
 
-        let chain: Array<ITile> = [];
+        const chain: Array<ITile> = [];
         let currentTile = this.map.getTile(this.x, this.y);
         while (currentTile != null) {
             currentTile = currentTile.getNeighbor(xy[0], xy[1]);

@@ -60,7 +60,7 @@ export abstract class BaseActor implements IActor {
     }
 
     protected act(): void {
-        let neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => t && (!t.monster || t.monster.isPlayer));
+        const neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => t && (!t.monster || t.monster.isPlayer));
         if (neighbors.length) {
             // get the closest tile to the player
             neighbors.sort((a, b) => a.dist(this.tile) - b.dist(this.tile));
@@ -77,7 +77,7 @@ export abstract class BaseActor implements IActor {
     }
 
     public tryMove(dx: number, dy: number): boolean {
-        let newTile = this.tile.getNeighbor(dx, dy);
+        const newTile = this.tile.getNeighbor(dx, dy);
         if (newTile && newTile.passable) {
             this.lastMove = [dx, dy];
 

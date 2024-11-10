@@ -28,7 +28,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     public generateTiles(): void {
         this.initialiseMap();
 
-        let rootLeaf = new Leaf(0, 0, this.map.width, this.map.height);
+        const rootLeaf = new Leaf(0, 0, this.map.width, this.map.height);
         this.leaves.push(rootLeaf);
 
         let successfulSplit = true;
@@ -36,8 +36,8 @@ export class BSPTreemapLevel extends DefaultLevel {
         while (successfulSplit) {
             successfulSplit = false;
 
-            for (var i = 0; i < this.leaves.length; i++) {
-                let leaf = this.leaves[i];
+            for (let i = 0; i < this.leaves.length; i++) {
+                const leaf = this.leaves[i];
                 if (!leaf) {
                     continue;
                 }
@@ -66,10 +66,10 @@ export class BSPTreemapLevel extends DefaultLevel {
 
     // We this one we start totally blocked in, then carve out
     private initialiseMap(): void {
-        for (var x = 0; x < this.map.width; x++) {
+        for (let x = 0; x < this.map.width; x++) {
             this.map.tiles[x] = [];
 
-            for (var y = 0; y < this.map.height; y++) {
+            for (let y = 0; y < this.map.height; y++) {
                 this.map.tiles[x][y] = new WallTile(this.map, x, y);
             }
         }
@@ -78,7 +78,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     public placeRoom(room: Room): void {
         for (let x = (room.x + 1); x < room.maxX; x++) {
             for (let y = (room.y + 1); y < room.maxY; y++) {
-                let ran = Math.random();
+                const ran = Math.random();
 
                 if (ran < 0.005) {
                     this.map.tiles[x][y] = new FountainTile(this.map, x, y);
@@ -95,7 +95,7 @@ export class BSPTreemapLevel extends DefaultLevel {
     // connect two rooms by hallways
     public createHall(room1: Room, room2: Room) {
         //# 50% chance that a tunnel will start horizontally
-        let chance = (Math.random() >= 0.5);
+        const chance = (Math.random() >= 0.5);
         if (chance) {
             this.makeHorizontalTunnel(room1.centerX, room2.centerX, room1.centerY);
             this.makeVerticalTunnel(room1.centerY, room2.centerY, room2.centerX);
@@ -107,8 +107,8 @@ export class BSPTreemapLevel extends DefaultLevel {
     }
 
     private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number) : void {
-        let min = Math.min(xStart, xEnd);
-        let max = Math.max(xStart, xEnd)
+        const min = Math.min(xStart, xEnd);
+        const max = Math.max(xStart, xEnd)
         for (let x = min; x <= max; x++) {
             this.map.tiles[x][yPosition] = new FloorTile(this.map, x, yPosition);
         }
