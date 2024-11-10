@@ -1,8 +1,8 @@
-import { DIRECTION } from "../../constants/enums";
-import { IActor } from "../actors/base/IActor";
-import { IMap } from "../maps/IMap";
+import { DIRECTION } from "../../../constants/enums";
+import { IActor } from "../../actors/base/IActor";
+import { IMap } from "../../maps/IMap";
 import { ITile } from "./ITile";
-import { WallTile } from "./tile";
+import { WallTile } from "../WallTile";
 
 export abstract class BaseTile implements ITile {
     map: IMap;
@@ -10,11 +10,12 @@ export abstract class BaseTile implements ITile {
     y: number;
     sprite: Array<number>;
     passable: boolean;
+    explored: boolean = false;
     book: boolean = false;
-    effectIndex: Array<number> | null;
+    effectIndex: Array<number> | null = null;
     effectCounter: number = 0;
-    isActive: boolean = false;
-    monster: IActor | null;
+    stepEffectActive: boolean = false; // Should a trap spring, etc.
+    monster: IActor | null = null;
 
     /**
      * 
@@ -30,8 +31,6 @@ export abstract class BaseTile implements ITile {
         this.y = y;
         this.sprite = sprite;
         this.passable = passable;
-        this.effectIndex = null;
-        this.monster = null;
     }
 
     public dist(other: ITile): number {
@@ -75,7 +74,7 @@ export abstract class BaseTile implements ITile {
         while (currentTile != null) {
             currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-            if (currentTile && !(currentTile instanceof WallTile)) {
+            if (currentTile && !(currentTile.passable)) {
                 chain.push(currentTile);
             } else {
                 currentTile = null;

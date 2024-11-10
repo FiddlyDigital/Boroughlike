@@ -2,7 +2,7 @@
 import { SOUNDFX } from "../../constants/enums.js";
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices.js";
 import { Spells as ALLSPELLS } from "../spells/spell.js";
-import { FloorTile } from "../tiles/tile.js";
+import { FloorTile } from "../tiles/FloorTile.js";
 import { shuffle } from "../../utilities.js";
 import { ISpell } from "../spells/ISpell.js";
 import { BaseActor } from "./base/baseActor.js";

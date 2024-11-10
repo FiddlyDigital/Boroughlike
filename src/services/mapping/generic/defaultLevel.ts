@@ -1,15 +1,19 @@
-import { WallTile, FloorTile, SpikePitTile, FountainTile, StairDownTile } from "../../../models/tiles/tile";
 import { numTiles } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { tryTo, randomRange, shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
-import { ITile } from "../../../models/tiles/ITile";
+import { ITile } from "../../../models/tiles/base/ITile";
 import { BirdActor } from "../../../models/actors/BirdActor";
 import { SnakeActor } from "../../../models/actors/SnakeActor";
 import { TankActor } from "../../../models/actors/TankActor";
 import { EaterActor } from "../../../models/actors/EaterActor";
 import { JesterActor } from "../../../models/actors/JestorActor";
 import { TurretActor } from "../../../models/actors/TurretActor";
+import { WallTile } from "../../../models/tiles/WallTile";
+import { FountainTile } from "../../../models/tiles/FountainTile";
+import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
+import { FloorTile } from "../../../models/tiles/FloorTile";
+import { StairDownTile } from "../../../models/tiles/StairDownTile";
 
 export interface ILevelGenerator {
     generate(): void;

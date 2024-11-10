@@ -1,4 +1,4 @@
-import { ITile } from "../../tiles/ITile";
+import { ITile } from "../../tiles/base/ITile";
 
 export interface IActor {
     dead: boolean;

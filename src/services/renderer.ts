@@ -4,7 +4,7 @@ import { numTiles, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteT
 import { Dictionary } from '../utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
-import { ITile } from '../models/tiles/ITile';
+import { ITile } from '../models/tiles/base/ITile';
 import { ISpell } from '../models/spells/ISpell';
 import { IRenderer } from './interfaces/IRenderer';
 import { IActor } from '../models/actors/base/IActor';

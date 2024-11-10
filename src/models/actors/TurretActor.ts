@@ -3,7 +3,7 @@
 import { DIRECTION } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { randomRange } from "../../utilities";
-import { FloorTile } from "../tiles/tile";
+import { FloorTile } from "../tiles/FloorTile";
 import { BaseActor } from "./base/baseActor";
 
 // Just rotates in place and shoots player (and everything else on that line) when it sees them.

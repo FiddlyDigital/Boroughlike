@@ -2,7 +2,7 @@ import { Branches, HUBEVENTS } from "../../constants/enums";
 import { Hub } from "../../services/hub";
 import { IActor } from "../actors/base/IActor";
 import { IMap } from "./IMap";
-import { ITile } from "../tiles/ITile";
+import { ITile } from "../tiles/base/ITile";
 import { randomRange, shuffle, tryTo } from "../../utilities";
 import { BirdActor } from "../actors/BirdActor";
 import { SnakeActor } from "../actors/SnakeActor";

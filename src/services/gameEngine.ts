@@ -3,7 +3,7 @@ import { GAME_STATES, GAME_EVENTS, SOUNDFX, HUBEVENTS } from "../constants/enums
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
 import { PlayerActor } from "../models/actors/PlayerActor";
-import { FloorTile } from "../models/tiles/tile";
+import { FloorTile } from "../models/tiles/FloorTile";
 import { Dictionary } from "../utilities";
 import { inject, singleton } from "tsyringe";
 import { IMapper } from "./interfaces/IMapper";

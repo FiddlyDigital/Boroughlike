@@ -1,5 +1,5 @@
-import { IActor } from "../actors/base/IActor";
-import { IMap } from "../maps/IMap";
+import { IActor } from "../../actors/base/IActor";
+import { IMap } from "../../maps/IMap";
 
 export interface ITile {
     map: IMap;

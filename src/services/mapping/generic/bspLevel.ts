@@ -1,6 +1,9 @@
+import { FloorTile } from "../../../models/tiles/FloorTile";
+import { FountainTile } from "../../../models/tiles/FountainTile";
+import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
+import { WallTile } from "../../../models/tiles/WallTile";
 import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
-import { WallTile, FloorTile, SpikePitTile, FountainTile } from "../../../models/tiles/tile";
 import { DefaultLevel } from './defaultLevel';
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs
@@ -35,21 +38,24 @@ export class BSPTreemapLevel extends DefaultLevel {
 
             for (var i = 0; i < this.leaves.length; i++) {
                 let leaf = this.leaves[i];
-                if (leaf) {
-                    if (!leaf.childLeafLeft && !leaf.childLeafRight) {
-                        if ((leaf.leafWidth > this.maxLeafSize) || (leaf.leafHeight > this.maxLeafSize)) {
-                            // Try to split the leaf
-                            if (leaf.splitLeaf(this.minLeafSize)) {
-                                if (leaf.childLeafLeft) {
-                                    this.leaves.push(leaf.childLeafLeft);
-                                }
-                                if (leaf.childLeafRight) {
-                                    this.leaves.push(leaf.childLeafRight);
-                                }
+                if (!leaf) {
+                    continue;
+                }
 
-                                successfulSplit = true;
-                            }
+                if ((!leaf.childLeafLeft && !leaf.childLeafRight) && (
+                    (leaf.leafWidth > this.maxLeafSize) || 
+                    (leaf.leafHeight > this.maxLeafSize)
+                )) {
+                    // Try to split the leaf
+                    if (leaf.splitLeaf(this.minLeafSize)) {
+                        if (leaf.childLeafLeft) {
+                            this.leaves.push(leaf.childLeafLeft);
                         }
+                        if (leaf.childLeafRight) {
+                            this.leaves.push(leaf.childLeafRight);
+                        }
+
+                        successfulSplit = true;
                     }
                 }
             }

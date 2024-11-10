@@ -1,5 +1,5 @@
-
-import { WallTile, FloorTile } from "../../../models/tiles/tile";
+import { FloorTile } from "../../../models/tiles/FloorTile";
+import { WallTile } from "../../../models/tiles/WallTile";
 import { DefaultLevel } from "./defaultLevel";
 
 export class CellularAutomationLevel extends DefaultLevel {

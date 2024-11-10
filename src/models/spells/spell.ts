@@ -1,9 +1,9 @@
-import { HUBEVENTS, SOUNDFX } from "../../constants/enums";
+import { HUBEVENTS } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES} from "../../constants/spriteIndices";
 import { numTiles } from "../../constants/values";
 import { Hub } from "../../services/hub";
 import { BaseSpell } from "./baseSpell";
-import { FloorTile } from "../tiles/tile";
+import { FloorTile } from "../tiles/FloorTile";
 import { IActor } from "../actors/base/IActor";
 
 export class WOOP extends BaseSpell {

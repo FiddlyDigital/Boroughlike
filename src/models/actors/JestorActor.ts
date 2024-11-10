@@ -1,6 +1,6 @@
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { shuffle } from "../../utilities";
-import { FloorTile } from "../tiles/tile";
+import { FloorTile } from "../tiles/FloorTile";
 import { BaseActor } from "./base/baseActor";
 
 // Moves randomly

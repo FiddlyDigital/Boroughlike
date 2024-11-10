@@ -1,7 +1,7 @@
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { shuffle } from "../../utilities";
-import { ITile } from "../tiles/ITile";
-import { FloorTile } from "../tiles/tile";
+import { ITile } from "../tiles/base/ITile";
+import { FloorTile } from "../tiles/FloorTile";
 import { BaseActor } from "./base/baseActor";
 
 // Destroys walls and heals by doing so

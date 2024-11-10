@@ -2,8 +2,8 @@ import { HUBEVENTS, SOUNDFX } from "../../../constants/enums";
 import { MONSTER_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { maxHp } from "../../../constants/values";
 import { Hub } from "../../../services/hub";
-import { ITile } from "../../tiles/ITile";
-import { FloorTile } from "../../tiles/tile";
+import { ITile } from "../../tiles/base/ITile";
+import { FloorTile } from "../../tiles/FloorTile";
 import { IActor } from "./IActor";
 
 export abstract class BaseActor implements IActor {
