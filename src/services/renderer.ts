@@ -9,15 +9,17 @@ import { ISpell } from '../models/spells/ISpell';
 import { IRenderer } from './interfaces/IRenderer';
 import { IActor } from '../models/actors/base/IActor';
 import { IMap } from '../models/maps/IMap';
+import { Shake } from '../models/shake';
+import { Score } from '../models/score';
 
 @singleton()
 export class Renderer implements IRenderer {
-    shake: any;
+    shake: Shake;
     monsterSpriteSheet: HTMLImageElement;
     tileSpriteSheet: HTMLImageElement;
     effectSpriteSheet: HTMLImageElement;
     itemSpriteSheet: HTMLImageElement;
-    callback: any;
+    onLoadCompletedCallback: Function | null;
     playerLocationElem: HTMLElement;
     playerBooksElem: HTMLElement;
     canvas: HTMLCanvasElement;
@@ -27,15 +29,13 @@ export class Renderer implements IRenderer {
 
     public constructor() {
         this.lastAlternateSpriteTimeMS = Date.now();
-        
+
         this.monsterSpriteSheet = new Image();
         this.tileSpriteSheet = new Image();
         this.effectSpriteSheet = new Image();
         this.itemSpriteSheet = new Image();
 
-        this.callback = {
-            onLoadCompleted: null
-        };
+        this.onLoadCompletedCallback = null;
 
         const playerLocElemTemp = document.getElementById("playerLocation");
         if (playerLocElemTemp) {
@@ -51,11 +51,7 @@ export class Renderer implements IRenderer {
             throw "can't load Player Books elem";
         }
 
-        this.shake = {
-            amount: 0,
-            x: 0,
-            y: 0
-        };
+        this.shake = new Shake();
 
         const canvasTemp = document.querySelector("canvas");
         if (canvasTemp) {
@@ -75,8 +71,9 @@ export class Renderer implements IRenderer {
         Hub.getInstance().subscribe(HUBEVENTS.SETSHAKE, this.setShakeAmount.bind(this));
     }
 
+    // TODO: Async
     public initSpriteSheet(callback: Function): void {
-        this.callback.onLoadCompleted = callback; // store for later
+        this.onLoadCompletedCallback = callback; // store for later
 
         this.monsterSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
         this.tileSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
@@ -94,7 +91,9 @@ export class Renderer implements IRenderer {
             && this.tileSpriteSheet.complete
             && this.effectSpriteSheet.complete
             && this.itemSpriteSheet.complete) {
-            this.callback.onLoadCompleted();
+            if (this.onLoadCompletedCallback !== null) {
+                this.onLoadCompletedCallback()
+            }
         }
     }
 
@@ -199,7 +198,7 @@ export class Renderer implements IRenderer {
         monster.offsetY -= Math.sign(monster.offsetY) * (1 / 8)
     }
 
-    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0) : void {
+    private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0): void {
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / refreshRate;
         }
@@ -211,8 +210,8 @@ export class Renderer implements IRenderer {
 
             // if it's a monster and we should alternate, use the secondary sprite
             if (spriteType === SPRITETYPES.MONSTER && (this.showAlternateSprites)) {
-                spriteYIdx= 1;
-            } 
+                spriteYIdx = 1;
+            }
 
             this.ctx.drawImage(
                 this.getSpriteSheet(spriteType),
@@ -258,7 +257,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public showTitle(scores: Array<any>) {
+    public showTitle(scores: Array<Score>) {
         const titleOverlay = document.getElementById("TitleOverlay");
         if (titleOverlay) {
             if (scores && scores.length > 0) {
@@ -268,7 +267,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public showGameWin(scores: Array<any>) {
+    public showGameWin(scores: Array<Score>) {
         const gameWinOverlay = document.getElementById("GameWinOverlay");
         if (gameWinOverlay) {
             if (scores && scores.length > 0) {
@@ -278,7 +277,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public showGameLose(scores: Array<any>) {
+    public showGameLose(scores: Array<Score>) {
         const gameLoseOverlay = document.getElementById("GameLoseOverlay");
         if (gameLoseOverlay) {
             if (scores && scores.length > 0) {
@@ -314,12 +313,14 @@ export class Renderer implements IRenderer {
         }
     }
 
-    private drawScores(scores: Array<any>): void {
-        const newestScore = scores.pop();
-        scores.sort(function (a, b) {
-            return b.totalScore - a.totalScore;
-        });
-        scores.unshift(newestScore);
+    private drawScores(scores: Array<Score>): void {
+        const newestScore: Score | undefined = scores.pop();
+        if (newestScore !== undefined) {
+            scores.sort(function (a, b) {
+                return b.totalScore - a.totalScore;
+            });
+            scores.unshift(newestScore);
+        }
 
         const scoreBoards = document.getElementsByClassName("scores");
         for (let i = 0; i < scoreBoards.length; i++) {
@@ -338,9 +339,9 @@ export class Renderer implements IRenderer {
                 const td1 = document.createElement('td');
                 const td2 = document.createElement('td');
                 const td3 = document.createElement('td');
-                td1.innerHTML = scores[i].run;
-                td2.innerHTML = scores[i].score;
-                td3.innerHTML = scores[i].totalScore;
+                td1.innerHTML = scores[i].run.toString();
+                td2.innerHTML = scores[i].score.toString();
+                td3.innerHTML = scores[i].totalScore.toString();
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);

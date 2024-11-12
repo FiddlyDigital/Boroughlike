@@ -185,7 +185,7 @@ export class BOLT extends BaseSpell {
 
     cast(): void {
         super.cast();
-        super.boltTravel(this.caster, this.caster.lastMove, 15 + Math.abs(this.caster.lastMove[1]), 4);
+        super.boltTravel(this.caster, this.caster.lastMove, [15 + Math.abs(this.caster.lastMove[1])], 4);
     }
 }
 

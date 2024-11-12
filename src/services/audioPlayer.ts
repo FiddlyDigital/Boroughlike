@@ -3,10 +3,11 @@ import { HUBEVENTS, SOUNDFX } from '../constants/enums';
 import { Hub } from './hub';
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 import { sfxAssetPath } from "../constants/values";
+import { Dictionary } from "../utilities";
 
 @singleton()
 export class AudioPlayer implements IAudioPlayer {
-    sounds: any = {};
+    sounds: Dictionary<HTMLAudioElement> = {};
 
     constructor() {
         this.initSounds()
@@ -15,7 +16,7 @@ export class AudioPlayer implements IAudioPlayer {
 
     private initSounds() {
         // Load each sound
-        for (const [_key, value] of Object.entries(SOUNDFX)) {
+        for (const value of Object.values(SOUNDFX)) {
             this.sounds[value] = new Audio(`${sfxAssetPath}${value}`);
         }
     }

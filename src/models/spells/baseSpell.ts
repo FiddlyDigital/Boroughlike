@@ -16,7 +16,7 @@ export abstract class BaseSpell implements ISpell {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.SPELL);
     };
 
-    protected boltTravel(caster: IActor, direction: Array<number>, effect: any, damage: number): void {
+    protected boltTravel(caster: IActor, direction: Array<number>, effect: Array<number>, damage: number): void {
         let newTile = caster.tile;
         while (true) {
             const testTile = newTile.getNeighbor(direction[0], direction[1]);

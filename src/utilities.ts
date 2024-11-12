@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function tryTo(description: string, callback: Function) {
     for (let timeout = 1000; timeout > 0; timeout--) {
         if (callback()) {
