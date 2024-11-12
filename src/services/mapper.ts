@@ -16,7 +16,7 @@ export class Mapper implements IMapper {
         this.floors = new Array<IMap>();
     }
 
-    public getOrCreateLevel(levelNumber: number): any {
+    public getOrCreateLevel(levelNumber: number): IMap {
         let level: IMap | null = this.floors[levelNumber];
         if (level) {
             this.currentFloorIdx = levelNumber;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import { Branches, HUBEVENTS } from "../../constants/enums";
 import { Hub } from "../../services/hub";
 import { IActor } from "../actors/base/IActor";

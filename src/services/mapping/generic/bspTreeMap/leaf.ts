@@ -1,3 +1,4 @@
+import { BSPTreemapLevel } from "../bspLevel";
 import { Room } from "./room";
 
 // Port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/Leaf.cs
@@ -26,7 +27,7 @@ export class Leaf {
         this.room2 = new Room(0, 0, 0, 0);
     }
 
-    createRooms(mapGenerator: any, maxLeafSize: number, roomMaxSize: number, roomMinSize: number) {
+    createRooms(mapGenerator: BSPTreemapLevel, maxLeafSize: number, roomMaxSize: number, roomMinSize: number) {
 
         if (this.childLeafLeft !== null || this.childLeafRight !== null) {
             //# recursively search for children until you hit the end of the branch

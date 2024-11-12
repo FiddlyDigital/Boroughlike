@@ -1,6 +1,6 @@
 import { numTiles } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
-import { tryTo, randomRange, shuffle } from "../../../utilities";
+import { shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
 import { ITile } from "../../../models/tiles/base/ITile";
 import { BirdActor } from "../../../models/actors/BirdActor";
@@ -78,13 +78,13 @@ export class DefaultLevel implements ILevelGenerator {
 
     private spawnMonster() {
         const monsterType = shuffle([BirdActor, SnakeActor, TankActor, EaterActor, JesterActor, TurretActor])[0];
-        return new monsterType(this.randomPassableTile());
+        return new monsterType(this.map.randomPassableTile());
     }
 
     private placeBooks() {
         let booksPlaced = 0
         while (booksPlaced < 3) {
-            const t = this.randomPassableTile()
+            const t = this.map.randomPassableTile()
             if (t && t instanceof FloorTile) {
                 booksPlaced++;
                 t.book = true;
@@ -93,7 +93,7 @@ export class DefaultLevel implements ILevelGenerator {
     }
 
     private placeStaircase() {
-        const newStaircaseTile = this.randomPassableTile();
+        const newStaircaseTile = this.map.randomPassableTile();
         if (newStaircaseTile) {
             newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
         }
@@ -117,6 +117,7 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private getSpriteVariationSuffixForTile(neighbours: Array<ITile | null>, tileClass: any): string {
         let suffix = "";
 
@@ -134,19 +135,5 @@ export class DefaultLevel implements ILevelGenerator {
         }
 
         return suffix;
-    }
-
-    private randomPassableTile(): ITile | null {
-        const self = this;
-        let tile = null;
-
-        tryTo('Get random passable tile', function () {
-            const x = randomRange(0, self.map.width - 1);
-            const y = randomRange(0, self.map.height - 1);
-            tile = self.map.tiles[x][y];
-            return tile && tile.passable && !tile.monster;
-        });
-
-        return tile;
     }
 }

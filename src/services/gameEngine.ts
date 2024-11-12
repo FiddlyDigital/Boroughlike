@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { numLevels, startingHp, maxHp, refreshRate } from "../constants/values";
 import { GAME_STATES, GAME_EVENTS, SOUNDFX, HUBEVENTS } from "../constants/enums";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
@@ -9,6 +11,7 @@ import { inject, singleton } from "tsyringe";
 import { IMapper } from "./interfaces/IMapper";
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 import { IRenderer } from "./interfaces/IRenderer";
+import { Score } from "../models/score";
 //import { version } from '../package.json';
 
 @singleton()
@@ -16,9 +19,9 @@ export class GameEngine {
     props: any;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
-    lastAnimateUpdate: number;        
+    lastAnimateUpdate: number;
 
-    constructor(        
+    constructor(
         @inject("IAudioPlayer") private audioPlayer: IAudioPlayer,
         @inject("IMapper") private mapper: IMapper,
         @inject("IRenderer") private renderer: IRenderer
@@ -46,13 +49,13 @@ export class GameEngine {
         this.lastAnimateUpdate = new Date().getTime();
     }
 
-    public init() : void {
+    public init(): void {
         this.addEventHandlers();
         requestAnimationFrame(this.draw.bind(this));
     }
 
     private loadAssets(): void {
-        this.renderer.initSpriteSheet( () => {
+        this.renderer.initSpriteSheet(() => {
             this.FSM.triggerEvent(GAME_EVENTS.ASSETSLOADED);
         });
     }
@@ -130,7 +133,7 @@ export class GameEngine {
                 this.lastAnimateUpdate = nowMs;
 
                 this.renderer.updateScreen(this.mapper.getCurrentLevel());
-                
+
                 if (this.props.sidebarNeedsUpdate) {
                     this.props.sidebarNeedsUpdate = false;
                     this.renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
@@ -200,7 +203,7 @@ export class GameEngine {
         this.props.spawnCounter = this.props.spawnRate;
 
         this.mapper.getOrCreateLevel(this.props.level);
-        
+
         const freeTile = this.mapper.getCurrentLevel().randomPassableTile();
         if (freeTile && freeTile instanceof FloorTile) {
             this.props.player = new PlayerActor(freeTile);
@@ -217,7 +220,7 @@ export class GameEngine {
 
     private addScore(score: number, won: boolean) {
         const scores = this.getScores();
-        const scoreObject = { score: score, run: 1, totalScore: score, active: won };
+        const scoreObject: Score = new Score(score, 1, score, won);
         const lastScore = scores.pop();
 
         if (lastScore) {
