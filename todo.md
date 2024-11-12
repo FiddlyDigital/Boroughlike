@@ -54,7 +54,7 @@
 - Update build system
   - Hot reload
   - Public folder
-- ESlint, Prettier, .etc
+- ~~ESlint,~~ Prettier, .etc
 - Upgrade typescript? 
   - Can we do this without losing TSyringe?
 - Deploy to GitHub Pages   
@@ -62,7 +62,8 @@
   - for tile properties (passable, breakable, explored, etc.)
   - for actor properties (IsPlayer, stunned, acted this turn, etc.)
   - Helper properties 
-- Absolute paths (@/this/that)
+- ~~Absolute paths (@/this/that)~~
+  - Not possible with Rollup
 - index to re export from Tiles and Actors
 
 ## Fixes
