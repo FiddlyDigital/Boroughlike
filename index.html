@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <meta name="robots" content="noindex" />
+
+    <title>Boroughlike</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="pwa/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="pwa/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="pwa/favicon-16x16.png">
+    <link rel="manifest" href="pwa/site.webmanifest">
+    <link rel="mask-icon" href="pwa/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="pwa/favicon.ico">
+    <meta name="msapplication-TileColor" content="#603cba">
+    <meta name="msapplication-TileImage" content="pwa/mstile-144x144.png">
+    <meta name="msapplication-config" content="pwa/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="msapplication-starturl" content="/">
+
+    <link rel="stylesheet" type="text/css" href="index.css">    
+    <!-- <link rel="stylesheet" type="text/css" href="dist/style/index.css">    -->
+</head>
+
+<body>
+    <div class="wrapper">
+        <canvas></canvas>
+        <div class="sidebar">
+                        <h3>Stats:</h3>
+            <table class="stats">
+                <tbody>                    
+                    <tr>
+                        <td>
+                            Location: L<span id="playerLocation"></span>
+                        </td>
+                        <td>
+                            Books:<span id="playerBooks"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr />
+
+            <h3>Spells:</h3>
+            <div id="spells"></div>
+        </div>
+    </div>
+    
+    <div id="TitleOverlay" class="overlay">
+        <div class="contents">
+            <h1>Boroughlike</h1>
+            <h2>WASD or Arrow Keys to Move</h2>
+
+            <hr/>
+
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to continue
+            </h3>
+        </div>
+    </div>
+
+    <div id="GameWinOverlay" class="overlay">
+        <div class="contents">
+            <h1>Congratulations!</h1>
+            <h2>You made it out in one piece!</h2>
+
+            <hr/>
+            
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to continue
+            </h3>
+        </div>
+    </div>
+
+    <div id="GameLoseOverlay" class="overlay">
+        <div class="contents">
+            <h1>Uh-oh!</h1>
+            <h2>Looks like you didn't make it!</h2>
+
+            <hr/>
+            
+            <table class="scores">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Books</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <hr/>
+
+            <h3>
+                Touch screen or press any key to try again!
+            </h3>
+        </div>
+    </div>
+
+    <script type="module">        
+        import App from './dist/boroughlike.min.js';
+        var app = new App();
+        app.init();
+    </script>
+</body>
+
+</html>
