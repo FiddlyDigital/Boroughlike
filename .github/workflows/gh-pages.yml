@@ -1,0 +1,46 @@
+name: build and deploy
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    permissions: 
+      actions: write
+      contents: write
+      id-token: write
+      
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      # uses GitHub's checkout action to checkout code from the main branch
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      # Install Deps
+      - name: Pull Dependencies from NPM
+        run: npm ci
+        
+      # Build
+      - name: Build
+        run: npm run build
+
+      - name: Commit build files to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          BRANCH: gh-pages
+          FOLDER: public
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

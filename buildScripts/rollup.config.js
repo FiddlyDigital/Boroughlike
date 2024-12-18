@@ -13,7 +13,7 @@ delete baseConfig.preserveEntrySignatures;  // Unused. Removed do to warning on 
 export default merge(baseConfig, {
   input: './out-tsc/src/app.js',
   output: {
-    file: `./dist/boroughlike_${version}.min.js`,
+    file: `./dist/boroughlike.min.js`,
     format: "esm"
   },
   onwarn(warning, warn) {
@@ -21,5 +21,5 @@ export default merge(baseConfig, {
       warn(warning);
     }
   },
-  plugins: [css(), image(), nodeResolve()],
+  plugins: [image(), nodeResolve()],
 });

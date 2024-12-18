@@ -1,13 +1,13 @@
 {
   "name": "boroughlike",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "",
   "main": "app.ts",
   "scripts": {
     "serve": "http-server -p 3030 --cors -c1",
-    "build": "rimraf dist && tsc && rollup -c buildScripts/rollup.config.js && rimraf out-tsc",
-    "lint" : "npx eslint",
-    "docgen": "npx typedoc src/*.*"
+    "build": "rimraf dist && tsc && rollup -c buildScripts/rollup.config.js && rimraf out-tsc && rimraf public/dist && npx copy-folder dist public/dist && rimraf dist",
+    "lint": "npx eslint",
+    "docgen": "npx typedoc src/*.*"    
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^8.13.0",
     "@typescript-eslint/parser": "^8.13.0",
     "@typescript/lib-dom": "npm:@types/web@0.0.72",
+    "copy-folder-util": "^1.1.4",
     "deepmerge": "^4.2.2",
     "eslint": "^9.14.0",
     "fs-extra": "^9.0.0",

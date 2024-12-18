@@ -6,6 +6,7 @@
   - Mini-map
   - Camera Follows player
 - Fog of War?
+- SMT Dx2 Battle Mechanics?
 - Revamp Spells
   - Shape/size/element
     - e.g. FireCross
@@ -17,7 +18,6 @@
 - Improved Enemy AI
   -  Chase Player
   -  diff behaviour based on health?
-- Alternative render (Wolfenstein/Doom Style)
 - More Enemy Types
   - Bosses? 
 - Interactions beyond damage
