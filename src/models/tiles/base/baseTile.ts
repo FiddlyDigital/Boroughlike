@@ -73,7 +73,7 @@ export abstract class BaseTile implements ITile {
         while (currentTile != null) {
             currentTile = currentTile.getNeighbor(xy[0], xy[1]);
 
-            if (currentTile && !(currentTile.passable)) {
+            if (currentTile && currentTile.passable) {
                 chain.push(currentTile);
             } else {
                 currentTile = null;

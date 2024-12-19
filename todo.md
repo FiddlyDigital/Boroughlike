@@ -20,11 +20,12 @@
   -  diff behaviour based on health?
 - More Enemy Types
   - Bosses? 
+    - Special Boss Arenas/Maps
 - Interactions beyond damage
   - Speaking
   - Actor Aggro 
   - Reading signs
-    - Requires modal dialog   
+    - Requires modal dialog?
 - More Tiles
   - Doors 
   - Torches
@@ -37,10 +38,15 @@
 - Separate application rendering from game rendering
   - e.g. something to handle 'views'
   - one of those views is the game view
+- Bidirectional Travel
+  - UP AND Down on staircases
 - More Levels
   - Static levels?
     - Entrance, Store, archives, etc.
 - More level types
+  - Library
+  - Caves
+  - Vaults, etc.
 - Branching Paths
   - Collecting pages from story books
     - on completion can journey to that branch
@@ -53,11 +59,11 @@
 
 - Update build system
   - Hot reload
-  - Public folder
+  - ~~Public folder~~
 - ~~ESlint,~~ Prettier, .etc
 - Upgrade typescript? 
   - Can we do this without losing TSyringe?
-- Deploy to GitHub Pages   
+- ~~Deploy to GitHub Pages~~   
 - bitflags 
   - for tile properties (passable, breakable, explored, etc.)
   - for actor properties (IsPlayer, stunned, acted this turn, etc.)
