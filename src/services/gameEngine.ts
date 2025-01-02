@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { numLevels, startingHp, maxHp, refreshRate } from "../constants/values";
+import { numLevels, refreshRate } from "../constants/values";
 import { GAME_STATES, GAME_EVENTS, SOUNDFX, HUBEVENTS } from "../constants/enums";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
-import { PlayerActor } from "../models/actors/PlayerActor";
-import { FloorTile } from "../models/tiles/FloorTile";
 import { Dictionary } from "../utilities";
 import { inject, singleton } from "tsyringe";
 import { IMapper } from "./interfaces/IMapper";
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 import { IRenderer } from "./interfaces/IRenderer";
 import { Score } from "../models/score";
+import { PlayerActor } from "../models/actors/PlayerActor";
 //import { version } from '../package.json';
 
 @singleton()
@@ -72,6 +71,8 @@ export class GameEngine {
         window.addEventListener('mousedown', self.handleInteraction.bind(this));
 
         Hub.getInstance().subscribe(HUBEVENTS.NEXTLEVEL, self.nextLevel.bind(this));
+        Hub.getInstance().subscribe(HUBEVENTS.PREVLEVEL, self.prevLevel.bind(this));
+
     }
 
     private handleInteraction(e: any): void {
@@ -115,6 +116,10 @@ export class GameEngine {
             case " ": // Spacebar; 'Pass' a turn
                 this.props.player.tryMove(0, 0);
                 break;
+            case "Enter":
+            case "Return":
+                this.props.player.activateTile();
+                break;
             case 1: case "1": case 2: case "2": case 3: case "3":
             case 4: case "4": case 5: case "5": case 6: case "6":
             case 7: case "7": case 8: case "8": case 9: case "9":
@@ -145,28 +150,31 @@ export class GameEngine {
     }
 
     private tick(): void {
-        const currentLevelMonsters = this.mapper.getCurrentLevel().getMonsters();
-        for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
-            if (!currentLevelMonsters[k].dead) {
-                currentLevelMonsters[k].update();
-            } else {
-                currentLevelMonsters.splice(k, 1);
+        const currentLevel = this.mapper.getCurrentLevel();
+        if (currentLevel) {
+            const currentLevelMonsters = currentLevel.getMonsters();
+            for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
+                if (!currentLevelMonsters[k].dead) {
+                    currentLevelMonsters[k].update();
+                } else {
+                    currentLevel.removeActor(currentLevelMonsters[k]);
+                }
             }
-        }
 
-        this.props.player.update();
+            this.props.player.update();
 
-        if (this.props.player.dead) {
-            this.addScore(this.props.score, false);
-            this.props.sidebarNeedsUpdate = true;
-            this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
-        }
+            if (this.props.player.dead) {
+                this.addScore(this.props.score, false);
+                this.props.sidebarNeedsUpdate = true;
+                this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
+            }
 
-        this.props.spawnCounter--;
-        if (this.props.spawnCounter <= 0) {
-            this.mapper.getCurrentLevel().spawnMonster();
-            this.props.spawnCounter = this.props.spawnRate;
-            this.props.spawnRate--;
+            this.props.spawnCounter--;
+            if (this.props.spawnCounter <= 0) {
+                currentLevel.spawnMonster();
+                this.props.spawnCounter = this.props.spawnRate;
+                this.props.spawnRate--;
+            }
         }
     }
 
@@ -191,29 +199,32 @@ export class GameEngine {
         this.props.level = 1;
         this.props.score = 0;
         this.props.numSpells = 1;
+
         this.mapper.reset();
-        this.startLevel(startingHp, []);
-        this.props.sidebarNeedsUpdate = true;
+        this.moveToLevel(this.props.level);
         this.tick();
         this.draw();
     }
 
-    private startLevel(playerHp: number, playerSpells: any) {
+    private moveToLevel(levelNum: number, movingUp: boolean = false) {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
-        this.mapper.getOrCreateLevel(this.props.level);
-
-        const freeTile = this.mapper.getCurrentLevel().randomPassableTile();
-        if (freeTile && freeTile instanceof FloorTile) {
-            this.props.player = new PlayerActor(freeTile);
+        if (this.props.player != null) {
+            this.mapper.getCurrentLevel().removeActor(this.props.player);
+        } else {
+            this.props.player = new PlayerActor(null);
         }
 
-        this.props.player.hp = playerHp;
+        const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
 
-        if (playerSpells) {
-            this.props.player.spells = playerSpells;
-        }
+        // player reset method?
+        this.props.player.offsetX = 0;
+        this.props.player.offsetY = 0;
+        this.props.player.stunned = false;
+        this.props.player.lastMove = [0, 0];
+
+        levelToMoveTo.addActor(this.props.player, movingUp);
 
         this.props.sidebarNeedsUpdate = true;
     }
@@ -244,14 +255,23 @@ export class GameEngine {
         }
     }
 
+    private prevLevel() {
+        if (this.props.level > 1) {
+            this.props.level--;
+            this.moveToLevel(this.props.level, true);
+        }
+        else {
+            // TODO: Notify they can't leave
+        }
+    }
+
     private nextLevel() {
         if (this.props.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
             this.audioPlayer.playSound(SOUNDFX.NEWLEVEL);
             this.props.level++;
-            this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
-            this.props.sidebarNeedsUpdate = true;
+            this.moveToLevel(this.props.level);
         }
     }
 }
