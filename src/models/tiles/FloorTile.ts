@@ -8,9 +8,14 @@ export class FloorTile extends BaseTile {
         super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
     };
 
-    stepOn(monster: IActor): void {
+    public stepOn(monster: IActor): void {
         if (this.book && monster && monster.isPlayer) {
             this.book = false;
         }
+    }
+
+    public activate(monster: IActor): void {
+        // todo: log nothing happens
+        console.log(monster);    
     }
 }

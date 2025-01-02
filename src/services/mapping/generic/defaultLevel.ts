@@ -13,7 +13,6 @@ import { WallTile } from "../../../models/tiles/WallTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
-import { StairDownTile } from "../../../models/tiles/StairDownTile";
 
 export interface ILevelGenerator {
     generate(): void;
@@ -21,11 +20,11 @@ export interface ILevelGenerator {
 }
 
 export class DefaultLevel implements ILevelGenerator {
-    levelNum: number;
+    levelIdx: number;
     map: Map;
 
     public constructor(levelNum: number) {
-        this.levelNum = levelNum;
+        this.levelIdx = levelNum;
         this.map = new Map(numTiles, numTiles); // TODO: width/height = + Math.floor((numTiles / 100) * levelNum);
     }
 
@@ -65,12 +64,19 @@ export class DefaultLevel implements ILevelGenerator {
     protected populateMap() {
         this.generateMonsters();
         this.placeBooks();
-        this.placeStaircase();
+        this.placeStairsDown();
+
+        console.log("Level " + this.levelIdx + " generated");
+        if (this.levelIdx > 0) {
+            console.log("Placing stairs up");
+            this.placeStairsUp();
+        }
+        
         this.overrideWallSpritesOnEdges();
     }
 
     private generateMonsters() {
-        const numMonsters = Math.ceil(this.levelNum / 2) + 1;
+        const numMonsters = Math.ceil((this.levelIdx + 1) / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             this.map.monsters.push(this.spawnMonster());
         }
@@ -92,11 +98,12 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
-    private placeStaircase() {
-        const newStaircaseTile = this.map.randomPassableTile();
-        if (newStaircaseTile) {
-            newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
-        }
+    private placeStairsDown() {        
+        this.map.setStairDownTile();
+    }
+
+    private placeStairsUp() {
+        this.map.setStairUpTile();
     }
 
     private overrideWallSpritesOnEdges(): void {

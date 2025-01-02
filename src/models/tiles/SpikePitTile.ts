@@ -12,7 +12,7 @@ export class SpikePitTile extends BaseTile {
         super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true);
     };
 
-    stepOn(monster: IActor): void {
+    public stepOn(monster: IActor): void {
         if (monster) {
             monster.hit(1);
 
@@ -20,5 +20,10 @@ export class SpikePitTile extends BaseTile {
                 Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 5);
             }
         }
+    }
+
+    public activate(monster: IActor): void {
+        // todo: log nothing happens
+        console.log(monster);
     }
 }

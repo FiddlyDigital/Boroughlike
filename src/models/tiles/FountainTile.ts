@@ -11,7 +11,12 @@ export class FountainTile extends BaseTile {
         this.stepEffectActive = true;
     };
 
-    stepOn(monster: IActor): void {
+    public stepOn(monster: IActor): void {
+        // todo: log nothing happens
+        console.log(monster);
+    }
+
+    public activate(monster: IActor): void {
         if (this.stepEffectActive && monster && monster.isPlayer) {
             this.stepEffectActive = false;
             this.sprite = TILE_SPRITE_INDICES.FountainInactive;

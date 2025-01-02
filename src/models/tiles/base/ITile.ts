@@ -18,4 +18,5 @@ export interface ITile {
     getNeighborChain(direction: string): Array<ITile>;
     setEffect(effectSprite: Array<number>): void;
     stepOn(monster: IActor): void;
+    activate(monster: IActor): void;
 }

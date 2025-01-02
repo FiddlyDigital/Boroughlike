@@ -2,47 +2,32 @@
 import { SOUNDFX } from "../../constants/enums.js";
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices.js";
 import { Spells as ALLSPELLS } from "../spells/spell.js";
-import { FloorTile } from "../tiles/FloorTile.js";
 import { shuffle } from "../../utilities.js";
 import { ISpell } from "../spells/ISpell.js";
 import { BaseActor } from "./base/baseActor.js";
+import { startingHp } from "../../constants/values.js";
+import { ITile } from "../tiles/base/ITile.js";
 
 export class PlayerActor extends BaseActor {
     score: number = 0;
     spells: Array<ISpell>;
 
-    constructor(tile: FloorTile) {
+    constructor(tile: ITile | null) {
         super(tile, MONSTER_SPRITE_INDICES.Player, 3);
+        this.hp = startingHp;
         this.isPlayer = true;
         this.teleportCounter = 0;
         this.spells = shuffle(ALLSPELLS)[0]; // Get starting spell
         this.hitSFX = SOUNDFX.PLAYERHIT;
     }
 
-    update(): void {
+    public update(): void {
         this.shield--;
     };
 
-    addSpell(): void {
-        const spellType = shuffle(ALLSPELLS)[0];
-        if (spellType) {
-            const spell = new spellType(this);
-            this.spells.push(spell);
+    public activateTile() : void {
+        if (this.tile) {
+            this.tile.activate(this);
         }
-    };
-
-    castSpell(index: number): void {
-        const spell: ISpell = this.spells[index];
-        if (spell) {
-            this.spells.splice(index, 1);
-            spell.cast();
-        }
-    };
-
-    incrementScore() {
-        this.score++;
     }
 }
-
-
-

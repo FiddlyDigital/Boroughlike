@@ -93,4 +93,6 @@ export abstract class BaseTile implements ITile {
     }
 
     public abstract stepOn(monster: IActor): void;
+
+    public abstract activate(monster: IActor): void;
 }

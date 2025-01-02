@@ -17,7 +17,12 @@ export abstract class BaseSpell implements ISpell {
     };
 
     protected boltTravel(caster: IActor, direction: Array<number>, effect: Array<number>, damage: number): void {
+        if(caster.tile === null) {
+            return;
+        }
+        
         let newTile = caster.tile;
+        
         while (true) {
             const testTile = newTile.getNeighbor(direction[0], direction[1]);
             if (testTile && testTile.passable) {

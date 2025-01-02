@@ -6,11 +6,15 @@ import { BaseActor } from "./base/baseActor";
 
 // Destroys walls and heals by doing so
 export class EaterActor extends BaseActor {
-    constructor(tile: FloorTile) {
+    constructor(tile: ITile | null) {
         super(tile, MONSTER_SPRITE_INDICES.Eater, 1);
     }
 
     act(): void {
+        if(this.tile === null) {
+            return;
+        }
+        
         const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
             const tileToEat: ITile = shuffle(neighbors)[0];
