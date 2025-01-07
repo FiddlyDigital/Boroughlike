@@ -8,14 +8,13 @@ export class WallTile extends BaseTile {
         super(map, x, y, TILE_SPRITE_INDICES.Wall, false);
     }
 
-    public stepOn(monster: IActor): void 
-    { 
+    public stepOn(monster: IActor): void {
         console.log(monster);
         throw new Error("Shouldn't be able to step on a wall tile");
     };
 
     public activate(monster: IActor): void {
         console.log(monster);
-        throw new Error("Shouldn't be able to activate a wall tile");        
+        throw new Error("Shouldn't be able to activate a wall tile");
     }
 }

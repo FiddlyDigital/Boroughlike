@@ -7,7 +7,7 @@ export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
   { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
   { languageOptions: { globals: globals.browser } },
-  { ignores: ["node_modules/*", "buildScripts/*", "dist/*"] },
+  { ignores: ["node_modules/*", "buildScripts/*", "dist/*", "public/*"] },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
 ];

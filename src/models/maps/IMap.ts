@@ -12,8 +12,8 @@ export interface IMap {
     setStairUpTile(): ITile | null
     getStairDownTile(): ITile | null;
     setStairDownTile(): ITile | null
-    nextLevel() : void;
-    prevLevel() : void;
+    nextLevel(): void;
+    prevLevel(): void;
     randomPassableTile(): ITile | null;
     replaceTile(x: number, y: number, newTile: ITile): void;
     spawnMonster(): void;

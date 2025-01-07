@@ -43,7 +43,7 @@ export class BSPTreemapLevel extends DefaultLevel {
                 }
 
                 if ((!leaf.childLeafLeft && !leaf.childLeafRight) && (
-                    (leaf.leafWidth > this.maxLeafSize) || 
+                    (leaf.leafWidth > this.maxLeafSize) ||
                     (leaf.leafHeight > this.maxLeafSize)
                 )) {
                     // Try to split the leaf
@@ -106,7 +106,7 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
     }
 
-    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number) : void {
+    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number): void {
         const min = Math.min(xStart, xEnd);
         const max = Math.max(xStart, xEnd)
         for (let x = min; x <= max; x++) {
@@ -114,7 +114,7 @@ export class BSPTreemapLevel extends DefaultLevel {
         }
     }
 
-    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number) : void {
+    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number): void {
         for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
             this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
         }

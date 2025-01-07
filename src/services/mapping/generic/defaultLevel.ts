@@ -71,7 +71,7 @@ export class DefaultLevel implements ILevelGenerator {
             console.log("Placing stairs up");
             this.placeStairsUp();
         }
-        
+
         this.overrideWallSpritesOnEdges();
     }
 
@@ -98,7 +98,7 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
-    private placeStairsDown() {        
+    private placeStairsDown() {
         this.map.setStairDownTile();
     }
 

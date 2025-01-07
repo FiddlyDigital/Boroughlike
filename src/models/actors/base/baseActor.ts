@@ -51,7 +51,7 @@ export abstract class BaseActor implements IActor {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.PLAYERHEAL);
     }
 
-    public update(): void {
+    public tickUpdate(): void {
         this.teleportCounter--;
 
         if (this.stunned || this.teleportCounter > 0) {
@@ -63,7 +63,7 @@ export abstract class BaseActor implements IActor {
     }
 
     protected act(): void {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return;
         }
 
@@ -76,7 +76,7 @@ export abstract class BaseActor implements IActor {
     }
 
     public getDisplayX(): number {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return -1;
         }
 
@@ -84,7 +84,7 @@ export abstract class BaseActor implements IActor {
     }
 
     public getDisplayY(): number {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return -1;
         }
 
@@ -92,7 +92,7 @@ export abstract class BaseActor implements IActor {
     }
 
     public tryMove(dx: number, dy: number): boolean {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return false;
         }
 
@@ -141,11 +141,11 @@ export abstract class BaseActor implements IActor {
 
     private die(): void {
         this.dead = true;
-        
+
         if (this.tile !== null) {
             this.tile.monster = null;
         }
-        
+
         if (this.isPlayer) {
             this.sprite = MONSTER_SPRITE_INDICES.Player_Dead;
         }

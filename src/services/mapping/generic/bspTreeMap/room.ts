@@ -20,7 +20,8 @@ export class Room {
     }
 
     isZero() {
-        return (this.x === 0
+        return (
+            this.x === 0
             && this.y === 0
             && this.width === 0
             && this.height === 0

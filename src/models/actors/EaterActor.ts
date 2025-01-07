@@ -11,10 +11,10 @@ export class EaterActor extends BaseActor {
     }
 
     act(): void {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return;
         }
-        
+
         const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
             const tileToEat: ITile = shuffle(neighbors)[0];

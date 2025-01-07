@@ -29,7 +29,7 @@ export class Map implements IMap {
         this.monsters = new Array<IActor>();
         this.tiles = new Array<Array<ITile>>();
     }
-    
+
     public getStairUpTile(): ITile | null {
         return this.stairsUp;
     }
@@ -43,8 +43,8 @@ export class Map implements IMap {
         if (newStaircaseTile) {
             this.stairsDown = new StairDownTile(this, newStaircaseTile.x, newStaircaseTile.y);
             this.replaceTile(
-                newStaircaseTile.x, 
-                newStaircaseTile.y, 
+                newStaircaseTile.x,
+                newStaircaseTile.y,
                 this.stairsDown
             );
         }
@@ -57,8 +57,8 @@ export class Map implements IMap {
         if (newStaircaseTile) {
             this.stairsUp = new StairUpTile(this, newStaircaseTile.x, newStaircaseTile.y);
             this.replaceTile(
-                newStaircaseTile.x, 
-                newStaircaseTile.y, 
+                newStaircaseTile.x,
+                newStaircaseTile.y,
                 this.stairsUp
             );
         }
@@ -77,7 +77,7 @@ export class Map implements IMap {
         if (tileToPlaceOn === null) {
             console.log("no stairs, placing on random tile");
             tileToPlaceOn = this.randomPassableTile()
-        } 
+        }
 
         if (tileToPlaceOn !== null) {
             console.log("placing actor on tile", tileToPlaceOn);

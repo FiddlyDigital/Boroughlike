@@ -21,11 +21,13 @@ export class PlayerActor extends BaseActor {
         this.hitSFX = SOUNDFX.PLAYERHIT;
     }
 
-    public update(): void {
-        this.shield--;
+    public tickUpdate(): void {
+        if (this.shield > 0) {
+            this.shield--;
+        }
     };
 
-    public activateTile() : void {
+    public activateTile(): void {
         if (this.tile) {
             this.tile.activate(this);
         }

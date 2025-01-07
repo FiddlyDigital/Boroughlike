@@ -7,11 +7,12 @@ import { IMapper } from "./interfaces/IMapper";
 @singleton()
 export class Mapper implements IMapper {
     floors: Array<IMap>;
+
+    // todo: remove
     currentFloorIdx: number = 0;
 
     public constructor(
         @inject("ILevelGenerator") private levelGenerator: ILevelGenerator
-
     ) {
         this.floors = new Array<IMap>();
     }
@@ -30,6 +31,7 @@ export class Mapper implements IMapper {
         return level;
     }
 
+    // todo: remove
     public getCurrentLevel(): IMap {
         return this.floors[this.currentFloorIdx];
     }

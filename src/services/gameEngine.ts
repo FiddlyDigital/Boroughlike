@@ -131,6 +131,9 @@ export class GameEngine {
         this.tick();
     }
 
+    /**
+     * This is the animation loop, which is called every at 60fps regardless of the gamestate
+     */
     private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             const nowMs = new Date().getTime();
@@ -149,13 +152,16 @@ export class GameEngine {
         }
     }
 
+    /**
+     * This is an update to the gamestate, usually only triggered by player input
+     */
     private tick(): void {
         const currentLevel = this.mapper.getCurrentLevel();
         if (currentLevel) {
             const currentLevelMonsters = currentLevel.getMonsters();
             for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
                 if (!currentLevelMonsters[k].dead) {
-                    currentLevelMonsters[k].update();
+                    currentLevelMonsters[k].tickUpdate();
                 } else {
                     currentLevel.removeActor(currentLevelMonsters[k]);
                 }

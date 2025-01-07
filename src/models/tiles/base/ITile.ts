@@ -20,3 +20,4 @@ export interface ITile {
     stepOn(monster: IActor): void;
     activate(monster: IActor): void;
 }
+

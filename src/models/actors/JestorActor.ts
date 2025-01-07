@@ -10,10 +10,10 @@ export class JesterActor extends BaseActor {
     }
 
     act(): void {
-        if(this.tile === null) {
+        if (this.tile === null) {
             return;
         }
-        
+
         const neighbors = this.tile.getAdjacentPassableNeighbors();
         if (neighbors.length) {
             const randomNeighbour = shuffle(neighbors)[0]

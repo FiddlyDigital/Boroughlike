@@ -16,6 +16,6 @@ export class FloorTile extends BaseTile {
 
     public activate(monster: IActor): void {
         // todo: log nothing happens
-        console.log(monster);    
+        console.log(monster);
     }
 }

@@ -20,5 +20,5 @@ export interface IActor {
     hit(damage: number): void;
     setTile(tile: ITile): void;
     tryMove(dx: number, dy: number): boolean;
-    update(): void;
+    tickUpdate(): void;
 }

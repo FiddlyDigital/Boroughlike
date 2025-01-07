@@ -8,10 +8,10 @@ export class TankActor extends BaseActor {
         super(tile, MONSTER_SPRITE_INDICES.Tank, 2);
     }
 
-    public update(): void {
+    public tickUpdate(): void {
         const startedStunned = this.stunned;
-        super.update();
-        
+        super.tickUpdate();
+
         if (!startedStunned) {
             this.stunned = true;
         }

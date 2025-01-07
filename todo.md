@@ -38,8 +38,8 @@
 - Separate application rendering from game rendering
   - e.g. something to handle 'views'
   - one of those views is the game view
-- Bidirectional Travel
-  - UP AND Down on staircases
+- ~~Bidirectional Travel~~
+  - ~~UP AND Down on staircases~~
 - More Levels
   - Static levels?
     - Entrance, Store, archives, etc.
