@@ -167,7 +167,7 @@ export class GameEngine {
                 }
             }
 
-            this.props.player.update();
+            this.props.player.tickUpdate();
 
             if (this.props.player.dead) {
                 this.addScore(this.props.score, false);
@@ -216,7 +216,7 @@ export class GameEngine {
         this.props.spawnRate = 15;
         this.props.spawnCounter = this.props.spawnRate;
 
-        if (this.props.player != null) {
+        if (this.props.player) {
             this.mapper.getCurrentLevel().removeActor(this.props.player);
         } else {
             this.props.player = new PlayerActor(null);

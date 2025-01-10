@@ -90,8 +90,12 @@ export class Map implements IMap {
     }
 
     public getTile(x: number, y: number): ITile | null {
-        if (this.inBounds(x, y)) {
-            return this.tiles[x][y];
+        try {
+            if (this.inBounds(x, y)) {
+                return this.tiles[x][y];
+            }
+        } catch (e) {
+            console.log(e, x, y);
         }
 
         return null;
