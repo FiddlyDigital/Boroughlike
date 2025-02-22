@@ -22,9 +22,6 @@ export class PlayerActor extends BaseActor {
     }
 
     public tickUpdate(): void {
-        if (this.shield > 0) {
-            this.shield--;
-        }
     };
 
     public activateTile(): void {

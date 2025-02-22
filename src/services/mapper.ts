@@ -19,7 +19,7 @@ export class Mapper implements IMapper {
 
     public getOrCreateLevel(levelNumber: number): IMap {
         let level: IMap | null = this.floors[levelNumber];
-        if (level) {
+        if (level !== null) {
             this.currentFloorIdx = levelNumber;
             return level;
         }

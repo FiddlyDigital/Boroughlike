@@ -288,7 +288,7 @@ export class Renderer implements IRenderer {
         }
     }
 
-    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell>): void {
+    public updateSidebar(level: number, score: number, spells: Dictionary<ISpell> | null): void {
         this.playerBooksElem.innerText = score.toString();
         this.playerLocationElem.innerText = level.toString();
 
@@ -301,14 +301,16 @@ export class Renderer implements IRenderer {
             }
 
             const docFrag = document.createDocumentFragment();
-            for (let i = 0; i < Object.keys(spells).length; i++) {
-                const btn = document.createElement('button');
-                btn.className = "spellButton";
-                btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
-                // btn.addEventListener("click", () => {
-                //     this.game.handleInteraction({ key: "" + (i + 1) });
-                // });
-                docFrag.append(btn);
+            if (spells != null) {
+                for (let i = 0; i < Object.keys(spells).length; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = "spellButton";
+                    btn.innerText = "(" + (i + 1) + ") " + (spells[i].name || "");
+                    // btn.addEventListener("click", () => {
+                    //     this.game.handleInteraction({ key: "" + (i + 1) });
+                    // });
+                    docFrag.append(btn);
+                }
             }
             spellList.appendChild(docFrag)
         }

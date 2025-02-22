@@ -11,5 +11,5 @@ export interface IRenderer {
     showGameWin(scores: Array<Score>): void;
     showGameLose(scores: Array<Score>): void;
     updateScreen(mapperLevel: IMap): void
-    updateSidebar(level: number, score: number, spells: Dictionary<ISpell>): void
+    updateSidebar(level: number, score: number, spells: Dictionary<ISpell> | null): void
 }

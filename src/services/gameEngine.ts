@@ -16,9 +16,16 @@ import { PlayerActor } from "../models/actors/PlayerActor";
 @singleton()
 export class GameEngine {
     props: any;
+    level: number;
+    player: PlayerActor;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
     lastAnimateUpdate: number;
+    numSpells: number;
+    score: number;
+    spawnCounter: number;
+    spawnRate: number;
+    sidebarNeedsUpdate: boolean;
 
     constructor(
         @inject("IAudioPlayer") private audioPlayer: IAudioPlayer,
@@ -26,15 +33,14 @@ export class GameEngine {
         @inject("IRenderer") private renderer: IRenderer
     ) {
         this.localStorage = {};
+        this.level = 1;
+        this.player = new PlayerActor(null);
+        this.numSpells = 1;
+        this.score = 0;
+        this.spawnCounter = 0;
+        this.spawnRate = 15;
+        this.sidebarNeedsUpdate = false;
         //this.version = version;          
-        this.props = {
-            level: 1,
-            numSpells: 1,
-            player: null,
-            score: 0,
-            spawnCounter: 0,
-            spawnRate: 15,
-        };
 
         const stateMatrix: Dictionary<State> = {
             "Loading": new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets.bind(this), null),
@@ -99,33 +105,33 @@ export class GameEngine {
         switch (e.key) {
             case "Up": case "ArrowUp":
             case "w": case "W":
-                this.props.player.tryMove(0, -1)
+                this.player.tryMove(0, -1)
                 break;
             case "Down": case "ArrowDown":
             case "s": case "S":
-                this.props.player.tryMove(0, 1);
+                this.player.tryMove(0, 1);
                 break;
             case "Left": case "ArrowLeft":
             case "a": case "A":
-                this.props.player.tryMove(-1, 0);
+                this.player.tryMove(-1, 0);
                 break;
             case "Right": case "ArrowRight":
             case "d": case "D":
-                this.props.player.tryMove(1, 0);
+                this.player.tryMove(1, 0);
                 break;
             case " ": // Spacebar; 'Pass' a turn
-                this.props.player.tryMove(0, 0);
+                this.player.tryMove(0, 0);
                 break;
             case "Enter":
             case "Return":
-                this.props.player.activateTile();
+                this.player.activateTile();
                 break;
-            case 1: case "1": case 2: case "2": case 3: case "3":
-            case 4: case "4": case 5: case "5": case 6: case "6":
-            case 7: case "7": case 8: case "8": case 9: case "9":
-                this.props.player.castSpell(parseInt(e.key) - 1);
-                this.props.sidebarNeedsUpdate = true;
-                break;
+            // case 1: case "1": case 2: case "2": case 3: case "3":
+            // case 4: case "4": case 5: case "5": case 6: case "6":
+            // case 7: case "7": case 8: case "8": case 9: case "9":
+            //     this.player.castSpell(parseInt(e.key) - 1);
+            //     this.sidebarNeedsUpdate = true;
+            //     break;
         }
 
         this.tick();
@@ -142,9 +148,9 @@ export class GameEngine {
 
                 this.renderer.updateScreen(this.mapper.getCurrentLevel());
 
-                if (this.props.sidebarNeedsUpdate) {
-                    this.props.sidebarNeedsUpdate = false;
-                    this.renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+                if (this.sidebarNeedsUpdate) {
+                    this.sidebarNeedsUpdate = false;
+                    this.renderer.updateSidebar(this.level, this.score, null);
                 }
             }
 
@@ -160,26 +166,26 @@ export class GameEngine {
         if (currentLevel) {
             const currentLevelMonsters = currentLevel.getMonsters();
             for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
-                if (!currentLevelMonsters[k].dead) {
+                if (!currentLevelMonsters[k].isDead()) {
                     currentLevelMonsters[k].tickUpdate();
                 } else {
                     currentLevel.removeActor(currentLevelMonsters[k]);
                 }
             }
 
-            this.props.player.tickUpdate();
+            this.player.tickUpdate();
 
-            if (this.props.player.dead) {
-                this.addScore(this.props.score, false);
-                this.props.sidebarNeedsUpdate = true;
+            if (this.player.isDead()) {
+                this.AddScoreAndGetList(this.score, false);
+                this.sidebarNeedsUpdate = true;
                 this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
             }
 
-            this.props.spawnCounter--;
-            if (this.props.spawnCounter <= 0) {
+            this.spawnCounter--;
+            if (this.spawnCounter <= 0) {
                 currentLevel.spawnMonster();
-                this.props.spawnCounter = this.props.spawnRate;
-                this.props.spawnRate--;
+                this.spawnCounter = this.spawnRate;
+                this.spawnRate--;
             }
         }
     }
@@ -190,52 +196,56 @@ export class GameEngine {
 
     private showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);    
-        this.addScore(this.props.score, true);
-        this.renderer.showGameWin(this.props.scores);
+        const updatedScores: Score[] = this.AddScoreAndGetList(this.score, true);
+        this.renderer.showGameWin(updatedScores);
     }
 
     private showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
-        this.addScore(this.props.score, true);
-        this.renderer.showGameLose(this.props.scores);
+        const updatedScores: Score[] = this.AddScoreAndGetList(this.score, true);
+        this.renderer.showGameLose(updatedScores);
     }
 
     private startGame() {
         this.renderer.hideOverlays();
-        this.props.level = 1;
-        this.props.score = 0;
-        this.props.numSpells = 1;
+        this.level = 1;
+        this.score = 0;
+        this.numSpells = 1;
 
         this.mapper.reset();
-        this.moveToLevel(this.props.level);
+        this.moveToLevel(this.level);
         this.tick();
         this.draw();
     }
 
     private moveToLevel(levelNum: number, movingUp: boolean = false) {
-        this.props.spawnRate = 15;
-        this.props.spawnCounter = this.props.spawnRate;
+        this.spawnRate = 15;
+        this.spawnCounter = this.spawnRate;
+        const currLevel = this.mapper.getCurrentLevel();
 
-        if (this.props.player) {
-            this.mapper.getCurrentLevel().removeActor(this.props.player);
+        if (this.player !== null &&
+            this.player.tile !== null && 
+            currLevel !== null
+        ) {
+            currLevel.removeActor(this.player);
         } else {
-            this.props.player = new PlayerActor(null);
+            this.player = new PlayerActor(null);
         }
 
         const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
 
         // player reset method?
-        this.props.player.offsetX = 0;
-        this.props.player.offsetY = 0;
-        this.props.player.stunned = false;
-        this.props.player.lastMove = [0, 0];
+        this.player.offsetX = 0;
+        this.player.offsetY = 0;
+        this.player.stunned = false;
+        this.player.lastMove = [0, 0];
 
-        levelToMoveTo.addActor(this.props.player, movingUp);
+        levelToMoveTo.addActor(this.player, movingUp);
 
-        this.props.sidebarNeedsUpdate = true;
+        this.sidebarNeedsUpdate = true;
     }
 
-    private addScore(score: number, won: boolean) {
+    private AddScoreAndGetList(score: number, won: boolean): Array<Score> {
         const scores = this.getScores();
         const scoreObject: Score = new Score(score, 1, score, won);
         const lastScore = scores.pop();
@@ -251,6 +261,7 @@ export class GameEngine {
 
         scores.push(scoreObject);
         this.localStorage["scores"] = JSON.stringify(scores);
+        return scores;
     }
 
     private getScores() {
@@ -262,9 +273,9 @@ export class GameEngine {
     }
 
     private prevLevel() {
-        if (this.props.level > 1) {
-            this.props.level--;
-            this.moveToLevel(this.props.level, true);
+        if (this.level > 1) {
+            this.level--;
+            this.moveToLevel(this.level, true);
         }
         else {
             // TODO: Notify they can't leave
@@ -272,12 +283,12 @@ export class GameEngine {
     }
 
     private nextLevel() {
-        if (this.props.level == numLevels) {
+        if (this.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
             this.audioPlayer.playSound(SOUNDFX.NEWLEVEL);
-            this.props.level++;
-            this.moveToLevel(this.props.level);
+            this.level++;
+            this.moveToLevel(this.level);
         }
     }
 }

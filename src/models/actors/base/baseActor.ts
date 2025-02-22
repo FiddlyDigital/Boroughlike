@@ -13,12 +13,9 @@ export abstract class BaseActor implements IActor {
     offsetX: number;
     offsetY: number;
     lastMove: Array<number>;
-    bonusAttack: number;
     isPlayer: boolean = false;
     stunned: boolean = false;
     attackedThisTurn: boolean = false;
-    shield: number = 0;
-    dead: boolean = false;
     tile: ITile | null;
     protected hitSFX: string;
 
@@ -28,27 +25,28 @@ export abstract class BaseActor implements IActor {
         this.stunned = false;
 
         this.attackedThisTurn = false;
-        this.shield = 0;
-        this.dead = false;
 
         if (tile !== null) {
             this.setTile(tile);
         }
+        
         this.sprite = sprite;
         this.hp = hp;
         this.teleportCounter = 2;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.lastMove = [-1, 0];
-        this.bonusAttack = 0;
-
+        this.lastMove = [0, 0];
         this.hitSFX = SOUNDFX.MONSTERHIT;
-
     }
 
     public heal(damage: number): void {
         this.hp = Math.min(maxHp, this.hp + damage);
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.PLAYERHEAL);
+    }
+
+    public isDead() : boolean
+    {
+        return this.hp == 0;
     }
 
     public tickUpdate(): void {
@@ -106,8 +104,7 @@ export abstract class BaseActor implements IActor {
                 if (this.isPlayer != newTile.monster.isPlayer) {
                     this.attackedThisTurn = true;
                     newTile.monster.stunned = true;
-                    newTile.monster.hit(1 + this.bonusAttack);
-                    this.bonusAttack = 0;
+                    newTile.monster.hit(1);
 
                     Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 5);
 
@@ -125,10 +122,6 @@ export abstract class BaseActor implements IActor {
     public hit(damage: number): void {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, this.hitSFX);
 
-        if (this.shield > 0) {
-            return;
-        }
-
         this.hp -= damage;
         if (this.hp <= 0) {
             this.die();
@@ -139,9 +132,7 @@ export abstract class BaseActor implements IActor {
         }
     }
 
-    private die(): void {
-        this.dead = true;
-
+    private die(): void {        
         if (this.tile !== null) {
             this.tile.monster = null;
         }

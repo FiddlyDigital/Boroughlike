@@ -180,41 +180,6 @@ export class ALCHEMY extends BaseSpell {
     }
 }
 
-export class POWERATTACK extends BaseSpell {
-    public constructor(caster: IActor) {
-        super(caster, "POWERATTACK");
-    }
-
-    cast(): void {
-        if (this.caster.tile === null){
-            return;
-        }
-
-        super.cast();
-        this.caster.bonusAttack = 5;
-    }
-}
-
-export class PROTECT extends BaseSpell {
-    public constructor(caster: IActor) {
-        super(caster, "PROTECT");
-    }
-
-    cast(): void {
-        if (this.caster.tile === null){
-            return;
-        }
-
-        super.cast();
-        this.caster.shield = 2;
-        const monsters = this.caster.tile.map.getMonsters();
-
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].stunned = true;
-        }
-    }
-}
-
 export class BOLT extends BaseSpell {
     public constructor(caster: IActor) {
         super(caster, "BOLT");
@@ -289,9 +254,6 @@ export const Spells = [
     DASH,
     FLATTEN,
     ALCHEMY,
-    POWERATTACK,
-    PROTECT,
-    PROTECT,
     BOLT,
     CROSS,
     EX

@@ -1,7 +1,7 @@
 import { ITile } from "../../tiles/base/ITile";
 
 export interface IActor {
-    dead: boolean;
+    isDead(): boolean;
     stunned: boolean;
     isPlayer: boolean;
     teleportCounter: number;
@@ -12,8 +12,6 @@ export interface IActor {
     tile: ITile | null;
     setTile(tile: ITile, newMap: boolean): void;
     lastMove: Array<number>;
-    bonusAttack: number;
-    shield: number;
     getDisplayX(): number;
     getDisplayY(): number;
     heal(damage: number): void;
