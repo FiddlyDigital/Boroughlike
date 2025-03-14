@@ -207,12 +207,25 @@ export class GameEngine {
     }
 
     private startGame() {
+        // Reset UI first
         this.renderer.hideOverlays();
+
+        // Reset all game state
         this.level = 1;
         this.score = 0;
         this.numSpells = 1;
+        this.spawnCounter = 0;
+        this.spawnRate = 15;
+        this.sidebarNeedsUpdate = true;
 
-        // Reset the mapper first
+        // Create a fresh player
+        this.player = new PlayerActor(null);
+        this.player.offsetX = 0;
+        this.player.offsetY = 0;
+        this.player.stunned = false;
+        this.player.lastMove = [0, 0];
+
+        // Reset the map system
         this.mapper.reset();
         
         // Create the first level before moving to it
@@ -222,35 +235,28 @@ export class GameEngine {
             return;
         }
 
-        // Now move to the level
+        // Now move to the level and start the game loop
         this.moveToLevel(this.level);
         this.tick();
         this.draw();
     }
 
     private moveToLevel(levelNum: number, movingUp: boolean = false) {
+        // Reset spawn mechanics for the new level
         this.spawnRate = 15;
         this.spawnCounter = this.spawnRate;
         
-        // Get the new level first to ensure it exists
+        // Get or create the level we're moving to
         const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
+        
+        // Remove player from current level if they're in one
         const currLevel = this.mapper.getCurrentLevel();
-
-        // Only remove player from current level if we have one and the player is in it
         if (currLevel && this.player && this.player.tile) {
             currLevel.removeActor(this.player);
-        } else {
-            this.player = new PlayerActor(null);
         }
 
-        // player reset method?
-        this.player.offsetX = 0;
-        this.player.offsetY = 0;
-        this.player.stunned = false;
-        this.player.lastMove = [0, 0];
-
+        // Add player to new level
         levelToMoveTo.addActor(this.player, movingUp);
-
         this.sidebarNeedsUpdate = true;
     }
 
@@ -283,6 +289,13 @@ export class GameEngine {
 
     private prevLevel() {
         if (this.level > 1) {
+            // Create the level we're moving to first if it doesn't exist
+            const prevLevel = this.mapper.getOrCreateLevel(this.level - 1);
+            if (!prevLevel) {
+                console.error("Failed to create previous level");
+                return;
+            }
+
             this.level--;
             this.moveToLevel(this.level, true);
         }

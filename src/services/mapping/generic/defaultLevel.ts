@@ -67,14 +67,17 @@ export class DefaultLevel implements ILevelGenerator {
     protected populateMap() {
         this.generateMonsters();
         this.placeBooks();
-        this.placeStairsDown();
-
-        console.log("Level " + this.levelIdx + " generated");
-        if (this.levelIdx > 0) {
+        
+        // Always place both stairs, but only if this isn't the first level
+        if (this.levelIdx > 1) {
             console.log("Placing stairs up");
             this.placeStairsUp();
         }
+        
+        // Always place stairs down unless we're at the last level
+        this.placeStairsDown();
 
+        console.log("Level " + this.levelIdx + " generated");
         this.overrideWallSpritesOnEdges();
     }
 
