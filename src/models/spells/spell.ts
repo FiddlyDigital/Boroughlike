@@ -1,6 +1,6 @@
 import { HUBEVENTS } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES} from "../../constants/spriteIndices";
-import { numTiles } from "../../constants/values";
+import { numTilesInViewport } from "../../constants/values";
 import { Hub } from "../../services/hub";
 import { BaseSpell } from "./baseSpell";
 import { FloorTile } from "../tiles/FloorTile";
@@ -36,8 +36,8 @@ export class Quake extends BaseSpell {
         }
 
         super.cast();
-        for (let i = 0; i < numTiles; i++) {
-            for (let j = 0; j < numTiles; j++) {
+        for (let i = 0; i < numTilesInViewport; i++) {
+            for (let j = 0; j < numTilesInViewport; j++) {
                 const tile = this.caster.tile.map.getTile(i, j);
 
                 if (tile && tile.monster && tile.monster != this.caster) {
@@ -147,8 +147,8 @@ export class FLATTEN extends BaseSpell {
         }
 
         super.cast();
-        for (let i = 1; i < numTiles - 1; i++) {
-            for (let j = 1; j < numTiles - 1; j++) {
+        for (let i = 1; i < numTilesInViewport - 1; i++) {
+            for (let j = 1; j < numTilesInViewport - 1; j++) {
                 const tile = this.caster.tile.map.getTile(i, j);
                 if (tile && !tile.passable) {
                     tile.map.replaceTile(i, j, new FloorTile(tile.map, i, j));

@@ -1,4 +1,4 @@
-import { numTiles } from "../../../constants/values";
+import { numTilesInViewport } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
@@ -22,14 +22,14 @@ export class DefaultLevel implements ILevelGenerator {
 
     public constructor(levelNum: number) {
         this.levelIdx = levelNum;
-        const mapSize = Math.floor((numTiles / 100) * (levelNum * 10 + 100));
+        const mapSize = Math.floor((numTilesInViewport / 100) * (levelNum * 10 + 100));
         this.map = new Map(mapSize, mapSize);
     }
 
     public generateLevel(levelNum: number, branch: string): IMap {
         this.levelIdx = levelNum;
 
-        const mapSize = Math.floor((numTiles / 100) * (levelNum * 10 + 100));
+        const mapSize = Math.floor((numTilesInViewport / 100) * (levelNum * 10 + 100));
         this.map = new Map(mapSize, mapSize);
         this.generateTiles();
         this.populateMap();

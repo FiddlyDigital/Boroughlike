@@ -1,9 +1,9 @@
+export const alternateSpriteTimeMS = 600;       // How many milliseconds between rendering alternate sprites
+export const imgAssetPath = "assets/images/";
 export const maxHp = 6;
 export const numLevels = 10;
-export const numTiles = 16;
+export const numTilesInViewport = 16;
+export const refreshRate = 1000 / 60;           // 60 frames per second
+export const sfxAssetPath = "assets/sounds/"
 export const startingHp = 3;
 export const tileRenderSizePX = 48;             // px
-export const refreshRate = 1000 / 60;   // 60 frames per second
-export const imgAssetPath = "assets/images/";
-export const sfxAssetPath = "assets/sounds/"
-export const alternateSpriteTimeMS = 600;

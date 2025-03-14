@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { HUBEVENTS, SPRITETYPES } from '../constants/enums';
 import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from '../constants/spriteIndices';
-import { numTiles, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from '../constants/values';
+import { numTilesInViewport, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from '../constants/values';
 import { Dictionary } from '../utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
@@ -27,10 +27,11 @@ export class Renderer implements IRenderer {
     ctx: CanvasRenderingContext2D;
     lastAlternateSpriteTimeMS: number;
     showAlternateSprites: boolean = false;
-    viewportWidth: number = numTiles;
-    viewportHeight: number = numTiles;
+    viewportWidth: number = numTilesInViewport;
+    viewportHeight: number = numTilesInViewport;
     viewportX: number = 0;
     viewportY: number = 0;
+    map: IMap | null = null;
 
     public constructor() {
         this.lastAlternateSpriteTimeMS = Date.now();
@@ -128,12 +129,40 @@ export class Renderer implements IRenderer {
         }
     }
 
+    private updateViewportPosition(player: IActor): void {
+        if (!player.tile || !this.map) return;
+
+        // Calculate the target viewport position (centered on player)
+        const targetViewportX = player.tile.x - Math.floor(this.viewportWidth / 2);
+        const targetViewportY = player.tile.y - Math.floor(this.viewportHeight / 2);
+
+        // Calculate the maximum viewport positions
+        const maxViewportX = this.map.width - this.viewportWidth;
+        const maxViewportY = this.map.height - this.viewportHeight;
+
+        // Clamp the viewport position to valid bounds with a small buffer
+        // This creates a "dead zone" where the viewport won't move if the player is near the center
+        const deadZone = 3; // Number of tiles from center before camera starts moving
+        const currentCenterX = this.viewportX + Math.floor(this.viewportWidth / 2);
+        const currentCenterY = this.viewportY + Math.floor(this.viewportHeight / 2);
+        const playerOffsetX = player.tile.x - currentCenterX;
+        const playerOffsetY = player.tile.y - currentCenterY;
+
+        // Only move the viewport if the player is outside the dead zone
+        if (Math.abs(playerOffsetX) > deadZone) {
+            this.viewportX = Math.max(0, Math.min(maxViewportX, targetViewportX));
+        }
+        if (Math.abs(playerOffsetY) > deadZone) {
+            this.viewportY = Math.max(0, Math.min(maxViewportY, targetViewportY));
+        }
+    }
+
     public updateScreen(mapperLevel: IMap): void {
         this.clearCanvas();
         this.screenshake();
+        this.map = mapperLevel;
 
         const newRenderingSecond = Date.now();
-
         if ((newRenderingSecond - this.lastAlternateSpriteTimeMS) > alternateSpriteTimeMS) {
             this.showAlternateSprites = !this.showAlternateSprites;
             this.lastAlternateSpriteTimeMS = newRenderingSecond;
@@ -143,11 +172,7 @@ export class Renderer implements IRenderer {
         const player = mapperLevel.getPlayer();
         
         if (player && player.tile) {
-            // Update viewport to center on player
-            this.viewportX = Math.max(0, Math.min(mapperLevel.width - this.viewportWidth, 
-                player.tile.x - Math.floor(this.viewportWidth / 2)));
-            this.viewportY = Math.max(0, Math.min(mapperLevel.height - this.viewportHeight,
-                player.tile.y - Math.floor(this.viewportHeight / 2)));
+            this.updateViewportPosition(player);
         }
 
         // Only render tiles within the viewport
