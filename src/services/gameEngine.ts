@@ -212,7 +212,17 @@ export class GameEngine {
         this.score = 0;
         this.numSpells = 1;
 
+        // Reset the mapper first
         this.mapper.reset();
+        
+        // Create the first level before moving to it
+        const firstLevel = this.mapper.getOrCreateLevel(this.level);
+        if (!firstLevel) {
+            console.error("Failed to create first level");
+            return;
+        }
+
+        // Now move to the level
         this.moveToLevel(this.level);
         this.tick();
         this.draw();
@@ -221,18 +231,17 @@ export class GameEngine {
     private moveToLevel(levelNum: number, movingUp: boolean = false) {
         this.spawnRate = 15;
         this.spawnCounter = this.spawnRate;
+        
+        // Get the new level first to ensure it exists
+        const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
         const currLevel = this.mapper.getCurrentLevel();
 
-        if (this.player !== null &&
-            this.player.tile !== null && 
-            currLevel !== null
-        ) {
+        // Only remove player from current level if we have one and the player is in it
+        if (currLevel && this.player && this.player.tile) {
             currLevel.removeActor(this.player);
         } else {
             this.player = new PlayerActor(null);
         }
-
-        const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
 
         // player reset method?
         this.player.offsetX = 0;

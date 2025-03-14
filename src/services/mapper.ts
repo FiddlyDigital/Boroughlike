@@ -18,21 +18,23 @@ export class Mapper implements IMapper {
     }
 
     public getOrCreateLevel(levelNumber: number): IMap {
-        let level: IMap | null = this.floors[levelNumber];
-        if (level !== null) {
+        let level = this.floors[levelNumber];
+        if (level !== undefined) {
             this.currentFloorIdx = levelNumber;
             return level;
         }
 
-        level = this.levelGenerator.generateLevel(this.currentFloorIdx, Branches.LIBRARY);
+        level = this.levelGenerator.generateLevel(levelNumber, Branches.LIBRARY);
         this.currentFloorIdx = levelNumber;
         this.floors[levelNumber] = level;
 
         return level;
     }
 
-    // todo: remove
     public getCurrentLevel(): IMap {
+        if (this.floors[this.currentFloorIdx] === undefined) {
+            return this.getOrCreateLevel(this.currentFloorIdx);
+        }
         return this.floors[this.currentFloorIdx];
     }
 

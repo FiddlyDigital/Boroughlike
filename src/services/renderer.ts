@@ -27,6 +27,10 @@ export class Renderer implements IRenderer {
     ctx: CanvasRenderingContext2D;
     lastAlternateSpriteTimeMS: number;
     showAlternateSprites: boolean = false;
+    viewportWidth: number = numTiles;
+    viewportHeight: number = numTiles;
+    viewportX: number = 0;
+    viewportY: number = 0;
 
     public constructor() {
         this.lastAlternateSpriteTimeMS = Date.now();
@@ -100,8 +104,8 @@ export class Renderer implements IRenderer {
 
     private setupCanvas(): void {
         if (this.canvas && this.ctx) {
-            this.canvas.width = tileRenderSizePX * numTiles;
-            this.canvas.height = tileRenderSizePX * numTiles;
+            this.canvas.width = tileRenderSizePX * this.viewportWidth;
+            this.canvas.height = tileRenderSizePX * this.viewportHeight;
             this.canvas.style.width = this.canvas.width + 'px';
             this.canvas.style.height = this.canvas.height + 'px';
             this.ctx.imageSmoothingEnabled = false;
@@ -136,9 +140,19 @@ export class Renderer implements IRenderer {
         }
 
         const monsters: IActor[] = [];
+        const player = mapperLevel.getPlayer();
+        
+        if (player && player.tile) {
+            // Update viewport to center on player
+            this.viewportX = Math.max(0, Math.min(mapperLevel.width - this.viewportWidth, 
+                player.tile.x - Math.floor(this.viewportWidth / 2)));
+            this.viewportY = Math.max(0, Math.min(mapperLevel.height - this.viewportHeight,
+                player.tile.y - Math.floor(this.viewportHeight / 2)));
+        }
 
-        for (let i = 0; i < numTiles; i++) {
-            for (let j = 0; j < numTiles; j++) {
+        // Only render tiles within the viewport
+        for (let i = this.viewportX; i < Math.min(this.viewportX + this.viewportWidth, mapperLevel.width); i++) {
+            for (let j = this.viewportY; j < Math.min(this.viewportY + this.viewportHeight, mapperLevel.height); j++) {
                 const tile = mapperLevel.getTile(i, j);
                 if (!tile) {
                     continue;
@@ -151,10 +165,18 @@ export class Renderer implements IRenderer {
             }
         }
 
+        // Draw monsters within viewport
         for (let m = 0; m < monsters.length; m++) {
-            this.drawMonster(monsters[m]);
+            const monster = monsters[m];
+            if (!monster.tile) continue;
+            
+            const monsterX = monster.tile.x;
+            const monsterY = monster.tile.y;
+            if (monsterX >= this.viewportX && monsterX < this.viewportX + this.viewportWidth &&
+                monsterY >= this.viewportY && monsterY < this.viewportY + this.viewportHeight) {
+                this.drawMonster(monster);
+            }
         }
-
     }
 
     private drawTile(tile: ITile): void {
@@ -162,15 +184,19 @@ export class Renderer implements IRenderer {
             throw "tile cannot be null";
         }
 
-        this.drawSprite(SPRITETYPES.TILE, tile.sprite, tile.x, tile.y);
+        // Adjust coordinates relative to viewport
+        const screenX = tile.x - this.viewportX;
+        const screenY = tile.y - this.viewportY;
+
+        this.drawSprite(SPRITETYPES.TILE, tile.sprite, screenX, screenY);
 
         if (tile.book) {
-            this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, tile.x, tile.y);
+            this.drawSprite(SPRITETYPES.ITEMS, ITEM_SPRITE_INDICES.Book, screenX, screenY);
         }
 
         if (tile.effectCounter > 0) {
             tile.effectCounter--;
-            this.drawSprite(SPRITETYPES.EFFECTS, tile.effectIndex, tile.x, tile.y, tile.effectCounter);
+            this.drawSprite(SPRITETYPES.EFFECTS, tile.effectIndex, screenX, screenY, tile.effectCounter);
         }
     }
 
@@ -179,19 +205,22 @@ export class Renderer implements IRenderer {
             throw "Monster cannot be null";
         }
 
+        // Adjust coordinates relative to viewport
+        const screenX = monster.getDisplayX() - this.viewportX;
+        const screenY = monster.getDisplayY() - this.viewportY;
+
         if (monster.teleportCounter > 0) {
-            this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, monster.getDisplayX(), monster.getDisplayY());
+            this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, screenX, screenY);
         } else {
-            this.drawSprite(SPRITETYPES.MONSTER, monster.sprite, monster.getDisplayX(), monster.getDisplayY());
+            this.drawSprite(SPRITETYPES.MONSTER, monster.sprite, screenX, screenY);
 
             for (let i = 0; i < monster.hp; i++) {
                 this.drawSprite(
                     SPRITETYPES.MONSTER,
                     MONSTER_SPRITE_INDICES.HP,
-                    monster.getDisplayX() + (i % 3) * (5 / 16),
-                    monster.getDisplayY() - Math.floor(i / 3) * (5 / 16)
+                    screenX + (i % 3) * (5 / 16),
+                    screenY - Math.floor(i / 3) * (5 / 16)
                 );
-
             }
         }
 

@@ -7,6 +7,7 @@ export interface IMap {
     height: number;
     width: number;
     getMonsters(): Array<IActor>;
+    getPlayer(): IActor | null;
     getTile(x: number, y: number): ITile | null;
     getStairUpTile(): ITile | null;
     setStairUpTile(): ITile | null

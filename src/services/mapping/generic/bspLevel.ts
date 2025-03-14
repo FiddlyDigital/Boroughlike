@@ -17,6 +17,7 @@ export class BSPTreemapLevel extends DefaultLevel {
 
     public constructor(levelNum: number) {
         super(levelNum);
+        this.maxLeafSize = this.maxLeafSize + levelNum;
         this.generate();
     }
 

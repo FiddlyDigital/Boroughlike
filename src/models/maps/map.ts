@@ -89,6 +89,10 @@ export class Map implements IMap {
         return this.monsters;
     }
 
+    public getPlayer(): IActor | null {
+        return this.monsters.find(m => m.isPlayer) || null;
+    }
+
     public getTile(x: number, y: number): ITile | null {
         try {
             if (this.inBounds(x, y)) {

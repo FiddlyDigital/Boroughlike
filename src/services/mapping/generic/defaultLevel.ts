@@ -2,6 +2,7 @@ import { numTiles } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
+import { IMap } from '../../../models/maps/IMap';
 import { ITile } from "../../../models/tiles/base/ITile";
 import { BirdActor } from "../../../models/actors/BirdActor";
 import { SnakeActor } from "../../../models/actors/SnakeActor";
@@ -13,11 +14,7 @@ import { WallTile } from "../../../models/tiles/WallTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
-
-export interface ILevelGenerator {
-    generate(): void;
-    generateTiles(): void;
-}
+import { ILevelGenerator } from "../../../services/interfaces/ILevelGenerator";
 
 export class DefaultLevel implements ILevelGenerator {
     levelIdx: number;
@@ -25,12 +22,18 @@ export class DefaultLevel implements ILevelGenerator {
 
     public constructor(levelNum: number) {
         this.levelIdx = levelNum;
-        this.map = new Map(numTiles, numTiles); // TODO: width/height = + Math.floor((numTiles / 100) * levelNum);
+        const mapSize = Math.floor((numTiles / 100) * (levelNum * 10 + 100));
+        this.map = new Map(mapSize, mapSize);
     }
 
-    public generate(): void {
+    public generateLevel(levelNum: number, branch: string): IMap {
+        this.levelIdx = levelNum;
+
+        const mapSize = Math.floor((numTiles / 100) * (levelNum * 10 + 100));
+        this.map = new Map(mapSize, mapSize);
         this.generateTiles();
         this.populateMap();
+        return this.map;
     }
 
     public generateTiles(): void {
