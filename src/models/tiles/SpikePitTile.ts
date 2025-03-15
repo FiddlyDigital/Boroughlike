@@ -9,7 +9,7 @@ import { BaseTile } from "./base/baseTile";
 // Affects monsters, so can be used tactically
 export class SpikePitTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
-        super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true);
+        super(map, x, y, TILE_SPRITE_INDICES.SpikePit, true, "255, 0, 0");
     };
 
     public stepOn(monster: IActor): void {

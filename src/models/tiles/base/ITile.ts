@@ -21,5 +21,6 @@ export interface ITile {
     setEffect(effectSprite: Array<number>): void;
     stepOn(monster: IActor): void;
     activate(monster: IActor): void;
+    getMiniMapColor(alpha: number): string;
 }
 

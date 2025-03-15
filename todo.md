@@ -2,10 +2,10 @@
 
 ## Features
 
-- Map can be bigger than screen
-  - Mini-map
-  - Camera Follows player
-- Fog of War?
+- ~~Map can be bigger than screen~~
+  - ~~Mini-map~~
+  - ~~Camera Follows player~~
+- ~~Fog of War?
 - SMT Dx2 Battle Mechanics?
 - Revamp Spells
   - Shape/size/element

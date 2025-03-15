@@ -6,7 +6,7 @@ import { BaseTile } from "./base/baseTile";
 // Brings Player to the next level
 export class StairDownTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
-        super(map, x, y, TILE_SPRITE_INDICES.StairDown, true);
+        super(map, x, y, TILE_SPRITE_INDICES.StairDown, true, "255, 0, 255");
     }
 
     public stepOn(monster: IActor): void {

@@ -5,7 +5,7 @@ import { BaseTile } from "./base/baseTile";
 
 export class FloorTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
-        super(map, x, y, TILE_SPRITE_INDICES.Floor, true);
+        super(map, x, y, TILE_SPRITE_INDICES.Floor, true, "80, 80, 80");
     };
 
     public stepOn(monster: IActor): void {

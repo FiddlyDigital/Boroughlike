@@ -68,16 +68,14 @@ export class BaseLevel implements ILevelGenerator {
         this.generateMonsters();
         this.placeBooks();
         
-        // Always place both stairs, but only if this isn't the first level
+        // Always place both stairs, except on the first level
         if (this.levelIdx > 1) {
-            console.log("Placing stairs up");
             this.placeStairsUp();
         }
         
-        // Always place stairs down unless we're at the last level
+        // Always place stairs down
         this.placeStairsDown();
 
-        console.log("Level " + this.levelIdx + " generated");
         this.overrideWallSpritesOnEdges();
     }
 

@@ -2,15 +2,16 @@
 import { HUBEVENTS, SPRITETYPES } from '../constants/enums';
 import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, TILE_SPRITE_INDICES } from '../constants/spriteIndices';
 import { numTilesInViewport, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from '../constants/values';
-import { Dictionary } from '../utilities';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
 import { ITile } from '../models/tiles/base/ITile';
-import { ISpell } from '../models/spells/ISpell';
 import { IRenderer } from './interfaces/IRenderer';
 import { IActor } from '../models/actors/base/IActor';
 import { IMap } from '../models/maps/IMap';
 import { Shake } from '../models/shake';
+import { StairUpTile, StairDownTile } from '../models/tiles';
+import { ISpell } from '../models/spells/ISpell';
+import { Dictionary } from '../utilities';
 import { Score } from '../models/score';
 
 @singleton()
@@ -179,9 +180,6 @@ export class Renderer implements IRenderer {
         const stairsUp = this.map.getStairUpTile();
         const stairsDown = this.map.getStairDownTile();
         
-        console.log('Stairs Up:', stairsUp?.x, stairsUp?.y);
-        console.log('Stairs Down:', stairsDown?.x, stairsDown?.y);
-
         // Draw tiles
         let seenTiles = 0;
         let wallTiles = 0;
@@ -196,28 +194,27 @@ export class Renderer implements IRenderer {
                     seenTiles++;
                     const alpha = tile.visible ? 0.9 : 0.5;
                     
-                    // Determine tile color based on type
                     if (!tile.passable) {
                         wallTiles++;
-                        this.ctx.fillStyle = `rgba(200, 200, 200, ${alpha})`; // Even brighter walls
-                    } else {
-                        // Check if it's a special tile by comparing sprite indices
-                        if (tile.sprite === TILE_SPRITE_INDICES.SpikePit) {
-                            this.ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`; // Red for spike pits
-                        } else if (tile.sprite === TILE_SPRITE_INDICES.FountainActive) {
-                            this.ctx.fillStyle = `rgba(50, 150, 255, ${alpha})`; // Blue for active fountains
-                        } else if (tile.sprite === TILE_SPRITE_INDICES.FountainInactive) {
-                            this.ctx.fillStyle = `rgba(100, 100, 255, ${alpha})`; // Darker blue for used fountains
-                        } else if (tile === stairsUp || tile === stairsDown) {
-                            stairTiles++;
-                            this.ctx.fillStyle = tile === stairsUp ? 
-                                `rgba(0, 255, 255, ${alpha})` : // Cyan for stairs up
-                                `rgba(255, 0, 255, ${alpha})`; // Magenta for stairs down
-                        } else if (tile.book) {
-                            this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`; // Gold for books
-                        } else {
-                            this.ctx.fillStyle = `rgba(80, 80, 80, ${alpha})`; // Darker floor
+                    } 
+                    else {
+                        switch (typeof(tile).toString()) 
+                        {
+                            case typeof(StairUpTile):
+                            case typeof(StairDownTile): 
+                                stairTiles++;
+                                break;
+                            default:
+                                break;
                         }
+                    }
+                    
+                    // Determine tile color based on type
+                    if (tile.book) {
+                        this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                    }
+                    else {
+                        this.ctx.fillStyle = tile.getMiniMapColor(alpha);
                     }
 
                     this.ctx.fillRect(
@@ -229,8 +226,6 @@ export class Renderer implements IRenderer {
                 }
             }
         }
-
-        console.log(`Minimap stats - Seen: ${seenTiles}, Walls: ${wallTiles}, Stairs: ${stairTiles}`);
 
         // Draw monsters as red dots
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';

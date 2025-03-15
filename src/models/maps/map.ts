@@ -75,12 +75,10 @@ export class Map implements IMap {
 
         let tileToPlaceOn = movingUp ? this.stairsDown : this.stairsUp;
         if (tileToPlaceOn === null) {
-            console.log("no stairs, placing on random tile");
             tileToPlaceOn = this.randomPassableTile()
         }
 
         if (tileToPlaceOn !== null) {
-            console.log("placing actor on tile", tileToPlaceOn);
             actor.setTile(tileToPlaceOn, true)
         }
     }
@@ -99,7 +97,7 @@ export class Map implements IMap {
                 return this.tiles[x][y];
             }
         } catch (e) {
-            console.log(e, x, y);
+            console.error(e, x, y);
         }
 
         return null;

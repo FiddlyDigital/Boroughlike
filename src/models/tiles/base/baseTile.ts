@@ -16,6 +16,7 @@ export abstract class BaseTile implements ITile {
     effectCounter: number = 0;
     stepEffectActive: boolean = false; // Should a trap spring, etc.
     monster: IActor | null = null;
+    protected minimapRGB= "256, 256, 256,"
 
     /**
      * 
@@ -24,13 +25,22 @@ export abstract class BaseTile implements ITile {
      * @param y - Y Coordinate on map
      * @param sprite - index of sprite image
      * @param passable - can an actor walk through it?
+     * @param minimapColor - color of the tile on the minimap
      */
-    public constructor(map: IMap, x: number, y: number, sprite: Array<number>, passable: boolean) {
+    public constructor(
+        map: IMap, 
+        x: number, 
+        y: number, 
+        sprite: Array<number>, 
+        passable: boolean,
+        minimapColor: string
+    ) {
         this.map = map;
         this.x = x;
         this.y = y;
         this.sprite = sprite;
         this.passable = passable;
+        this.minimapRGB = minimapColor;
     }
 
     public dist(other: ITile): number {
@@ -91,6 +101,10 @@ export abstract class BaseTile implements ITile {
     public setEffect(effectSprite: Array<number>): void {
         this.effectIndex = effectSprite;
         this.effectCounter = 30;
+    }
+
+    public getMiniMapColor(alpha: number = 0): string {
+        return `rgba(${this.minimapRGB}, ${alpha})`;
     }
 
     public abstract stepOn(monster: IActor): void;
