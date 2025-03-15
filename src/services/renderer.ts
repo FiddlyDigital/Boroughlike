@@ -194,7 +194,7 @@ export class Renderer implements IRenderer {
 
                 if (tile.seen) {
                     seenTiles++;
-                    let alpha = tile.visible ? 0.9 : 0.5;
+                    const alpha = tile.visible ? 0.9 : 0.5;
                     
                     // Determine tile color based on type
                     if (!tile.passable) {
