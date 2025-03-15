@@ -4,11 +4,11 @@ import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
 import { WallTile } from "../../../models/tiles/WallTile";
 import { Leaf } from "./bspTreeMap/leaf";
 import { Room } from "./bspTreeMap/room";
-import { DefaultLevel } from './defaultLevel';
+import { BaseLevel } from './baseLevel';
 
 // port of https://github.com/Fixtone/DungeonCarver/blob/master/Assets/Scripts/Maps/MapGenerators/BSPTreeMapGenerator.cs
 // Originally from in WulfenStil
-export class BSPTreemapLevel extends DefaultLevel {
+export class BSPTreemapLevel extends BaseLevel {
     maxLeafSize: number = 12;
     minLeafSize: number = 3;
     roomMaxSize: number = 10;
@@ -17,7 +17,7 @@ export class BSPTreemapLevel extends DefaultLevel {
 
     public constructor(levelNum: number) {
         super(levelNum);
-        this.maxLeafSize = this.maxLeafSize + levelNum;
+        this.maxLeafSize = this.maxLeafSize;
         this.generate();
     }
 

@@ -14,22 +14,22 @@ import { WallTile } from "../../../models/tiles/WallTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
-import { ILevelGenerator } from "../../../services/interfaces/ILevelGenerator";
+import { ILevelGenerator } from "../../interfaces/ILevelGenerator";
 
-export class DefaultLevel implements ILevelGenerator {
+export class BaseLevel implements ILevelGenerator {
     levelIdx: number;
     map: Map;
 
     public constructor(levelNum: number) {
         this.levelIdx = levelNum;
-        const mapSize = Math.floor((numTilesInViewport / 100) * (levelNum * 10 + 100));
+        const mapSize = Math.floor(numTilesInViewport + ((levelNum -1) * 8));
         this.map = new Map(mapSize, mapSize);
     }
 
     public generateLevel(levelNum: number, branch: string): IMap {
         this.levelIdx = levelNum;
 
-        const mapSize = Math.floor((numTilesInViewport / 100) * (levelNum * 10 + 100));
+        const mapSize = Math.floor(numTilesInViewport + ((levelNum -1) * 8));
         this.map = new Map(mapSize, mapSize);
         this.generateTiles();
         this.populateMap();
