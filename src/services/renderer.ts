@@ -287,7 +287,7 @@ export class Renderer implements IRenderer {
 
         const px = player.tile.x;
         const py = player.tile.y;
-        const viewDistance = 8; // How far the player can see
+        const viewDistance = 12; // How far the player can see
 
         // Mark tiles as visible using a simple raycasting algorithm
         for (let x = Math.max(0, px - viewDistance); x < Math.min(this.map.width, px + viewDistance + 1); x++) {
@@ -407,22 +407,51 @@ export class Renderer implements IRenderer {
             throw "Monster cannot be null";
         }
 
-        // Adjust coordinates relative to viewport
+        if (!this.map) {
+            return;
+        }
+
+        // Keep fractional positions for smooth movement
         const screenX = monster.getDisplayX() - this.viewportX;
         const screenY = monster.getDisplayY() - this.viewportY;
+
+        // Use rounded coordinates only for tile visibility checks
+        const worldX = Math.floor(monster.getDisplayX());
+        const worldY = Math.floor(monster.getDisplayY());
+        const tile = this.map.getTile(worldX, worldY);
+
+        // Check target tile if monster is moving
+        let targetTile = tile;
+        const x = monster.getDisplayX();
+        const y = monster.getDisplayY();
+        if (x % 1 !== 0) {
+            const targetX = Math.ceil(x);
+            targetTile = this.map.getTile(targetX, worldY);
+        } else if (y % 1 !== 0) {
+            const targetY = Math.ceil(y);
+            targetTile = this.map.getTile(worldX, targetY);
+        }
+
+        // Only proceed if monster is visible or is the player
+        const isVisible = monster.isPlayer || (tile?.visible || targetTile?.visible);
 
         if (monster.teleportCounter > 0) {
             this.drawSprite(SPRITETYPES.MONSTER, MONSTER_SPRITE_INDICES.MonsterLoad, screenX, screenY);
         } else {
             this.drawSprite(SPRITETYPES.MONSTER, monster.sprite, screenX, screenY);
 
-            for (let i = 0; i < monster.hp; i++) {
-                this.drawSprite(
-                    SPRITETYPES.MONSTER,
-                    MONSTER_SPRITE_INDICES.HP,
-                    screenX + (i % 3) * (5 / 16),
-                    screenY - Math.floor(i / 3) * (5 / 16)
-                );
+            // Only draw HP if monster is visible or is the player
+            if (isVisible) {
+                for (let i = 0; i < monster.hp; i++) {
+                    const monsterX = screenX + (i % 3) * (5 / 16);
+                    const monsterY = screenY - Math.floor(i / 3) * (5 / 16);
+                    this.drawSprite(
+                        SPRITETYPES.MONSTER,
+                        MONSTER_SPRITE_INDICES.HP,
+                        monsterX,
+                        monsterY
+                    );
+                }
             }
         }
 
@@ -431,11 +460,57 @@ export class Renderer implements IRenderer {
     }
 
     private drawSprite(spriteType: string, spriteIdx: Array<number> | null, x: number, y: number, effectCounter: number = 0): void {
+        // Handle effects opacity
         if (spriteType === SPRITETYPES.EFFECTS && effectCounter && effectCounter > 0) {
             this.ctx.globalAlpha = effectCounter / refreshRate;
         }
 
         if (spriteIdx) {
+            // Use rounded coordinates only for tile visibility checks
+            const worldX = Math.floor(x + this.viewportX);
+            const worldY = Math.floor(y + this.viewportY);
+            const tile = this.map?.getTile(worldX, worldY);
+
+            // For monsters that are moving, also check the target tile
+            let targetTile = tile;
+            const rawX = x + this.viewportX;
+            const rawY = y + this.viewportY;
+            if (spriteType === SPRITETYPES.MONSTER && rawX % 1 !== 0) {
+                // If x has a fraction, we're moving horizontally
+                const targetX = Math.ceil(rawX);
+                targetTile = this.map?.getTile(targetX, worldY);
+            } else if (spriteType === SPRITETYPES.MONSTER && rawY % 1 !== 0) {
+                // If y has a fraction, we're moving vertically
+                const targetY = Math.ceil(rawY);
+                targetTile = this.map?.getTile(worldX, targetY);
+            }
+
+            // Check if this is the player sprite
+            const isPlayerSprite = spriteType === SPRITETYPES.MONSTER && 
+                spriteIdx[0] === MONSTER_SPRITE_INDICES.Player[0] && 
+                spriteIdx[1] === MONSTER_SPRITE_INDICES.Player[1];
+
+            // Set opacity based on visibility state for tiles
+            if (spriteType === SPRITETYPES.TILE || spriteType === SPRITETYPES.ITEMS) {
+                if (!tile) {
+                    this.ctx.globalAlpha = 0; // Not visible at all
+                } else if (tile.visible) {
+                    this.ctx.globalAlpha = 1.0; // Fully visible
+                } else if (tile.seen) {
+                    this.ctx.globalAlpha = 0.6; // Seen but not visible
+                } else {
+                    this.ctx.globalAlpha = 0; // Not seen at all
+                }
+            } else if (spriteType === SPRITETYPES.MONSTER) {
+                // For monsters, check both current and target tile visibility, except for player
+                if (!isPlayerSprite && (!tile || !tile.visible) && (!targetTile || !targetTile.visible)) {
+                    return; // Don't render monsters outside line of sight at all
+                }
+                this.ctx.globalAlpha = 1.0;
+            } else {
+                // For effects, use full opacity
+                this.ctx.globalAlpha = 1.0;
+            }
 
             const spriteXIdx = spriteIdx[0]
             let spriteYIdx = spriteIdx[1];
@@ -445,6 +520,7 @@ export class Renderer implements IRenderer {
                 spriteYIdx = 1;
             }
 
+            // Keep fractional positions for smooth rendering
             this.ctx.drawImage(
                 this.getSpriteSheet(spriteType),
                 spriteXIdx * 16,
@@ -457,9 +533,8 @@ export class Renderer implements IRenderer {
                 tileRenderSizePX
             );
 
-            if (spriteType === SPRITETYPES.EFFECTS && (!effectCounter || effectCounter <= 0)) {
-                this.ctx.globalAlpha = 1;
-            }
+            // Reset opacity after drawing
+            this.ctx.globalAlpha = 1;
         }
     }
 
