@@ -3,19 +3,20 @@ import { IActor } from "../actors/base/IActor";
 import { IMap } from "../maps/IMap";
 import { BaseTile } from "./base/baseTile";
 
-export class FloorTile extends BaseTile {
+// Brings Player to the prev level
+export class StairUpTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
-        super(map, x, y, TILE_SPRITE_INDICES.Floor, true, "80, 80, 80");
-    };
+        super(map, x, y, TILE_SPRITE_INDICES.StairUp, true, "0, 255, 255");
+    }
 
     public stepOn(monster: IActor): void {
-        if (this.book && monster && monster.isPlayer) {
-            this.book = false;
-        }
+        // todo: log nothing happens
+        console.log(monster);
     }
 
     public activate(monster: IActor): void {
-        // todo: log nothing happens
-        console.log(monster);
+        if (monster && monster.isPlayer) {
+            this.map.prevLevel();
+        }
     }
 }

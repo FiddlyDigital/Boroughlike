@@ -13,35 +13,30 @@ export abstract class BaseActor implements IActor {
     offsetX: number;
     offsetY: number;
     lastMove: Array<number>;
-    bonusAttack: number;
     isPlayer: boolean = false;
     stunned: boolean = false;
     attackedThisTurn: boolean = false;
-    shield: number = 0;
-    dead: boolean = false;
-    tile: ITile;
+    tile: ITile | null;
     protected hitSFX: string;
 
-    public constructor(tile: ITile, sprite: Array<number>, hp: number) {
+    public constructor(tile: ITile | null, sprite: Array<number>, hp: number) {
         this.tile = tile;
         this.isPlayer = false;
         this.stunned = false;
 
         this.attackedThisTurn = false;
-        this.shield = 0;
-        this.dead = false;
 
-        this.move(tile);
+        if (tile !== null) {
+            this.setTile(tile);
+        }
+        
         this.sprite = sprite;
         this.hp = hp;
         this.teleportCounter = 2;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.lastMove = [-1, 0];
-        this.bonusAttack = 0;
-
+        this.lastMove = [0, 0];
         this.hitSFX = SOUNDFX.MONSTERHIT;
-
     }
 
     public heal(damage: number): void {
@@ -49,8 +44,14 @@ export abstract class BaseActor implements IActor {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, SOUNDFX.PLAYERHEAL);
     }
 
-    public update(): void {
+    public isDead() : boolean
+    {
+        return this.hp == 0;
+    }
+
+    public tickUpdate(): void {
         this.teleportCounter--;
+
         if (this.stunned || this.teleportCounter > 0) {
             this.stunned = false;
             return;
@@ -60,35 +61,50 @@ export abstract class BaseActor implements IActor {
     }
 
     protected act(): void {
+        if (this.tile === null) {
+            return;
+        }
+
         const neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => t && (!t.monster || t.monster.isPlayer));
         if (neighbors.length) {
             // get the closest tile to the player
-            neighbors.sort((a, b) => a.dist(this.tile) - b.dist(this.tile));
+            neighbors.sort((a, b) => a.dist(this.tile as ITile) - b.dist(this.tile as ITile));
             this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
         }
     }
 
     public getDisplayX(): number {
+        if (this.tile === null) {
+            return -1;
+        }
+
         return this.tile.x + this.offsetX;
     }
 
     public getDisplayY(): number {
+        if (this.tile === null) {
+            return -1;
+        }
+
         return this.tile.y + this.offsetY;
     }
 
     public tryMove(dx: number, dy: number): boolean {
+        if (this.tile === null) {
+            return false;
+        }
+
         const newTile = this.tile.getNeighbor(dx, dy);
         if (newTile && newTile.passable) {
             this.lastMove = [dx, dy];
 
             if (!newTile.monster) {
-                this.move(newTile);
+                this.setTile(newTile);
             } else {
                 if (this.isPlayer != newTile.monster.isPlayer) {
                     this.attackedThisTurn = true;
                     newTile.monster.stunned = true;
-                    newTile.monster.hit(1 + this.bonusAttack);
-                    this.bonusAttack = 0;
+                    newTile.monster.hit(1);
 
                     Hub.getInstance().publish(HUBEVENTS.SETSHAKE, 5);
 
@@ -106,10 +122,6 @@ export abstract class BaseActor implements IActor {
     public hit(damage: number): void {
         Hub.getInstance().publish(HUBEVENTS.PLAYSOUND, this.hitSFX);
 
-        if (this.shield > 0) {
-            return;
-        }
-
         this.hp -= damage;
         if (this.hp <= 0) {
             this.die();
@@ -120,23 +132,32 @@ export abstract class BaseActor implements IActor {
         }
     }
 
-    private die(): void {
-        this.dead = true;
-        this.tile.monster = null;
+    private die(): void {        
+        if (this.tile !== null) {
+            this.tile.monster = null;
+        }
+
         if (this.isPlayer) {
             this.sprite = MONSTER_SPRITE_INDICES.Player_Dead;
         }
     }
 
-    public move(tile: ITile): void {
-        if (this.tile) {
+    public setTile(newTile: ITile, newMap: boolean = false): void {
+        if (this.tile !== null) {
             this.tile.monster = null;
-            this.offsetX = this.tile.x - tile.x;
-            this.offsetY = this.tile.y - tile.y;
 
-            this.tile = tile;
-            tile.monster = this;
-            tile.stepOn(this);
+            if (newMap) {
+                this.offsetX = 0;
+                this.offsetY = 0;
+            }
+            else {
+                this.offsetX = this.tile.x - newTile.x;
+                this.offsetY = this.tile.y - newTile.y;
+            }
         }
+
+        this.tile = newTile;
+        newTile.monster = this;
+        newTile.stepOn(this);
     }
 }

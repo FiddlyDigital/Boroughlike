@@ -51,6 +51,7 @@ export const DIRECTION: Dictionary<string> = {
 
 export const HUBEVENTS: Dictionary<string> = {
     NEXTLEVEL : "NEXTLEVEL",
+    PREVLEVEL : "PREVLEVEL",
     PLAYSOUND: "PLAYSOUND",
     SETSHAKE : "SETSHAKE"
 }

@@ -1,15 +1,19 @@
 import { MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { shuffle } from "../../utilities";
-import { FloorTile } from "../tiles/FloorTile";
+import { ITile } from "../tiles/base/ITile";
 import { BaseActor } from "./base/baseActor";
 
 // Moves randomly
 export class JesterActor extends BaseActor {
-    constructor(tile: FloorTile) {
+    constructor(tile: ITile | null) {
         super(tile, MONSTER_SPRITE_INDICES.Jester, 2);
     }
 
     act(): void {
+        if (this.tile === null) {
+            return;
+        }
+
         const neighbors = this.tile.getAdjacentPassableNeighbors();
         if (neighbors.length) {
             const randomNeighbour = shuffle(neighbors)[0]

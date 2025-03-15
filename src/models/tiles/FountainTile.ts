@@ -7,15 +7,21 @@ import { BaseTile } from "./base/baseTile";
 // Can only be used once, and Monsters can't use them.
 export class FountainTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
-        super(map, x, y, TILE_SPRITE_INDICES.FountainActive, true);
+        super(map, x, y, TILE_SPRITE_INDICES.FountainActive, true, "50, 150, 255");
         this.stepEffectActive = true;
     };
 
-    stepOn(monster: IActor): void {
+    public stepOn(monster: IActor): void {
+        // todo: log nothing happens
+        console.log(monster);
+    }
+
+    public activate(monster: IActor): void {
         if (this.stepEffectActive && monster && monster.isPlayer) {
             this.stepEffectActive = false;
             this.sprite = TILE_SPRITE_INDICES.FountainInactive;
             monster.heal(10);
+            this.minimapRGB = "100, 100, 255";
         }
     }
 }

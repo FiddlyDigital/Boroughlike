@@ -4,7 +4,12 @@ export class Score {
     totalScore: number = 0;
     active: boolean = false;
 
-    public constructor(score: number | undefined, run: number | undefined, totalScore: number | undefined, active: boolean | undefined) {
+    public constructor(
+        score: number | undefined,
+        run: number | undefined,
+        totalScore: number | undefined,
+        active: boolean | undefined
+    ) {
         this.score = score ?? 0;
         this.run = run ?? 1;
         this.totalScore = totalScore ?? 0;

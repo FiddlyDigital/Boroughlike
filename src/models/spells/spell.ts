@@ -1,6 +1,6 @@
 import { HUBEVENTS } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES} from "../../constants/spriteIndices";
-import { numTiles } from "../../constants/values";
+import { numTilesInViewport } from "../../constants/values";
 import { Hub } from "../../services/hub";
 import { BaseSpell } from "./baseSpell";
 import { FloorTile } from "../tiles/FloorTile";
@@ -12,10 +12,15 @@ export class WOOP extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
+
         const newTile = this.caster.tile.map.randomPassableTile();
         if (newTile) {
-            this.caster.move(newTile);
+            this.caster.setTile(newTile);
         }
     }
 }
@@ -26,9 +31,13 @@ export class Quake extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
-        for (let i = 0; i < numTiles; i++) {
-            for (let j = 0; j < numTiles; j++) {
+        for (let i = 0; i < numTilesInViewport; i++) {
+            for (let j = 0; j < numTilesInViewport; j++) {
                 const tile = this.caster.tile.map.getTile(i, j);
 
                 if (tile && tile.monster && tile.monster != this.caster) {
@@ -48,6 +57,10 @@ export class Tornado extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         const monsters = this.caster.tile.map.getMonsters();
         for (let i = 0; i < monsters.length; i++) {
@@ -55,7 +68,7 @@ export class Tornado extends BaseSpell {
             if (monster) {
                 const randomTile = this.caster.tile.map.randomPassableTile();
                 if (randomTile) {
-                    monster.move(randomTile);
+                    monster.setTile(randomTile);
                     monster.teleportCounter = 2;
                 }
             }
@@ -69,6 +82,10 @@ export class AURA extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         this.caster.tile.getAdjacentNeighbors().forEach(function (t) {
             if (t) {
@@ -90,6 +107,10 @@ export class DASH extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         let newTile = this.caster.tile;
 
@@ -103,7 +124,7 @@ export class DASH extends BaseSpell {
         }
 
         if (this.caster.tile != newTile) {
-            this.caster.move(newTile);
+            this.caster.setTile(newTile);
             newTile.getAdjacentNeighbors().forEach(t => {
                 if (t && t.monster) {
                     t.setEffect(EFFECT_SPRITE_INDICES.Flame);
@@ -121,9 +142,13 @@ export class FLATTEN extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
-        for (let i = 1; i < numTiles - 1; i++) {
-            for (let j = 1; j < numTiles - 1; j++) {
+        for (let i = 1; i < numTilesInViewport - 1; i++) {
+            for (let j = 1; j < numTilesInViewport - 1; j++) {
                 const tile = this.caster.tile.map.getTile(i, j);
                 if (tile && !tile.passable) {
                     tile.map.replaceTile(i, j, new FloorTile(tile.map, i, j));
@@ -142,6 +167,10 @@ export class ALCHEMY extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         this.caster.tile.getAdjacentNeighbors().forEach(function (tile) {
             if (tile && !tile.passable) {
@@ -151,39 +180,16 @@ export class ALCHEMY extends BaseSpell {
     }
 }
 
-export class POWERATTACK extends BaseSpell {
-    public constructor(caster: IActor) {
-        super(caster, "POWERATTACK");
-    }
-
-    cast(): void {
-        super.cast();
-        this.caster.bonusAttack = 5;
-    }
-}
-
-export class PROTECT extends BaseSpell {
-    public constructor(caster: IActor) {
-        super(caster, "PROTECT");
-    }
-
-    cast(): void {
-        super.cast();
-        this.caster.shield = 2;
-        const monsters = this.caster.tile.map.getMonsters();
-
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].stunned = true;
-        }
-    }
-}
-
 export class BOLT extends BaseSpell {
     public constructor(caster: IActor) {
         super(caster, "BOLT");
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         super.boltTravel(this.caster, this.caster.lastMove, [15 + Math.abs(this.caster.lastMove[1])], 4);
     }
@@ -202,6 +208,10 @@ export class CROSS extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+
         super.cast();
         for (let k = 0; k < this.directions.length; k++) {
             const dirSprite = Math.abs(this.directions[k][1]) == 0 
@@ -225,6 +235,10 @@ export class EX extends BaseSpell {
     }
 
     cast(): void {
+        if (this.caster.tile === null){
+            return;
+        }
+        
         super.cast();
         for (let k = 0; k < this.directions.length; k++) {
             super.boltTravel(this.caster, this.directions[k], EFFECT_SPRITE_INDICES.Flame, 3);
@@ -240,9 +254,6 @@ export const Spells = [
     DASH,
     FLATTEN,
     ALCHEMY,
-    POWERATTACK,
-    PROTECT,
-    PROTECT,
     BOLT,
     CROSS,
     EX

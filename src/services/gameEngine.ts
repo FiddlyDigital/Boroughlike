@@ -1,25 +1,31 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { numLevels, startingHp, maxHp, refreshRate } from "../constants/values";
+import { numLevels, refreshRate } from "../constants/values";
 import { GAME_STATES, GAME_EVENTS, SOUNDFX, HUBEVENTS } from "../constants/enums";
 import { FiniteStateMachine, State } from "./FiniteStateMachine";
 import { Hub } from "./hub";
-import { PlayerActor } from "../models/actors/PlayerActor";
-import { FloorTile } from "../models/tiles/FloorTile";
 import { Dictionary } from "../utilities";
 import { inject, singleton } from "tsyringe";
 import { IMapper } from "./interfaces/IMapper";
 import { IAudioPlayer } from "./interfaces/IAudioPlayer";
 import { IRenderer } from "./interfaces/IRenderer";
 import { Score } from "../models/score";
+import { PlayerActor } from "../models/actors/PlayerActor";
 //import { version } from '../package.json';
 
 @singleton()
 export class GameEngine {
     props: any;
+    level: number;
+    player: PlayerActor;
     FSM: FiniteStateMachine;
     localStorage: Dictionary<string>;
     lastAnimateUpdate: number;
+    numSpells: number;
+    score: number;
+    spawnCounter: number;
+    spawnRate: number;
+    sidebarNeedsUpdate: boolean;
 
     constructor(
         @inject("IAudioPlayer") private audioPlayer: IAudioPlayer,
@@ -27,15 +33,14 @@ export class GameEngine {
         @inject("IRenderer") private renderer: IRenderer
     ) {
         this.localStorage = {};
+        this.level = 1;
+        this.player = new PlayerActor(null);
+        this.numSpells = 1;
+        this.score = 0;
+        this.spawnCounter = 0;
+        this.spawnRate = 15;
+        this.sidebarNeedsUpdate = false;
         //this.version = version;          
-        this.props = {
-            level: 1,
-            numSpells: 1,
-            player: null,
-            score: 0,
-            spawnCounter: 0,
-            spawnRate: 15,
-        };
 
         const stateMatrix: Dictionary<State> = {
             "Loading": new State(GAME_STATES.LOADING, { "AssetsLoaded": GAME_STATES.TITLE }, this.loadAssets.bind(this), null),
@@ -72,6 +77,8 @@ export class GameEngine {
         window.addEventListener('mousedown', self.handleInteraction.bind(this));
 
         Hub.getInstance().subscribe(HUBEVENTS.NEXTLEVEL, self.nextLevel.bind(this));
+        Hub.getInstance().subscribe(HUBEVENTS.PREVLEVEL, self.prevLevel.bind(this));
+
     }
 
     private handleInteraction(e: any): void {
@@ -98,34 +105,41 @@ export class GameEngine {
         switch (e.key) {
             case "Up": case "ArrowUp":
             case "w": case "W":
-                this.props.player.tryMove(0, -1)
+                this.player.tryMove(0, -1)
                 break;
             case "Down": case "ArrowDown":
             case "s": case "S":
-                this.props.player.tryMove(0, 1);
+                this.player.tryMove(0, 1);
                 break;
             case "Left": case "ArrowLeft":
             case "a": case "A":
-                this.props.player.tryMove(-1, 0);
+                this.player.tryMove(-1, 0);
                 break;
             case "Right": case "ArrowRight":
             case "d": case "D":
-                this.props.player.tryMove(1, 0);
+                this.player.tryMove(1, 0);
                 break;
             case " ": // Spacebar; 'Pass' a turn
-                this.props.player.tryMove(0, 0);
+                this.player.tryMove(0, 0);
                 break;
-            case 1: case "1": case 2: case "2": case 3: case "3":
-            case 4: case "4": case 5: case "5": case 6: case "6":
-            case 7: case "7": case 8: case "8": case 9: case "9":
-                this.props.player.castSpell(parseInt(e.key) - 1);
-                this.props.sidebarNeedsUpdate = true;
+            case "Enter":
+            case "Return":
+                this.player.activateTile();
                 break;
+            // case 1: case "1": case 2: case "2": case 3: case "3":
+            // case 4: case "4": case 5: case "5": case 6: case "6":
+            // case 7: case "7": case 8: case "8": case 9: case "9":
+            //     this.player.castSpell(parseInt(e.key) - 1);
+            //     this.sidebarNeedsUpdate = true;
+            //     break;
         }
 
         this.tick();
     }
 
+    /**
+     * This is the animation loop, which is called every at 60fps regardless of the gamestate
+     */
     private draw(): void {
         if (this.FSM.currentState.name == GAME_STATES.RUNNING) {
             const nowMs = new Date().getTime();
@@ -134,9 +148,9 @@ export class GameEngine {
 
                 this.renderer.updateScreen(this.mapper.getCurrentLevel());
 
-                if (this.props.sidebarNeedsUpdate) {
-                    this.props.sidebarNeedsUpdate = false;
-                    this.renderer.updateSidebar(this.props.level, this.props.score, this.props.player.spells);
+                if (this.sidebarNeedsUpdate) {
+                    this.sidebarNeedsUpdate = false;
+                    this.renderer.updateSidebar(this.level, this.score, null);
                 }
             }
 
@@ -144,29 +158,35 @@ export class GameEngine {
         }
     }
 
+    /**
+     * This is an update to the gamestate, usually only triggered by player input
+     */
     private tick(): void {
-        const currentLevelMonsters = this.mapper.getCurrentLevel().getMonsters();
-        for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
-            if (!currentLevelMonsters[k].dead) {
-                currentLevelMonsters[k].update();
-            } else {
-                currentLevelMonsters.splice(k, 1);
+        const currentLevel = this.mapper.getCurrentLevel();
+        if (currentLevel) {
+            const currentLevelMonsters = currentLevel.getMonsters();
+            for (let k = currentLevelMonsters.length - 1; k >= 0; k--) {
+                if (!currentLevelMonsters[k].isDead()) {
+                    currentLevelMonsters[k].tickUpdate();
+                } else {
+                    currentLevel.removeActor(currentLevelMonsters[k]);
+                }
             }
-        }
 
-        this.props.player.update();
+            this.player.tickUpdate();
 
-        if (this.props.player.dead) {
-            this.addScore(this.props.score, false);
-            this.props.sidebarNeedsUpdate = true;
-            this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
-        }
+            if (this.player.isDead()) {
+                this.AddScoreAndGetList(this.score, false);
+                this.sidebarNeedsUpdate = true;
+                this.FSM.triggerEvent(GAME_EVENTS.PLAYERLOSE);
+            }
 
-        this.props.spawnCounter--;
-        if (this.props.spawnCounter <= 0) {
-            this.mapper.getCurrentLevel().spawnMonster();
-            this.props.spawnCounter = this.props.spawnRate;
-            this.props.spawnRate--;
+            this.spawnCounter--;
+            if (this.spawnCounter <= 0) {
+                currentLevel.spawnMonster();
+                this.spawnCounter = this.spawnRate;
+                this.spawnRate--;
+            }
         }
     }
 
@@ -176,49 +196,71 @@ export class GameEngine {
 
     private showGameWin() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMEWIN);    
-        this.addScore(this.props.score, true);
-        this.renderer.showGameWin(this.props.scores);
+        const updatedScores: Score[] = this.AddScoreAndGetList(this.score, true);
+        this.renderer.showGameWin(updatedScores);
     }
 
     private showGameLose() {
         // TODO: audioPlayer.playSound(SOUNDFX.GAMELOSE);
-        this.addScore(this.props.score, true);
-        this.renderer.showGameLose(this.props.scores);
+        const updatedScores: Score[] = this.AddScoreAndGetList(this.score, true);
+        this.renderer.showGameLose(updatedScores);
     }
 
     private startGame() {
+        // Reset UI first
         this.renderer.hideOverlays();
-        this.props.level = 1;
-        this.props.score = 0;
-        this.props.numSpells = 1;
+
+        // Reset all game state
+        this.level = 1;
+        this.score = 0;
+        this.numSpells = 1;
+        this.spawnCounter = 0;
+        this.spawnRate = 15;
+        this.sidebarNeedsUpdate = true;
+
+        // Create a fresh player
+        this.player = new PlayerActor(null);
+        this.player.offsetX = 0;
+        this.player.offsetY = 0;
+        this.player.stunned = false;
+        this.player.lastMove = [0, 0];
+
+        // Reset the map system
         this.mapper.reset();
-        this.startLevel(startingHp, []);
-        this.props.sidebarNeedsUpdate = true;
+        
+        // Create the first level before moving to it
+        const firstLevel = this.mapper.getOrCreateLevel(this.level);
+        if (!firstLevel) {
+            console.error("Failed to create first level");
+            return;
+        }
+
+        // Now move to the level and start the game loop
+        this.moveToLevel(this.level);
         this.tick();
         this.draw();
     }
 
-    private startLevel(playerHp: number, playerSpells: any) {
-        this.props.spawnRate = 15;
-        this.props.spawnCounter = this.props.spawnRate;
-
-        this.mapper.getOrCreateLevel(this.props.level);
-
-        const freeTile = this.mapper.getCurrentLevel().randomPassableTile();
-        if (freeTile && freeTile instanceof FloorTile) {
-            this.props.player = new PlayerActor(freeTile);
+    private moveToLevel(levelNum: number, movingUp: boolean = false) {
+        // Reset spawn mechanics for the new level
+        this.spawnRate = 15;
+        this.spawnCounter = this.spawnRate;
+        
+        // Get or create the level we're moving to
+        const levelToMoveTo = this.mapper.getOrCreateLevel(levelNum);
+        
+        // Remove player from current level if they're in one
+        const currLevel = this.mapper.getCurrentLevel();
+        if (currLevel && this.player && this.player.tile) {
+            currLevel.removeActor(this.player);
         }
 
-        this.props.player.hp = playerHp;
-
-        if (playerSpells) {
-            this.props.player.spells = playerSpells;
-        }
-
-        this.props.sidebarNeedsUpdate = true;
+        // Add player to new level
+        levelToMoveTo.addActor(this.player, movingUp);
+        this.sidebarNeedsUpdate = true;
     }
 
-    private addScore(score: number, won: boolean) {
+    private AddScoreAndGetList(score: number, won: boolean): Array<Score> {
         const scores = this.getScores();
         const scoreObject: Score = new Score(score, 1, score, won);
         const lastScore = scores.pop();
@@ -234,6 +276,7 @@ export class GameEngine {
 
         scores.push(scoreObject);
         this.localStorage["scores"] = JSON.stringify(scores);
+        return scores;
     }
 
     private getScores() {
@@ -244,14 +287,30 @@ export class GameEngine {
         }
     }
 
+    private prevLevel() {
+        if (this.level > 1) {
+            // Create the level we're moving to first if it doesn't exist
+            const prevLevel = this.mapper.getOrCreateLevel(this.level - 1);
+            if (!prevLevel) {
+                console.error("Failed to create previous level");
+                return;
+            }
+
+            this.level--;
+            this.moveToLevel(this.level, true);
+        }
+        else {
+            // TODO: Notify they can't leave
+        }
+    }
+
     private nextLevel() {
-        if (this.props.level == numLevels) {
+        if (this.level == numLevels) {
             this.FSM.triggerEvent(GAME_EVENTS.PLAYERWIN);
         } else {
             this.audioPlayer.playSound(SOUNDFX.NEWLEVEL);
-            this.props.level++;
-            this.startLevel(Math.min(maxHp, this.props.player.hp + 1), null);
-            this.props.sidebarNeedsUpdate = true;
+            this.level++;
+            this.moveToLevel(this.level);
         }
     }
 }

@@ -11,9 +11,9 @@ import { Renderer } from "./services/renderer";
 export default class App {
     game: GameEngine;
 
-    constructor() { 
+    constructor() {
         // DI Registry
-        container.register("IAudioPlayer", { useClass: AudioPlayer });        
+        container.register("IAudioPlayer", { useClass: AudioPlayer });
         container.register("ILevelGenerator", { useClass: LevelGenerator });
         container.register("IMapper", { useClass: Mapper });
         container.register("IRenderer", { useClass: Renderer });

@@ -3,7 +3,7 @@
 import { DIRECTION } from "../../constants/enums";
 import { EFFECT_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { randomRange } from "../../utilities";
-import { FloorTile } from "../tiles/FloorTile";
+import { ITile } from "../tiles/base/ITile";
 import { BaseActor } from "./base/baseActor";
 
 // Just rotates in place and shoots player (and everything else on that line) when it sees them.
@@ -11,13 +11,17 @@ export class TurretActor extends BaseActor {
     directions: Array<string>;
     currentDirection: number;
 
-    constructor(tile: FloorTile) {
+    constructor(tile: ITile | null) {
         super(tile, MONSTER_SPRITE_INDICES.Turret, 1);
         this.directions = [DIRECTION.N, DIRECTION.E, DIRECTION.S, DIRECTION.W];
         this.currentDirection = randomRange(0, 3);
     }
 
     act(): void {
+        if (this.tile === null) {
+            return;
+        }
+
         // Rotate 90 degrees
         this.currentDirection += 1;
         if (this.currentDirection == 4) {

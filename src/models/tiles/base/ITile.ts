@@ -7,6 +7,8 @@ export interface ITile {
     y: number;
     book: boolean;
     passable: boolean;
+    visible: boolean;
+    seen: boolean;
     monster: IActor | null;
     sprite: Array<number>;
     effectIndex: Array<number> | null;
@@ -18,4 +20,7 @@ export interface ITile {
     getNeighborChain(direction: string): Array<ITile>;
     setEffect(effectSprite: Array<number>): void;
     stepOn(monster: IActor): void;
+    activate(monster: IActor): void;
+    getMiniMapColor(alpha: number): string;
 }
+

@@ -1,8 +1,8 @@
 import { FloorTile } from "../../../models/tiles/FloorTile";
 import { WallTile } from "../../../models/tiles/WallTile";
-import { DefaultLevel } from "./defaultLevel";
+import { BaseLevel } from "./baseLevel";
 
-export class CellularAutomationLevel extends DefaultLevel {
+export class CellularAutomationLevel extends BaseLevel {
     chanceToStartAlive: number;
     deathLimit: number;
     birthLimit: number;

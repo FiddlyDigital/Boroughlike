@@ -13,6 +13,10 @@ export class Hub {
         this.subscriptions = [];
     }
 
+    /**
+     * Gets the Singleton instance of the Hub if it exists, otherwise creates and stores it
+     * @returns {Hub} - The Singleton instance of the Hub
+     */
     public static getInstance(): Hub {
         if (!Hub.instance) {
             Hub.instance = new Hub();
@@ -21,7 +25,12 @@ export class Hub {
         return Hub.instance;
     }
 
-    public subscribe(eventName: string, callback: Function) : void {
+    /**
+     * Subscribes a callback to a named Event
+     * @param {string} eventName - Name of the event to subscribe to
+     * @param {Function} callback - Function to call when the event is triggered
+     */
+    public subscribe(eventName: string, callback: Function): void {
         if (!this.subscriptions[eventName]) {
             this.subscriptions[eventName] = [];
         }
@@ -34,7 +43,7 @@ export class Hub {
      * @param {string} eventName - Name of the event to trigger
      * @param {*} eventData - any even related data
      */
-    public publish(eventName: string, eventData: any) : void {
+    public publish(eventName: string, eventData: any): void {
         if (this.subscriptions[eventName]) {
             this.subscriptions[eventName]
                 .forEach((callback: (arg: any) => void) => {
@@ -45,4 +54,3 @@ export class Hub {
         }
     }
 }
-

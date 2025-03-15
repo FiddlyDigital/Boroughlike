@@ -1,7 +1,8 @@
-import { numTiles } from "../../../constants/values";
+import { numTilesInViewport } from "../../../constants/values";
 import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
+import { IMap } from '../../../models/maps/IMap';
 import { ITile } from "../../../models/tiles/base/ITile";
 import { BirdActor } from "../../../models/actors/BirdActor";
 import { SnakeActor } from "../../../models/actors/SnakeActor";
@@ -13,25 +14,26 @@ import { WallTile } from "../../../models/tiles/WallTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
-import { StairDownTile } from "../../../models/tiles/StairDownTile";
+import { ILevelGenerator } from "../../interfaces/ILevelGenerator";
 
-export interface ILevelGenerator {
-    generate(): void;
-    generateTiles(): void;
-}
-
-export class DefaultLevel implements ILevelGenerator {
-    levelNum: number;
+export class BaseLevel implements ILevelGenerator {
+    levelIdx: number;
     map: Map;
 
     public constructor(levelNum: number) {
-        this.levelNum = levelNum;
-        this.map = new Map(numTiles, numTiles); // TODO: width/height = + Math.floor((numTiles / 100) * levelNum);
+        this.levelIdx = levelNum;
+        const mapSize = Math.floor(numTilesInViewport + ((levelNum -1) * 8));
+        this.map = new Map(mapSize, mapSize);
     }
 
-    public generate(): void {
+    public generateLevel(levelNum: number, branch: string): IMap {
+        this.levelIdx = levelNum;
+
+        const mapSize = Math.floor(numTilesInViewport + ((levelNum -1) * 8));
+        this.map = new Map(mapSize, mapSize);
         this.generateTiles();
         this.populateMap();
+        return this.map;
     }
 
     public generateTiles(): void {
@@ -65,12 +67,20 @@ export class DefaultLevel implements ILevelGenerator {
     protected populateMap() {
         this.generateMonsters();
         this.placeBooks();
-        this.placeStaircase();
+        
+        // Always place both stairs, except on the first level
+        if (this.levelIdx > 1) {
+            this.placeStairsUp();
+        }
+        
+        // Always place stairs down
+        this.placeStairsDown();
+
         this.overrideWallSpritesOnEdges();
     }
 
     private generateMonsters() {
-        const numMonsters = Math.ceil(this.levelNum / 2) + 1;
+        const numMonsters = Math.ceil((this.levelIdx + 1) / 2) + 1;
         for (let i = 0; i < numMonsters; i++) {
             this.map.monsters.push(this.spawnMonster());
         }
@@ -92,11 +102,12 @@ export class DefaultLevel implements ILevelGenerator {
         }
     }
 
-    private placeStaircase() {
-        const newStaircaseTile = this.map.randomPassableTile();
-        if (newStaircaseTile) {
-            newStaircaseTile.map.replaceTile(newStaircaseTile.x, newStaircaseTile.y, new StairDownTile(newStaircaseTile.map, newStaircaseTile.x, newStaircaseTile.y));
-        }
+    private placeStairsDown() {
+        this.map.setStairDownTile();
+    }
+
+    private placeStairsUp() {
+        this.map.setStairUpTile();
     }
 
     private overrideWallSpritesOnEdges(): void {
