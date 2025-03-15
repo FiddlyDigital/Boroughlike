@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { HUBEVENTS, SPRITETYPES } from '../constants/enums';
-import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from '../constants/spriteIndices';
+import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, TILE_SPRITE_INDICES } from '../constants/spriteIndices';
 import { numTilesInViewport, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from '../constants/values';
 import { Dictionary } from '../utilities';
 import { Hub } from './hub';
@@ -157,6 +157,179 @@ export class Renderer implements IRenderer {
         }
     }
 
+    private drawMinimap(): void {
+        if (!this.map) return;
+
+        const minimapSize = 150; // pixels
+        const padding = 10; // pixels from the edge
+        const tileSize = Math.max(2, Math.floor(minimapSize / Math.max(this.map.width, this.map.height))); // minimum 2px per tile
+        const minimapWidth = this.map.width * tileSize;
+        const minimapHeight = this.map.height * tileSize;
+
+        // Position in top-right corner
+        const minimapX = this.canvas.width - minimapWidth - padding;
+        const minimapY = padding;
+
+        // Semi-transparent background
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(minimapX - padding, minimapY - padding, 
+            minimapWidth + padding * 2, minimapHeight + padding * 2);
+
+        // Get stairs for comparison
+        const stairsUp = this.map.getStairUpTile();
+        const stairsDown = this.map.getStairDownTile();
+        
+        console.log('Stairs Up:', stairsUp?.x, stairsUp?.y);
+        console.log('Stairs Down:', stairsDown?.x, stairsDown?.y);
+
+        // Draw tiles
+        let seenTiles = 0;
+        let wallTiles = 0;
+        let stairTiles = 0;
+
+        for (let x = 0; x < this.map.width; x++) {
+            for (let y = 0; y < this.map.height; y++) {
+                const tile = this.map.getTile(x, y);
+                if (!tile) continue;
+
+                if (tile.seen) {
+                    seenTiles++;
+                    let alpha = tile.visible ? 0.9 : 0.5;
+                    
+                    // Determine tile color based on type
+                    if (!tile.passable) {
+                        wallTiles++;
+                        this.ctx.fillStyle = `rgba(200, 200, 200, ${alpha})`; // Even brighter walls
+                    } else {
+                        // Check if it's a special tile by comparing sprite indices
+                        if (tile.sprite === TILE_SPRITE_INDICES.SpikePit) {
+                            this.ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`; // Red for spike pits
+                        } else if (tile.sprite === TILE_SPRITE_INDICES.FountainActive) {
+                            this.ctx.fillStyle = `rgba(50, 150, 255, ${alpha})`; // Blue for active fountains
+                        } else if (tile.sprite === TILE_SPRITE_INDICES.FountainInactive) {
+                            this.ctx.fillStyle = `rgba(100, 100, 255, ${alpha})`; // Darker blue for used fountains
+                        } else if (tile === stairsUp || tile === stairsDown) {
+                            stairTiles++;
+                            this.ctx.fillStyle = tile === stairsUp ? 
+                                `rgba(0, 255, 255, ${alpha})` : // Cyan for stairs up
+                                `rgba(255, 0, 255, ${alpha})`; // Magenta for stairs down
+                        } else if (tile.book) {
+                            this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`; // Gold for books
+                        } else {
+                            this.ctx.fillStyle = `rgba(80, 80, 80, ${alpha})`; // Darker floor
+                        }
+                    }
+
+                    this.ctx.fillRect(
+                        minimapX + x * tileSize,
+                        minimapY + y * tileSize,
+                        tileSize,
+                        tileSize
+                    );
+                }
+            }
+        }
+
+        console.log(`Minimap stats - Seen: ${seenTiles}, Walls: ${wallTiles}, Stairs: ${stairTiles}`);
+
+        // Draw monsters as red dots
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+        const monsters = this.map.getMonsters();
+        for (const monster of monsters) {
+            if (!monster.tile || !monster.tile.visible) continue;
+            this.ctx.fillRect(
+                minimapX + monster.tile.x * tileSize,
+                minimapY + monster.tile.y * tileSize,
+                tileSize,
+                tileSize
+            );
+        }
+
+        // Draw player as a bright white dot
+        const player = this.map.getPlayer();
+        if (player && player.tile) {
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+            this.ctx.fillRect(
+                minimapX + player.tile.x * tileSize,
+                minimapY + player.tile.y * tileSize,
+                tileSize,
+                tileSize
+            );
+        }
+
+        // Draw viewport rectangle with a more visible outline
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(
+            minimapX + this.viewportX * tileSize,
+            minimapY + this.viewportY * tileSize,
+            this.viewportWidth * tileSize,
+            this.viewportHeight * tileSize
+        );
+    }
+
+    private updateVisibility(): void {
+        if (!this.map) return;
+
+        // Reset visibility
+        for (let x = 0; x < this.map.width; x++) {
+            for (let y = 0; y < this.map.height; y++) {
+                const tile = this.map.getTile(x, y);
+                if (tile) {
+                    tile.visible = false;
+                }
+            }
+        }
+
+        // Get player position
+        const player = this.map.getPlayer();
+        if (!player || !player.tile) return;
+
+        const px = player.tile.x;
+        const py = player.tile.y;
+        const viewDistance = 8; // How far the player can see
+
+        // Mark tiles as visible using a simple raycasting algorithm
+        for (let x = Math.max(0, px - viewDistance); x < Math.min(this.map.width, px + viewDistance + 1); x++) {
+            for (let y = Math.max(0, py - viewDistance); y < Math.min(this.map.height, py + viewDistance + 1); y++) {
+                // Skip if outside view distance
+                const dx = x - px;
+                const dy = y - py;
+                if (dx * dx + dy * dy > viewDistance * viewDistance) continue;
+
+                const tile = this.map.getTile(x, y);
+                if (!tile) continue;
+
+                // Cast a ray from player to this tile
+                let visible = true;
+                const steps = Math.max(Math.abs(dx), Math.abs(dy));
+                if (steps === 0) {
+                    visible = true;
+                } else {
+                    const stepX = dx / steps;
+                    const stepY = dy / steps;
+
+                    // Check each step along the ray
+                    for (let i = 1; i < steps; i++) {
+                        const checkX = Math.round(px + stepX * i);
+                        const checkY = Math.round(py + stepY * i);
+                        const checkTile = this.map.getTile(checkX, checkY);
+                        
+                        if (checkTile && !checkTile.passable) {
+                            visible = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (visible) {
+                    tile.visible = true;
+                    tile.seen = true;
+                }
+            }
+        }
+    }
+
     public updateScreen(mapperLevel: IMap): void {
         this.clearCanvas();
         this.screenshake();
@@ -173,6 +346,7 @@ export class Renderer implements IRenderer {
         
         if (player && player.tile) {
             this.updateViewportPosition(player);
+            this.updateVisibility();
         }
 
         // Only render tiles within the viewport
@@ -202,6 +376,9 @@ export class Renderer implements IRenderer {
                 this.drawMonster(monster);
             }
         }
+
+        // Draw the minimap last so it overlays everything
+        this.drawMinimap();
     }
 
     private drawTile(tile: ITile): void {

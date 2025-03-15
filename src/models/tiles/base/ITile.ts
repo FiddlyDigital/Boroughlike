@@ -7,6 +7,8 @@ export interface ITile {
     y: number;
     book: boolean;
     passable: boolean;
+    visible: boolean;
+    seen: boolean;
     monster: IActor | null;
     sprite: Array<number>;
     effectIndex: Array<number> | null;

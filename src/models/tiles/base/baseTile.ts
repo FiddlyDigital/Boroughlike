@@ -9,7 +9,8 @@ export abstract class BaseTile implements ITile {
     y: number;
     sprite: Array<number>;
     passable: boolean;
-    explored: boolean = false;
+    visible: boolean = false;
+    seen: boolean = false;
     book: boolean = false;
     effectIndex: Array<number> | null = null;
     effectCounter: number = 0;
