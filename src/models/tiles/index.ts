@@ -5,6 +5,7 @@ import { SpikePitTile } from "./SpikePitTile";
 import { StairDownTile } from "./StairDownTile";
 import { StairUpTile } from "./StairUpTile";
 import { WallTile } from "./WallTile";
+import { DoorTile } from "./DoorTile";
 
 export {
     FloorTile,
@@ -14,4 +15,5 @@ export {
     StairDownTile,
     StairUpTile,
     WallTile,
+    DoorTile,
 }

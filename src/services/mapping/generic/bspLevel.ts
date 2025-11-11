@@ -1,3 +1,4 @@
+import { DoorTile } from "../../../models/tiles/DoorTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
@@ -94,29 +95,70 @@ export class BSPTreemapLevel extends BaseLevel {
 
     // connect two rooms by hallways
     public createHall(room1: Room, room2: Room) {
-        //# 50% chance that a tunnel will start horizontally
+        // 50% chance that a tunnel will start horizontally
         const chance = (Math.random() >= 0.5);
         if (chance) {
-            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room1.centerY);
-            this.makeVerticalTunnel(room1.centerY, room2.centerY, room2.centerX);
+            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room1.centerY, room1, room2);
+            this.makeVerticalTunnel(room1.centerY, room2.centerY, room2.centerX, room1, room2);
         }
         else {
-            this.makeVerticalTunnel(room1.centerY, room2.centerY, room1.centerX);
-            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room2.centerY);
+            this.makeVerticalTunnel(room1.centerY, room2.centerY, room1.centerX, room1, room2);
+            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room2.centerY, room1, room2);
         }
     }
 
-    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number): void {
+    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number, room1?: Room, room2?: Room): void {
         const min = Math.min(xStart, xEnd);
-        const max = Math.max(xStart, xEnd)
+        const max = Math.max(xStart, xEnd);
+        let doorPlaced1 = false;
+        let doorPlaced2 = false;
         for (let x = min; x <= max; x++) {
-            this.map.tiles[x][yPosition] = new FloorTile(this.map, x, yPosition);
+            // Place a door at the first tile outside the bounds of room1 and room2
+            let isRoom1 = false, isRoom2 = false;
+            if (room1) {
+                isRoom1 = (x >= room1.x && x < room1.maxX && yPosition >= room1.y && yPosition < room1.maxY);
+            }
+            if (room2) {
+                isRoom2 = (x >= room2.x && x < room2.maxX && yPosition >= room2.y && yPosition < room2.maxY);
+            }
+            if (!doorPlaced1 && !isRoom1 && x < xEnd && room1 && ((xStart < xEnd && x > room1.maxX - 1) || (xStart > xEnd && x < room1.x))) {
+                this.map.tiles[x][yPosition] = new DoorTile(this.map, x, yPosition);
+                doorPlaced1 = true;
+            } else if (!doorPlaced2 && !isRoom2 && x > xStart && room2 && ((xStart < xEnd && x >= room2.x) || (xStart > xEnd && x <= room2.maxX - 1))) {
+                this.map.tiles[x][yPosition] = new DoorTile(this.map, x, yPosition);
+                doorPlaced2 = true;
+            } else {
+                this.map.tiles[x][yPosition] = new FloorTile(this.map, x, yPosition);
+            }
         }
     }
 
-    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number): void {
-        for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
-            this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
+    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number, room1: Room, room2: Room): void {
+        const min = Math.min(yStart, yEnd);
+        const max = Math.max(yStart, yEnd);
+        let doorPlaced1 = false;
+        let doorPlaced2 = false;
+        for (let y = min; y <= max; y++) {
+            const isCoordWithinRoom1 = (xPosition >= room1.x && xPosition < room1.maxX && y >= room1.y && y < room1.maxY);
+            const isCoordWithinRoom2 = (xPosition >= room2.x && xPosition < room2.maxX && y >= room2.y && y < room2.maxY);
+            
+            if (
+                !doorPlaced1 && !isCoordWithinRoom1 && 
+                y < yEnd && room1 && 
+                ((yStart < yEnd && y > room1.maxY - 1) || (yStart > yEnd && y < room1.y))
+            ) {
+                this.map.tiles[xPosition][y] = new DoorTile(this.map, xPosition, y);
+                doorPlaced1 = true;
+            } else if (
+                !doorPlaced2 && !isCoordWithinRoom2 && 
+                y > yStart && room2 && 
+                ((yStart < yEnd && y >= room2.y) || (yStart > yEnd && y <= room2.maxY - 1))
+            ) {
+                this.map.tiles[xPosition][y] = new DoorTile(this.map, xPosition, y);
+                doorPlaced2 = true;
+            } else {
+                this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
+            }
         }
     }
 }

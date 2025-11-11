@@ -34,6 +34,8 @@ export const TILE_SPRITE_INDICES: Dictionary<Array<number>> = {
     SpikePit: [2, 0],
     FountainActive: [3, 0],
     FountainInactive: [3, 1],
+    DoorClosed: [4, 0],
+    DoorOpen: [4, 1],
     Wall: [0, 2], // Standalone
     Wall_L: [1, 2],
     Wall_R: [2, 2],

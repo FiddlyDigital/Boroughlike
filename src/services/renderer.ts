@@ -88,7 +88,7 @@ export class Renderer implements IRenderer {
         this.itemSpriteSheet.onload = this.checkAllSpriteSheetsLoaded.bind(this);
 
         this.monsterSpriteSheet.src = imgAssetPath + "monsters1.png"; // "monsters2.png"
-        this.tileSpriteSheet.src = imgAssetPath + "library_new.png";
+        this.tileSpriteSheet.src = imgAssetPath + "dungeon.png";
         this.effectSpriteSheet.src = imgAssetPath + "effects.png";
         this.itemSpriteSheet.src = imgAssetPath + "items.png";
     }
@@ -173,12 +173,12 @@ export class Renderer implements IRenderer {
 
         // Semi-transparent background
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(minimapX - padding, minimapY - padding, 
-            minimapWidth + padding * 2, minimapHeight + padding * 2);
-
-        // Get stairs for comparison
-        const stairsUp = this.map.getStairUpTile();
-        const stairsDown = this.map.getStairDownTile();
+        this.ctx.fillRect(
+            minimapX - padding, 
+            minimapY - padding, 
+            minimapWidth + padding * 2, 
+            minimapHeight + padding * 2
+        );
         
         // Draw tiles
         let seenTiles = 0;
@@ -188,7 +188,9 @@ export class Renderer implements IRenderer {
         for (let x = 0; x < this.map.width; x++) {
             for (let y = 0; y < this.map.height; y++) {
                 const tile = this.map.getTile(x, y);
-                if (!tile) continue;
+                if (!tile) {
+                    continue;
+                }
 
                 if (tile.seen) {
                     seenTiles++;
@@ -231,7 +233,10 @@ export class Renderer implements IRenderer {
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
         const monsters = this.map.getMonsters();
         for (const monster of monsters) {
-            if (!monster.tile || !monster.tile.visible) continue;
+            if (!monster.tile || !monster.tile.visible) {
+                continue;
+            }
+
             this.ctx.fillRect(
                 minimapX + monster.tile.x * tileSize,
                 minimapY + monster.tile.y * tileSize,
@@ -278,11 +283,13 @@ export class Renderer implements IRenderer {
 
         // Get player position
         const player = this.map.getPlayer();
-        if (!player || !player.tile) return;
+        if (!player || !player.tile) {
+            return;
+        }
 
         const px = player.tile.x;
         const py = player.tile.y;
-        const viewDistance = 12; // How far the player can see
+        const viewDistance = 10; // How far the player can see
 
         // Mark tiles as visible using a simple raycasting algorithm
         for (let x = Math.max(0, px - viewDistance); x < Math.min(this.map.width, px + viewDistance + 1); x++) {
@@ -290,14 +297,19 @@ export class Renderer implements IRenderer {
                 // Skip if outside view distance
                 const dx = x - px;
                 const dy = y - py;
-                if (dx * dx + dy * dy > viewDistance * viewDistance) continue;
+                if (dx * dx + dy * dy > viewDistance * viewDistance) {
+                    continue;
+                }
 
                 const tile = this.map.getTile(x, y);
-                if (!tile) continue;
+                if (!tile) {
+                    continue;
+                }
 
                 // Cast a ray from player to this tile
                 let visible = true;
                 const steps = Math.max(Math.abs(dx), Math.abs(dy));
+
                 if (steps === 0) {
                     visible = true;
                 } else {
@@ -310,9 +322,16 @@ export class Renderer implements IRenderer {
                         const checkY = Math.round(py + stepY * i);
                         const checkTile = this.map.getTile(checkX, checkY);
                         
-                        if (checkTile && !checkTile.passable) {
-                            visible = false;
-                            break;
+                        // Check if the tile blocks visibility
+                        if (checkTile) {
+                            const isBlocking = 'isBlocking' in checkTile 
+                                ? (checkTile as any).isBlocking() 
+                                : !checkTile.passable;
+                            
+                            if (isBlocking) {
+                                visible = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -362,12 +381,16 @@ export class Renderer implements IRenderer {
         // Draw monsters within viewport
         for (let m = 0; m < monsters.length; m++) {
             const monster = monsters[m];
-            if (!monster.tile) continue;
+            if (!monster.tile) {
+                continue;
+            }
             
             const monsterX = monster.tile.x;
             const monsterY = monster.tile.y;
-            if (monsterX >= this.viewportX && monsterX < this.viewportX + this.viewportWidth &&
-                monsterY >= this.viewportY && monsterY < this.viewportY + this.viewportHeight) {
+            if (monsterX >= this.viewportX && 
+                monsterX < this.viewportX + this.viewportWidth &&
+                monsterY >= this.viewportY && 
+                monsterY < this.viewportY + this.viewportHeight) {
                 this.drawMonster(monster);
             }
         }
