@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { HUBEVENTS, SPRITETYPES } from '../constants/enums';
-import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES, TILE_SPRITE_INDICES } from '../constants/spriteIndices';
+import { ITEM_SPRITE_INDICES, MONSTER_SPRITE_INDICES } from '../constants/spriteIndices';
 import { numTilesInViewport, tileRenderSizePX, refreshRate, imgAssetPath, alternateSpriteTimeMS } from '../constants/values';
 import { Hub } from './hub';
 import { singleton } from 'tsyringe';
@@ -9,7 +9,6 @@ import { IRenderer } from './interfaces/IRenderer';
 import { IActor } from '../models/actors/base/IActor';
 import { IMap } from '../models/maps/IMap';
 import { Shake } from '../models/shake';
-import { StairUpTile, StairDownTile } from '../models/tiles';
 import { ISpell } from '../models/spells/ISpell';
 import { Dictionary } from '../utilities';
 import { Score } from '../models/score';
@@ -180,11 +179,6 @@ export class Renderer implements IRenderer {
             minimapHeight + padding * 2
         );
         
-        // Draw tiles
-        let seenTiles = 0;
-        let wallTiles = 0;
-        let stairTiles = 0;
-
         for (let x = 0; x < this.map.width; x++) {
             for (let y = 0; y < this.map.height; y++) {
                 const tile = this.map.getTile(x, y);
@@ -193,23 +187,7 @@ export class Renderer implements IRenderer {
                 }
 
                 if (tile.seen) {
-                    seenTiles++;
                     const alpha = tile.visible ? 0.9 : 0.5;
-                    
-                    if (!tile.passable) {
-                        wallTiles++;
-                    } 
-                    else {
-                        switch (typeof(tile).toString()) 
-                        {
-                            case typeof(StairUpTile):
-                            case typeof(StairDownTile): 
-                                stairTiles++;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
                     
                     // Determine tile color based on type
                     if (tile.book) {
@@ -325,6 +303,7 @@ export class Renderer implements IRenderer {
                         // Check if the tile blocks visibility
                         if (checkTile) {
                             const isBlocking = 'isBlocking' in checkTile 
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 ? (checkTile as any).isBlocking() 
                                 : !checkTile.passable;
                             
