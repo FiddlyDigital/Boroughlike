@@ -7,7 +7,7 @@
     "serve": "http-server -p 3030 --cors -c1",
     "build": "rimraf dist && tsc && rollup -c buildScripts/rollup.config.js && rimraf out-tsc && rimraf public/dist && npx copy-folder dist public/dist && rimraf dist",
     "lint": "npx eslint",
-    "docgen": "npx typedoc src/*.*"    
+    "docgen": "npx typedoc src/*.*"
   },
   "author": "",
   "license": "ISC",

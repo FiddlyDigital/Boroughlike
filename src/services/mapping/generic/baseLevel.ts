@@ -111,40 +111,31 @@ export class BaseLevel implements ILevelGenerator {
     }
 
     private overrideWallSpritesOnEdges(): void {
-        // Repass over the map, changing map sprites depending on neighbours (if required)
+        // Repass over the map, choosing each wall's sprite based on its neighbours.
         for (let y = 0; y < this.map.height; y++) {
             for (let x = 0; x < this.map.width; x++) {
                 const tile = this.map.getTile(x, y);
                 if (tile instanceof WallTile) {
-                    const neighbours = tile.getAdjacentNeighbors();
-                    if (neighbours && neighbours.length > 0) {
-                        const newSpriteName = this.getSpriteVariationSuffixForTile(neighbours, WallTile);
-                        if (newSpriteName) {
-                            tile.sprite = TILE_SPRITE_INDICES["Wall_" + newSpriteName];
-                        }
-                    }
+                    tile.sprite = this.getWallSprite(tile);
                 }
             }
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private getSpriteVariationSuffixForTile(neighbours: Array<ITile | null>, tileClass: any): string {
+    // 16-way "blob" wall selection. The suffix records which sides have a wall
+    // neighbour (are connected); the wall sprite sheet has a tile for every
+    // combination, drawing an exposed edge on each side that is NOT connected so
+    // walls join into seamless masses while keeping outlined faces toward floors.
+    // The L,R,T,B ordering matches the TILE_SPRITE_INDICES key names (e.g. Wall_LRTB).
+    // Off-map / non-wall neighbours (floors, doors) read as "no wall", so run ends,
+    // corners and doorways get a capped edge.
+    private getWallSprite(tile: ITile): Array<number> {
         let suffix = "";
+        if (tile.getNeighbor(-1, 0) instanceof WallTile) suffix += "L";
+        if (tile.getNeighbor(1, 0) instanceof WallTile) suffix += "R";
+        if (tile.getNeighbor(0, -1) instanceof WallTile) suffix += "T";
+        if (tile.getNeighbor(0, 1) instanceof WallTile) suffix += "B";
 
-        if (neighbours[2] && (neighbours[2] instanceof tileClass)) {
-            suffix += "L";
-        }
-        if (neighbours[3] && (neighbours[3] instanceof tileClass)) {
-            suffix += "R";
-        }
-        if (neighbours[0] && (neighbours[0] instanceof tileClass)) {
-            suffix += "T";
-        }
-        if (neighbours[1] && (neighbours[1] instanceof tileClass)) {
-            suffix += "B";
-        }
-
-        return suffix;
+        return suffix ? TILE_SPRITE_INDICES["Wall_" + suffix] : TILE_SPRITE_INDICES.Wall;
     }
 }
