@@ -16,12 +16,12 @@ import { StairDownTile } from "../tiles/StairDownTile";
 
 export class Map implements IMap {
     monsters: Array<IActor>;
-    tiles: Array<Array<ITile>>;
-    height: number = 0;
-    width: number = 0;
+    tiles: Array<Array<ITile>>; // We probably shouldn't expost this
+    height: number = 0; //private
+    width: number = 0; //private
     branch: string = Branches.LIBRARY;
-    stairsUp: ITile | null = null;
-    stairsDown: ITile | null = null;
+    stairsUp: ITile | null = null; // private, also we may have more than one?
+    stairsDown: ITile | null = null; // private, also we may have more than one?
 
     public constructor(width: number, height: number) {
         this.width = width;

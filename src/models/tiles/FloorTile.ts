@@ -2,6 +2,7 @@ import { TILE_SPRITE_INDICES } from "../../constants/spriteIndices";
 import { IActor } from "../actors/base/IActor";
 import { IMap } from "../maps/IMap";
 import { BaseTile } from "./base/baseTile";
+import { DoorTile } from "./DoorTile";
 
 export class FloorTile extends BaseTile {
     constructor(map: IMap, x: number, y: number) {
@@ -15,7 +16,15 @@ export class FloorTile extends BaseTile {
     }
 
     public activate(monster: IActor): void {
-        // todo: log nothing happens
-        console.log(monster);
+        if (monster && monster.isPlayer) {
+            // Check for adjacent doors
+            const neighbors = this.getAdjacentNeighbors();
+            const adjacentDoors = neighbors.filter(t => t instanceof DoorTile) as DoorTile[];
+            
+            // If we found any doors, toggle them
+            for (const door of adjacentDoors) {
+                door.toggleState();
+            }
+        }
     }
 }

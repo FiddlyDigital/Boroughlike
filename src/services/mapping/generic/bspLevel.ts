@@ -1,3 +1,4 @@
+import { DoorTile } from "../../../models/tiles/DoorTile";
 import { FloorTile } from "../../../models/tiles/FloorTile";
 import { FountainTile } from "../../../models/tiles/FountainTile";
 import { SpikePitTile } from "../../../models/tiles/SpikePitTile";
@@ -92,31 +93,81 @@ export class BSPTreemapLevel extends BaseLevel {
         }
     }
 
-    // connect two rooms by hallways
+    // connect two rooms by an L-shaped hallway.
+    // Each leg of the "L" shares an interior endpoint with exactly one room:
+    // the first leg leaves room1, the second leg enters room2. We hand each leg
+    // the single room it actually touches so it can place one door at that room's
+    // threshold (rather than guessing a door for a room it never reaches).
     public createHall(room1: Room, room2: Room) {
-        //# 50% chance that a tunnel will start horizontally
+        // 50% chance that a tunnel will start horizontally
         const chance = (Math.random() >= 0.5);
         if (chance) {
-            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room1.centerY);
-            this.makeVerticalTunnel(room1.centerY, room2.centerY, room2.centerX);
+            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room1.centerY, room1);
+            this.makeVerticalTunnel(room1.centerY, room2.centerY, room2.centerX, room2);
         }
         else {
-            this.makeVerticalTunnel(room1.centerY, room2.centerY, room1.centerX);
-            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room2.centerY);
+            this.makeVerticalTunnel(room1.centerY, room2.centerY, room1.centerX, room1);
+            this.makeHorizontalTunnel(room1.centerX, room2.centerX, room2.centerY, room2);
         }
     }
 
-    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number): void {
+    private makeHorizontalTunnel(xStart: number, xEnd: number, yPosition: number, connectingRoom?: Room): void {
         const min = Math.min(xStart, xEnd);
-        const max = Math.max(xStart, xEnd)
+        const max = Math.max(xStart, xEnd);
+
+        // Carve the corridor.
         for (let x = min; x <= max; x++) {
             this.map.tiles[x][yPosition] = new FloorTile(this.map, x, yPosition);
         }
+
+        // Place a single door at the room threshold this leg passes through.
+        if (connectingRoom) {
+            const doorX = this.horizontalDoorPosition(xStart, xEnd, connectingRoom);
+            if (doorX !== null && doorX > min && doorX < max) {
+                this.map.tiles[doorX][yPosition] = new DoorTile(this.map, doorX, yPosition);
+            }
+        }
     }
 
-    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number): void {
-        for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
+    private makeVerticalTunnel(yStart: number, yEnd: number, xPosition: number, connectingRoom?: Room): void {
+        const min = Math.min(yStart, yEnd);
+        const max = Math.max(yStart, yEnd);
+
+        // Carve the corridor.
+        for (let y = min; y <= max; y++) {
             this.map.tiles[xPosition][y] = new FloorTile(this.map, xPosition, y);
         }
+
+        // Place a single door at the room threshold this leg passes through.
+        if (connectingRoom) {
+            const doorY = this.verticalDoorPosition(yStart, yEnd, connectingRoom);
+            if (doorY !== null && doorY > min && doorY < max) {
+                this.map.tiles[xPosition][doorY] = new DoorTile(this.map, xPosition, doorY);
+            }
+        }
+    }
+
+    // The corridor shares one endpoint with the room's interior; the other endpoint
+    // points toward the far room, so it tells us which side the doorway sits on.
+    // room.x / room.maxX are the wall columns just outside the room's floor, which is
+    // exactly where a door belongs.
+    private horizontalDoorPosition(xStart: number, xEnd: number, room: Room): number | null {
+        const startInside = xStart > room.x && xStart < room.maxX;
+        const endInside = xEnd > room.x && xEnd < room.maxX;
+        if (startInside === endInside) {
+            return null; // Room doesn't straddle this leg cleanly; skip the door.
+        }
+        const farX = startInside ? xEnd : xStart;
+        return (farX < room.centerX) ? room.x : room.maxX;
+    }
+
+    private verticalDoorPosition(yStart: number, yEnd: number, room: Room): number | null {
+        const startInside = yStart > room.y && yStart < room.maxY;
+        const endInside = yEnd > room.y && yEnd < room.maxY;
+        if (startInside === endInside) {
+            return null;
+        }
+        const farY = startInside ? yEnd : yStart;
+        return (farY < room.centerY) ? room.y : room.maxY;
     }
 }
