@@ -1,28 +1,26 @@
 import { BSPTreemapLevel } from './generic/bspLevel';
-import { Branches } from '../../constants/enums';
+import { CellularAutomationLevel } from './generic/cellularAutomatonLevel';
+import { DesertLevel } from './generic/desertLevel';
+import { caveEndLevel, desertEndLevel } from '../../constants/values';
 import { IMap } from '../../models/maps/IMap';
 import { ILevelGenerator } from '../interfaces/ILevelGenerator';
 
 export class LevelGenerator implements ILevelGenerator {
+    // Biome progression by level number:
+    //   1        -> vast desert with canyons (opening to the caves)
+    //   2..6     -> cellular-automaton caves (no doors)
+    //   7..end   -> BSP dungeon with rooms + doors
     public generateLevel(levelNum: number, branch: string): IMap {
-        switch (branch) {
-            case Branches.LIBRARY:
-                return this.generateLibraryLevel(levelNum);
-            default:
-                throw "branch not supported";
-        }
-    }
+        void branch;
 
-    private generateLibraryLevel(levelNum: number): IMap {
-        switch (levelNum) {
-            // case 1:
-            //     level = new LibraryEntranceLevel();   // Consider Usage
-            // case 7:
-            //     level = new LibraryReadingRoom();     // Safe Area - NPCs only?
-            // case 16:
-            //     level = new LibraryTopFloorLevel();   // Boss Encounter?
-            default:
-                return new BSPTreemapLevel(levelNum).map;
+        if (levelNum <= desertEndLevel) {
+            return new DesertLevel(levelNum).map;
         }
+
+        if (levelNum <= caveEndLevel) {
+            return new CellularAutomationLevel(levelNum).map;
+        }
+
+        return new BSPTreemapLevel(levelNum).map;
     }
 }

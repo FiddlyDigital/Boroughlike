@@ -65,10 +65,18 @@ export abstract class BaseActor implements IActor {
             return;
         }
 
+        const player = this.tile.map.getPlayer();
+        if (!player || !player.tile) {
+            return;
+        }
+        const playerTile = player.tile;
+
         const neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => t && (!t.monster || t.monster.isPlayer));
         if (neighbors.length) {
-            // get the closest tile to the player
-            neighbors.sort((a, b) => a.dist(this.tile as ITile) - b.dist(this.tile as ITile));
+            // Step toward whichever reachable neighbour is closest to the player.
+            // The player's own tile has distance 0, so an adjacent monster picks it
+            // and tryMove turns that step into an attack.
+            neighbors.sort((a, b) => a.dist(playerTile) - b.dist(playerTile));
             this.tryMove(neighbors[0].x - this.tile.x, neighbors[0].y - this.tile.y);
         }
     }
@@ -95,6 +103,11 @@ export abstract class BaseActor implements IActor {
         }
 
         const newTile = this.tile.getNeighbor(dx, dy);
+        if (newTile && !newTile.passable) {
+            // Walking into an impassable tile: usually inert, but hazards (cactus) bite back.
+            newTile.bumpInto(this);
+            return false;
+        }
         if (newTile && newTile.passable) {
             this.lastMove = [dx, dy];
 

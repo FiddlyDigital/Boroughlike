@@ -15,6 +15,14 @@ export class EaterActor extends BaseActor {
             return;
         }
 
+        // A meal is a meal: if the player is right next to us, bite them instead
+        // of chewing on the scenery.
+        const player = this.tile.map.getPlayer();
+        if (player && player.tile && this.tile.dist(player.tile) === 1) {
+            super.act();
+            return;
+        }
+
         const neighbors = this.tile.getAdjacentNeighbors().filter(t => t && !t.passable);
         if (neighbors.length) {
             const tileToEat: ITile = shuffle(neighbors)[0];

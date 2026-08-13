@@ -38,8 +38,8 @@ export class Map implements IMap {
         return this.stairsDown;
     }
 
-    public setStairDownTile(): ITile | null {
-        const newStaircaseTile = this.randomPassableTile();
+    public setStairDownTile(preferredTile: ITile | null = null): ITile | null {
+        const newStaircaseTile = (preferredTile && preferredTile.passable) ? preferredTile : this.randomPassableTile();
         if (newStaircaseTile) {
             this.stairsDown = new StairDownTile(this, newStaircaseTile.x, newStaircaseTile.y);
             this.replaceTile(
@@ -52,8 +52,8 @@ export class Map implements IMap {
         return this.getStairDownTile();
     }
 
-    public setStairUpTile(): ITile | null {
-        const newStaircaseTile = this.randomPassableTile();
+    public setStairUpTile(preferredTile: ITile | null = null): ITile | null {
+        const newStaircaseTile = (preferredTile && preferredTile.passable) ? preferredTile : this.randomPassableTile();
         if (newStaircaseTile) {
             this.stairsUp = new StairUpTile(this, newStaircaseTile.x, newStaircaseTile.y);
             this.replaceTile(

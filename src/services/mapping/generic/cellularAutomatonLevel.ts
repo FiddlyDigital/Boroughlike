@@ -1,5 +1,5 @@
-import { FloorTile } from "../../../models/tiles/FloorTile";
-import { WallTile } from "../../../models/tiles/WallTile";
+import { CaveFloorTile } from "../../../models/tiles/CaveFloorTile";
+import { CaveWallTile } from "../../../models/tiles/CaveWallTile";
 import { BaseLevel } from "./baseLevel";
 
 export class CellularAutomationLevel extends BaseLevel {
@@ -29,17 +29,69 @@ export class CellularAutomationLevel extends BaseLevel {
             maptiles = this.doSimulationStep(maptiles);
         }
 
-        // at this stage we want to convert our "wall-or-not" map into a feature map.
+        // Force the border solid, then keep only the largest connected cavern so the
+        // up/down stairs (placed on random passable tiles) are always reachable.
         for (let x = 0; x < this.map.width; x++) {
             for (let y = 0; y < this.map.height; y++) {
-                if (x == 0 || x == (this.map.width - 1) || y == 0 || y == (this.map.width - 1)) {
-                    // All edges need to be a special type of wall
-                    this.map.tiles[x][y] = new WallTile(this.map, x, y);
-                } else if (maptiles[x][y] === 1) {
-                    // every other 'alive' cell - becomes a normal wall.
-                    this.map.tiles[x][y] = new WallTile(this.map, x, y);
+                if (x === 0 || x === (this.map.width - 1) || y === 0 || y === (this.map.height - 1)) {
+                    maptiles[x][y] = 1;
+                }
+            }
+        }
+        this.keepLargestRegion(maptiles);
+
+        // Convert the "wall-or-not" grid into cave tiles.
+        for (let x = 0; x < this.map.width; x++) {
+            this.map.tiles[x] = [];
+            for (let y = 0; y < this.map.height; y++) {
+                if (maptiles[x][y] === 1) {
+                    this.map.tiles[x][y] = new CaveWallTile(this.map, x, y);
                 } else {
-                    this.map.tiles[x][y] = new FloorTile(this.map, x, y);
+                    this.map.tiles[x][y] = new CaveFloorTile(this.map, x, y);
+                }
+            }
+        }
+    }
+
+    // Flood-fill every open cell (0), find the largest connected region, and fill
+    // every other open cell with wall (1) so the playable cavern is a single space.
+    private keepLargestRegion(maptiles: Array<Array<number>>): void {
+        const w = this.map.width, h = this.map.height;
+        const region: Array<Array<number>> = [];
+        for (let x = 0; x < w; x++) { region[x] = new Array(h).fill(-1); }
+
+        let bestId = -1, bestSize = 0;
+        let nextId = 0;
+        for (let sx = 0; sx < w; sx++) {
+            for (let sy = 0; sy < h; sy++) {
+                if (maptiles[sx][sy] !== 0 || region[sx][sy] !== -1) {
+                    continue;
+                }
+                // BFS this region
+                const id = nextId++;
+                const stack = [[sx, sy]];
+                region[sx][sy] = id;
+                let size = 0;
+                while (stack.length) {
+                    const [cx, cy] = stack.pop() as [number, number];
+                    size++;
+                    const nbrs = [[cx - 1, cy], [cx + 1, cy], [cx, cy - 1], [cx, cy + 1]];
+                    for (const [nx, ny] of nbrs) {
+                        if (nx >= 0 && ny >= 0 && nx < w && ny < h && maptiles[nx][ny] === 0 && region[nx][ny] === -1) {
+                            region[nx][ny] = id;
+                            stack.push([nx, ny]);
+                        }
+                    }
+                }
+                if (size > bestSize) { bestSize = size; bestId = id; }
+            }
+        }
+
+        // Wall off every open cell that isn't part of the biggest cavern.
+        for (let x = 0; x < w; x++) {
+            for (let y = 0; y < h; y++) {
+                if (maptiles[x][y] === 0 && region[x][y] !== bestId) {
+                    maptiles[x][y] = 1;
                 }
             }
         }

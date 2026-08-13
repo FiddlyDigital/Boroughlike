@@ -110,4 +110,11 @@ export abstract class BaseTile implements ITile {
     public abstract stepOn(monster: IActor): void;
 
     public abstract activate(monster: IActor): void;
+
+    // Called when an actor tries to move into this tile but it is impassable.
+    // Default: nothing happens (solid wall). Hazards like cactus override this.
+    public bumpInto(monster: IActor): void {
+        // no-op by default
+        void monster;
+    }
 }

@@ -32,6 +32,8 @@ export class Renderer implements IRenderer {
     viewportX: number = 0;
     viewportY: number = 0;
     map: IMap | null = null;
+    minimapOverlayElem: HTMLElement | null = null;
+    minimapModalCanvas: HTMLCanvasElement | null = null;
 
     public constructor() {
         this.lastAlternateSpriteTimeMS = Date.now();
@@ -73,6 +75,10 @@ export class Renderer implements IRenderer {
             throw "Canvas can't load";
         }
         this.setupCanvas();
+
+        // Optional: full-screen minimap modal (toggled with the 'm' key).
+        this.minimapOverlayElem = document.getElementById("MinimapOverlay");
+        this.minimapModalCanvas = document.getElementById("minimapModalCanvas") as HTMLCanvasElement | null;
 
         Hub.getInstance().subscribe(HUBEVENTS.SETSHAKE, this.setShakeAmount.bind(this));
     }
@@ -173,77 +179,91 @@ export class Renderer implements IRenderer {
         // Semi-transparent background
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         this.ctx.fillRect(
-            minimapX - padding, 
-            minimapY - padding, 
-            minimapWidth + padding * 2, 
+            minimapX - padding,
+            minimapY - padding,
+            minimapWidth + padding * 2,
             minimapHeight + padding * 2
         );
-        
-        for (let x = 0; x < this.map.width; x++) {
-            for (let y = 0; y < this.map.height; y++) {
-                const tile = this.map.getTile(x, y);
-                if (!tile) {
+
+        this.drawMinimapContent(this.ctx, this.map, minimapX, minimapY, tileSize);
+    }
+
+    // Draws the minimap (tiles, monsters, player, viewport box) into an arbitrary
+    // context, so both the small HUD minimap and the large modal reuse one routine.
+    private drawMinimapContent(ctx: CanvasRenderingContext2D, map: IMap, originX: number, originY: number, tileSize: number): void {
+        for (let x = 0; x < map.width; x++) {
+            for (let y = 0; y < map.height; y++) {
+                const tile = map.getTile(x, y);
+                if (!tile || !tile.seen) {
                     continue;
                 }
 
-                if (tile.seen) {
-                    const alpha = tile.visible ? 0.9 : 0.5;
-                    
-                    // Determine tile color based on type
-                    if (tile.book) {
-                        this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
-                    }
-                    else {
-                        this.ctx.fillStyle = tile.getMiniMapColor(alpha);
-                    }
-
-                    this.ctx.fillRect(
-                        minimapX + x * tileSize,
-                        minimapY + y * tileSize,
-                        tileSize,
-                        tileSize
-                    );
+                const alpha = tile.visible ? 0.9 : 0.5;
+                if (tile.book) {
+                    ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                } else {
+                    ctx.fillStyle = tile.getMiniMapColor(alpha);
                 }
+
+                ctx.fillRect(originX + x * tileSize, originY + y * tileSize, tileSize, tileSize);
             }
         }
 
         // Draw monsters as red dots
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
-        const monsters = this.map.getMonsters();
-        for (const monster of monsters) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+        for (const monster of map.getMonsters()) {
             if (!monster.tile || !monster.tile.visible) {
                 continue;
             }
-
-            this.ctx.fillRect(
-                minimapX + monster.tile.x * tileSize,
-                minimapY + monster.tile.y * tileSize,
-                tileSize,
-                tileSize
-            );
+            ctx.fillRect(originX + monster.tile.x * tileSize, originY + monster.tile.y * tileSize, tileSize, tileSize);
         }
 
         // Draw player as a bright white dot
-        const player = this.map.getPlayer();
+        const player = map.getPlayer();
         if (player && player.tile) {
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-            this.ctx.fillRect(
-                minimapX + player.tile.x * tileSize,
-                minimapY + player.tile.y * tileSize,
-                tileSize,
-                tileSize
-            );
+            ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+            ctx.fillRect(originX + player.tile.x * tileSize, originY + player.tile.y * tileSize, tileSize, tileSize);
         }
 
         // Draw viewport rectangle with a more visible outline
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(
-            minimapX + this.viewportX * tileSize,
-            minimapY + this.viewportY * tileSize,
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = Math.max(1, Math.floor(tileSize / 4));
+        ctx.strokeRect(
+            originX + this.viewportX * tileSize,
+            originY + this.viewportY * tileSize,
             this.viewportWidth * tileSize,
             this.viewportHeight * tileSize
         );
+    }
+
+    // Render the current level's map big and show the modal overlay.
+    public showMinimap(map: IMap | null): void {
+        if (!map || !this.minimapOverlayElem || !this.minimapModalCanvas) {
+            return;
+        }
+
+        const mctx = this.minimapModalCanvas.getContext("2d");
+        if (!mctx) {
+            return;
+        }
+
+        const targetPx = 640;
+        const tileSize = Math.max(3, Math.floor(targetPx / Math.max(map.width, map.height)));
+        this.minimapModalCanvas.width = map.width * tileSize;
+        this.minimapModalCanvas.height = map.height * tileSize;
+        mctx.imageSmoothingEnabled = false;
+
+        mctx.fillStyle = "#000";
+        mctx.fillRect(0, 0, this.minimapModalCanvas.width, this.minimapModalCanvas.height);
+
+        this.drawMinimapContent(mctx, map, 0, 0, tileSize);
+        this.minimapOverlayElem.style.display = "block";
+    }
+
+    public hideMinimap(): void {
+        if (this.minimapOverlayElem) {
+            this.minimapOverlayElem.style.display = "none";
+        }
     }
 
     private updateVisibility(): void {

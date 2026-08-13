@@ -10,9 +10,9 @@ export interface IMap {
     getPlayer(): IActor | null;
     getTile(x: number, y: number): ITile | null;
     getStairUpTile(): ITile | null;
-    setStairUpTile(): ITile | null
+    setStairUpTile(preferredTile?: ITile | null): ITile | null
     getStairDownTile(): ITile | null;
-    setStairDownTile(): ITile | null
+    setStairDownTile(preferredTile?: ITile | null): ITile | null
     nextLevel(): void;
     prevLevel(): void;
     randomPassableTile(): ITile | null;

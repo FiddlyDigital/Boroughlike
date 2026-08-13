@@ -1,9 +1,7 @@
 import { numTilesInViewport } from "../../../constants/values";
-import { TILE_SPRITE_INDICES } from "../../../constants/spriteIndices";
 import { shuffle } from "../../../utilities";
 import { Map } from '../../../models/maps/map';
 import { IMap } from '../../../models/maps/IMap';
-import { ITile } from "../../../models/tiles/base/ITile";
 import { BirdActor } from "../../../models/actors/BirdActor";
 import { SnakeActor } from "../../../models/actors/SnakeActor";
 import { TankActor } from "../../../models/actors/TankActor";
@@ -102,11 +100,13 @@ export class BaseLevel implements ILevelGenerator {
         }
     }
 
-    private placeStairsDown() {
+    // protected so biome generators can constrain where stairs land (e.g. the
+    // desert puts its descent inside the canyon).
+    protected placeStairsDown() {
         this.map.setStairDownTile();
     }
 
-    private placeStairsUp() {
+    protected placeStairsUp() {
         this.map.setStairUpTile();
     }
 
@@ -122,20 +122,21 @@ export class BaseLevel implements ILevelGenerator {
         }
     }
 
-    // 16-way "blob" wall selection. The suffix records which sides have a wall
-    // neighbour (are connected); the wall sprite sheet has a tile for every
-    // combination, drawing an exposed edge on each side that is NOT connected so
+    // 16-way "blob" wall selection. The neighbour mask records which sides have a
+    // wall neighbour (are connected); the tile's own wallSprites set has an entry for
+    // every combination, drawing an exposed edge on each side that is NOT connected so
     // walls join into seamless masses while keeping outlined faces toward floors.
-    // The L,R,T,B ordering matches the TILE_SPRITE_INDICES key names (e.g. Wall_LRTB).
+    // The mask (L=1, R=2, T=4, B=8) indexes the biome-specific set carried by the wall
+    // tile, so dungeon / canyon / cave walls all autotile identically, just tinted.
     // Off-map / non-wall neighbours (floors, doors) read as "no wall", so run ends,
     // corners and doorways get a capped edge.
-    private getWallSprite(tile: ITile): Array<number> {
-        let suffix = "";
-        if (tile.getNeighbor(-1, 0) instanceof WallTile) suffix += "L";
-        if (tile.getNeighbor(1, 0) instanceof WallTile) suffix += "R";
-        if (tile.getNeighbor(0, -1) instanceof WallTile) suffix += "T";
-        if (tile.getNeighbor(0, 1) instanceof WallTile) suffix += "B";
+    private getWallSprite(tile: WallTile): Array<number> {
+        let mask = 0;
+        if (tile.getNeighbor(-1, 0) instanceof WallTile) mask |= 1;
+        if (tile.getNeighbor(1, 0) instanceof WallTile) mask |= 2;
+        if (tile.getNeighbor(0, -1) instanceof WallTile) mask |= 4;
+        if (tile.getNeighbor(0, 1) instanceof WallTile) mask |= 8;
 
-        return suffix ? TILE_SPRITE_INDICES["Wall_" + suffix] : TILE_SPRITE_INDICES.Wall;
+        return tile.wallSprites[mask];
     }
 }

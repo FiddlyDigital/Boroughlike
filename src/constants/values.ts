@@ -2,6 +2,9 @@ export const alternateSpriteTimeMS = 600;       // How many milliseconds between
 export const imgAssetPath = "assets/images/";
 export const maxHp = 6;
 export const numLevels = 10;
+// Biome boundaries by level: 1 = desert, 2..6 = caves, 7+ = dungeon (BSP).
+export const desertEndLevel = 1;
+export const caveEndLevel = 6;
 export const numTilesInViewport = 16;
 export const refreshRate = 1000 / 60;           // 60 frames per second
 export const sfxAssetPath = "assets/sounds/"

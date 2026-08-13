@@ -6,6 +6,11 @@ import { StairDownTile } from "./StairDownTile";
 import { StairUpTile } from "./StairUpTile";
 import { WallTile } from "./WallTile";
 import { DoorTile } from "./DoorTile";
+import { CanyonWallTile } from "./CanyonWallTile";
+import { CaveWallTile } from "./CaveWallTile";
+import { CaveFloorTile } from "./CaveFloorTile";
+import { CactusTile } from "./CactusTile";
+import { OasisTile } from "./OasisTile";
 
 export {
     FloorTile,
@@ -16,4 +21,9 @@ export {
     StairUpTile,
     WallTile,
     DoorTile,
+    CanyonWallTile,
+    CaveWallTile,
+    CaveFloorTile,
+    CactusTile,
+    OasisTile,
 }

@@ -10,6 +10,8 @@ export interface IRenderer {
     showTitle(scores: Array<Score>): void;
     showGameWin(scores: Array<Score>): void;
     showGameLose(scores: Array<Score>): void;
+    showMinimap(map: IMap | null): void;
+    hideMinimap(): void;
     updateScreen(mapperLevel: IMap): void
     updateSidebar(level: number, score: number, spells: Dictionary<ISpell> | null): void
 }

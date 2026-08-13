@@ -26,6 +26,7 @@ export class GameEngine {
     spawnCounter: number;
     spawnRate: number;
     sidebarNeedsUpdate: boolean;
+    minimapOpen: boolean = false;
 
     constructor(
         @inject("IAudioPlayer") private audioPlayer: IAudioPlayer,
@@ -102,6 +103,19 @@ export class GameEngine {
             return; // Do nothing if the event was already processed
         }
 
+        // Toggle the full-screen map. Opening/closing it never consumes a turn.
+        if (e.key === "m" || e.key === "M") {
+            this.toggleMinimap();
+            return;
+        }
+
+        // While the map is open, any other key simply dismisses it (no turn taken),
+        // so you never move blindly with the map up.
+        if (this.minimapOpen) {
+            this.closeMinimap();
+            return;
+        }
+
         switch (e.key) {
             case "Up": case "ArrowUp":
             case "w": case "W":
@@ -135,6 +149,20 @@ export class GameEngine {
         }
 
         this.tick();
+    }
+
+    private toggleMinimap(): void {
+        if (this.minimapOpen) {
+            this.closeMinimap();
+        } else {
+            this.renderer.showMinimap(this.mapper.getCurrentLevel());
+            this.minimapOpen = true;
+        }
+    }
+
+    private closeMinimap(): void {
+        this.renderer.hideMinimap();
+        this.minimapOpen = false;
     }
 
     /**
@@ -209,6 +237,7 @@ export class GameEngine {
     private startGame() {
         // Reset UI first
         this.renderer.hideOverlays();
+        this.minimapOpen = false;
 
         // Reset all game state
         this.level = 1;
