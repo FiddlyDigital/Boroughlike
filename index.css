@@ -87,6 +87,16 @@ canvas {
     transform: translate(-50%, -50%);
 }
 
+.minimapModal {
+    display: block;
+    margin: 15px auto;
+    border: 5px solid grey;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    max-width: 80vw;
+    max-height: 70vh;
+}
+
 .overlay .contents .scores {
     min-height: 400px;
     min-height: 400px;
